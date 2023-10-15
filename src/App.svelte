@@ -5,23 +5,27 @@
 </script>
 
 <main>
-    <div>
-        <a href="https://vitejs.dev" target="_blank" rel="noreferrer">
-            <img src={appLogo} class="logo" alt="Vite Logo" />
-        </a>
-        <a href="https://svelte.dev" target="_blank" rel="noreferrer">
-            <img src={svelteLogo} class="logo svelte" alt="Svelte Logo" />
-        </a>
+    <nav>
+        <h1>Iron tomato</h1>
+        <div>
+            <a href="https://vitejs.dev" target="_blank" rel="noreferrer">
+                <img src={appLogo} class="logo" alt="Tomacco Logo" />
+            </a>
+            <a href="https://svelte.dev" target="_blank" rel="noreferrer">
+                <img src={svelteLogo} class="logo svelte" alt="Svelte Logo" />
+            </a>
+        </div>
+    </nav>
+    <div class="container">
+        <article>
+            <Counter />
+        </article>
+        <p>Check out <a href="https://github.com/sveltejs/kit#readme" target="_blank" rel="noreferrer">SvelteKit</a>, the official Svelte app framework powered by Vite!</p>
+        <p class="read-the-docs">Click on the Vite and Svelte logos to learn more</p>
     </div>
-    <h1>Iron tomato</h1>
-    <div class="card">
-        <Counter />
-    </div>
-    <p>Check out <a href="https://github.com/sveltejs/kit#readme" target="_blank" rel="noreferrer">SvelteKit</a>, the official Svelte app framework powered by Vite!</p>
-    <p class="read-the-docs">Click on the Vite and Svelte logos to learn more</p>
 </main>
 
-<style>
+<style lang="scss">
     .logo {
         height: 6em;
         padding: 1.5em;
@@ -30,11 +34,5 @@
     }
     .logo:hover {
         filter: drop-shadow(0 0 2em #646cffaa);
-    }
-    .logo.svelte:hover {
-        filter: drop-shadow(0 0 2em #ff3e00aa);
-    }
-    .read-the-docs {
-        color: #888;
     }
 </style>
