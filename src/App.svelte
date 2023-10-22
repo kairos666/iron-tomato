@@ -1,7 +1,15 @@
 <script lang="ts">
     import svelteLogo from './assets/svelte.svg';
     import appLogo from '/tomacco-logo.png';
-    import Counter from './lib/Counter.svelte';
+    import Task from './lib/Task.svelte';
+    import { tasksStore } from './stores/tasks';
+    import type { Task as TaskType } from './stores/tasks';
+    import { onDestroy } from 'svelte';
+
+    let tasksArray:TaskType[] = [];
+    const unsubscribeTasksStore = tasksStore.subscribe(tasks => tasksArray = tasks);
+
+    onDestroy(unsubscribeTasksStore);
 </script>
 
 <main>
@@ -17,9 +25,14 @@
         </div>
     </nav>
     <div class="container">
-        <article>
-            <Counter />
-        </article>
+        <header>
+            <button>Créer une tâche</button>
+        </header>
+        {#each tasksArray as task}
+            <Task data={ task } />
+        {:else}
+            <p aria-busy="true">Il n'y a pas de tâches</p>
+        {/each}
         <p>Check out <a href="https://github.com/sveltejs/kit#readme" target="_blank" rel="noreferrer">SvelteKit</a>, the official Svelte app framework powered by Vite!</p>
         <p class="read-the-docs">Click on the Vite and Svelte logos to learn more</p>
     </div>
