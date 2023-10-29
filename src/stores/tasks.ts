@@ -7,12 +7,13 @@ export type Task = {
     isActive: boolean
     isUrgent: boolean
     isImportant: boolean
+    isDone: boolean
     dateCreated : number
     dateDone?: number
 }
 
 // MOCK TASK BUILDER
-const mockTask:() => Task = () => {
+export const mockTask:() => Task = () => {
     const timestamp = new Date().getTime();
     const id = String(Math.round(timestamp / (Math.random() * 10000000)));
 
@@ -22,6 +23,7 @@ const mockTask:() => Task = () => {
         isActive : false,
         isUrgent : false,
         isImportant : false,
+        isDone : false,
         dateCreated : timestamp
     }
 

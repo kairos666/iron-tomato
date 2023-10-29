@@ -2,7 +2,7 @@
     import svelteLogo from './assets/svelte.svg';
     import appLogo from '/tomacco-logo.png';
     import Task from './lib/Task.svelte';
-    import { tasksStore } from './stores/tasks';
+    import { mockTask, tasksStore } from './stores/tasks';
     import type { Task as TaskType } from './stores/tasks';
     import { onDestroy } from 'svelte';
 
@@ -10,6 +10,13 @@
     const unsubscribeTasksStore = tasksStore.subscribe(tasks => tasksArray = tasks);
 
     onDestroy(unsubscribeTasksStore);
+
+    function handleCreateTask() {
+        tasksStore.createTask(mockTask());
+    }
+    function handleResetAllTasks() {
+        tasksStore.reset();
+    }
 </script>
 
 <main>
@@ -25,8 +32,9 @@
         </div>
     </nav>
     <div class="container">
-        <header>
-            <button>Créer une tâche</button>
+        <header class="lst-ActionMenu">
+            <button on:click={ handleCreateTask }>Créer une tâche</button>
+            <button class="secondary outline" on:click={ handleResetAllTasks }>Reset</button>
         </header>
         {#each tasksArray as task}
             <Task data={ task } />
@@ -47,5 +55,10 @@
     }
     .logo:hover {
         filter: drop-shadow(0 0 2em #646cffaa);
+    }
+
+    .lst-ActionMenu {
+        display:flex;
+        gap: var(--spacing);
     }
 </style>
