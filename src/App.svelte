@@ -5,17 +5,25 @@
     import { mockTask, tasksStore } from './stores/tasks';
     import type { Task as TaskType } from './stores/tasks';
     import { onDestroy } from 'svelte';
+    import Sortable from 'sortablejs';
 
     let tasksArray:TaskType[] = [];
     const unsubscribeTasksStore = tasksStore.subscribe(tasks => tasksArray = tasks);
-
     onDestroy(unsubscribeTasksStore);
 
+    // handle todos list actions 
     function handleCreateTask() {
         tasksStore.createTask(mockTask());
     }
     function handleResetAllTasks() {
         tasksStore.reset();
+    }
+
+    // DRAG N DROP handling
+    function initDragAndSort(todosList:HTMLElement) {
+        const sortable = new Sortable(todosList, {
+            group: "todos-list"
+        });
     }
 </script>
 
@@ -36,11 +44,13 @@
             <button on:click={ handleCreateTask }>Créer une tâche</button>
             <button class="secondary outline" on:click={ handleResetAllTasks }>Reset</button>
         </header>
-        {#each tasksArray as task (task.id)}
-            <Task data={ task } />
-        {:else}
-            <p aria-busy="true">Il n'y a pas de tâches</p>
-        {/each}
+        <div use:initDragAndSort role="list">
+            {#each tasksArray as task (task.id)}
+                <Task data={ task } />
+            {:else}
+                <p aria-busy="true">Il n'y a pas de tâches</p>
+            {/each}
+        </div>
         <p>Check out <a href="https://github.com/sveltejs/kit#readme" target="_blank" rel="noreferrer">SvelteKit</a>, the official Svelte app framework powered by Vite!</p>
         <p class="read-the-docs">Click on the Vite and Svelte logos to learn more</p>
     </div>

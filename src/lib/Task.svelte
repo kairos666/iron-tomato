@@ -16,7 +16,7 @@
     function handleModify() { tasksStore.editTask({ ...data, description: (data.description === undefined) ? "EDITED" : `${ data.description } EDITED` }) }
 </script>
 
-<article class="tsk-Card">
+<article class="tsk-Card" role="listitem">
     <h2>{ data.label }</h2>
     {#if data.description}
         <p>{ data.description }</p>
