@@ -58,6 +58,15 @@ const initTasksStore = () => {
         reopenTask: (taskID2Reopen:string) => {
             update(store => store.map(task => (task.id === taskID2Reopen) ? { ...task, isDone : false } : task));
         },
+        changeTaskOrder: (taskCurrentIndex:number, taskTargetIndex:number) => {
+            update(store => {
+                const resultTaskArray:Task[] = [...store];
+                const taskToBeMoved:Task = resultTaskArray.splice(taskCurrentIndex, 1)[0];
+                resultTaskArray.splice(taskTargetIndex, 0, taskToBeMoved);
+
+                return resultTaskArray;
+            });
+        },
         reset: () => set([])
     }
 }

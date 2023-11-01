@@ -5,3 +5,8 @@ $primary-700: #c2185b;
 
 // Import Pico
 @import "@picocss/pico/scss/pico";
+
+// drag and drop general styles
+.sortable-chosen {
+    border: 2px solid var(--primary-hover);
+}
