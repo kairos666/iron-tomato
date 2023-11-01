@@ -17,6 +17,7 @@
 </script>
 
 <article class="tsk-Card" role="listitem" data-id={ data.id }>
+    <span draggable="true" aria-labelledby="poignée de la tâche" class="sortable-handle"></span>
     <h2>{ data.label }</h2>
     {#if data.description}
         <p>{ data.description }</p>
@@ -32,19 +33,35 @@
 <style lang="scss">
     .tsk-Card {
         display: grid;
-        grid-template-columns: 3fr 1fr;
+        grid-template-columns: 1fr 14fr 5fr;
         grid-template-rows: auto;
         grid-template-areas:
-            "title actions";
+            "handle title actions";
         gap: var(--spacing);
+        padding: var(--spacing);
     }
     .tsk-Card:has(p) {
         grid-template-rows: auto auto;
         grid-template-areas:
-            "title actions"
-            "description actions";
+            "handle title actions"
+            "handle description actions";
     }
 
+    .sortable-handle { 
+        grid-area: handle; 
+        align-self: center;
+        display:block;
+        width: 40px;
+        background-image: repeating-linear-gradient(
+            0deg,
+            var(--contrast-focus),
+            var(--contrast-focus) 4px,
+            transparent 4px,
+            transparent 18px
+        );
+        aspect-ratio: 1;
+        background-position: center;
+    }
     h2 { grid-area: title; margin-block-end:0; }
     p { grid-area: description; margin-block-end:0; }
 

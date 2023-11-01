@@ -4,7 +4,7 @@
     import Task from './lib/Task.svelte';
     import { mockTask, tasksStore } from './stores/tasks';
     import type { Task as TaskType } from './stores/tasks';
-    import { onDestroy } from 'svelte';
+    import { onDestroy, afterUpdate } from 'svelte';
     import Sortable from 'sortablejs';
 
     let tasksArray:TaskType[] = [];
@@ -21,13 +21,25 @@
 
     // DRAG N DROP handling
     function initDragAndSort(todosList:HTMLElement) {
+        // run once on mount
         const sortable = new Sortable(todosList, {
             group: "todos-list",
+            chosenClass: "sortable-chosen",
+            handle: ".sortable-handle",
+            swap: true,
+            animation: 200,
             onEnd(event) {
                 if(event.newIndex === undefined || event.oldIndex === undefined) return;
                 tasksStore.changeTaskOrder(event.oldIndex, event.newIndex)
             }
         });
+
+        // lifecycle hooks
+        afterUpdate(() => {
+            // activate/deactivate depending on list size
+            sortable.option('disabled', (tasksArray.length <= 1));
+        });
+        onDestroy(() => sortable.destroy());
     }
 </script>
 
@@ -55,8 +67,6 @@
                 <p aria-busy="true">Il n'y a pas de tâches</p>
             {/each}
         </div>
-        <p>Check out <a href="https://github.com/sveltejs/kit#readme" target="_blank" rel="noreferrer">SvelteKit</a>, the official Svelte app framework powered by Vite!</p>
-        <p class="read-the-docs">Click on the Vite and Svelte logos to learn more</p>
     </div>
 </main>
 
