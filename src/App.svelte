@@ -22,7 +22,11 @@
     // DRAG N DROP handling
     function initDragAndSort(todosList:HTMLElement) {
         const sortable = new Sortable(todosList, {
-            group: "todos-list"
+            group: "todos-list",
+            onEnd(event) {
+                if(event.newIndex === undefined || event.oldIndex === undefined) return;
+                tasksStore.changeTaskOrder(event.oldIndex, event.newIndex)
+            }
         });
     }
 </script>
