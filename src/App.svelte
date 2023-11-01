@@ -36,7 +36,7 @@
             <button on:click={ handleCreateTask }>Créer une tâche</button>
             <button class="secondary outline" on:click={ handleResetAllTasks }>Reset</button>
         </header>
-        {#each tasksArray as task}
+        {#each tasksArray as task (task.id)}
             <Task data={ task } />
         {:else}
             <p aria-busy="true">Il n'y a pas de tâches</p>
