@@ -61,6 +61,7 @@
         );
         aspect-ratio: 1;
         background-position: center;
+        cursor:grab;
     }
     h2 { grid-area: title; margin-block-end:0; }
     p { grid-area: description; margin-block-end:0; }

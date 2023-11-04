@@ -1,21 +1,20 @@
 <script lang="ts">
-    import svelteLogo from './assets/svelte.svg';
-    import appLogo from '/tomacco-logo.png';
     import Task from './lib/Task.svelte';
     import { mockTask, tasksStore } from './stores/tasks';
     import type { Task as TaskType } from './stores/tasks';
     import { onDestroy, afterUpdate } from 'svelte';
     import Sortable from 'sortablejs';
     import { Dialog, DialogOverlay, DialogTitle, DialogDescription } from "@rgossiaux/svelte-headlessui";
+    import AppHeader from './lib/AppHeader.svelte';
 
     let tasksArray:TaskType[] = [];
-    let activeModal:undefined|'reset' = undefined;
+    let activeModal:undefined|'reset'|'task' = undefined;
     const unsubscribeTasksStore = tasksStore.subscribe(tasks => tasksArray = tasks);
     onDestroy(unsubscribeTasksStore);
 
     // handle todos list actions 
     function handleCreateTask() {
-        tasksStore.createTask(mockTask());
+        activeModal = 'task';
     }
     function handleResetAllTasks() {
         activeModal = 'reset';
@@ -46,17 +45,7 @@
 </script>
 
 <main>
-    <nav>
-        <h1>Iron tomato</h1>
-        <div>
-            <a href="https://vitejs.dev" target="_blank" rel="noreferrer">
-                <img src={appLogo} class="logo" alt="Tomacco Logo" />
-            </a>
-            <a href="https://svelte.dev" target="_blank" rel="noreferrer">
-                <img src={svelteLogo} class="logo svelte" alt="Svelte Logo" />
-            </a>
-        </div>
-    </nav>
+    <AppHeader />
     <div class="container">
         <header class="lst-ActionMenu">
             <button on:click={ handleCreateTask }>Créer une tâche</button>
@@ -80,20 +69,21 @@
                 <button on:click={() => { activeModal = undefined; tasksStore.reset() }}>Reset</button>
             </menu>
         </article>
+    </Dialog>
+    <Dialog open={ (activeModal === "task") } on:close={() => { activeModal = undefined }}>
+        <DialogOverlay class="dlg-Overlay" />
+        <article class="dlg-Container">
+            <DialogTitle>Créer une tâche</DialogTitle>
+            <DialogDescription>Définir et ajouter une nouvelle tâche à la liste.</DialogDescription>
+            <menu class="dlg-Container_ActionsMenu">
+                <button class="secondary outline" on:click={() => { activeModal = undefined }}>Annuler</button>
+                <button on:click={() => { activeModal = undefined; tasksStore.createTask(mockTask()); }}>Créer</button>
+            </menu>
+        </article>
     </Dialog> 
 </main>
 
 <style lang="scss">
-    .logo {
-        height: 6em;
-        padding: 1.5em;
-        will-change: filter;
-        transition: filter 300ms;
-    }
-    .logo:hover {
-        filter: drop-shadow(0 0 2em #646cffaa);
-    }
-
     .lst-ActionMenu {
         display:flex;
         gap: var(--spacing);
