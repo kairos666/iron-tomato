@@ -10,3 +10,41 @@ $primary-700: #c2185b;
 .sortable-chosen {
     border: 2px solid var(--primary-hover);
 }
+
+// DIALOG - overlay
+.dlg-Overlay {
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100vw; 
+    height: 100vh; 
+    background-color: var(--contrast-hover);
+    backdrop-filter: var(--modal-overlay-backdrop-filter); 
+    opacity: var(--form-element-disabled-opacity);
+}
+// DIALOG - container
+.dlg-Container {
+    position: fixed; 
+    
+    @media (max-width: 575px) {
+        top: var(--spacing); 
+        left: var(--spacing); 
+        width: calc(100vw - 2*var(--spacing)); 
+        height: calc(100vh - 2*var(--spacing));
+        margin:0;
+    }
+
+    @media (min-width: 576px) {
+        top: 50%; 
+        left: 50%; 
+        transform: translate(-50%, -50%);
+        width: 50vw;  
+    }
+
+    .dlg-Container_ActionsMenu {
+        margin-block: 0;
+        padding-inline-start: 0;
+        display: flex;
+        gap: var(--spacing);
+    }
+}

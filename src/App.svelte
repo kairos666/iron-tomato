@@ -6,8 +6,10 @@
     import type { Task as TaskType } from './stores/tasks';
     import { onDestroy, afterUpdate } from 'svelte';
     import Sortable from 'sortablejs';
+    import { Dialog, DialogOverlay, DialogTitle, DialogDescription } from "@rgossiaux/svelte-headlessui";
 
     let tasksArray:TaskType[] = [];
+    let activeModal:undefined|'reset' = undefined;
     const unsubscribeTasksStore = tasksStore.subscribe(tasks => tasksArray = tasks);
     onDestroy(unsubscribeTasksStore);
 
@@ -16,7 +18,7 @@
         tasksStore.createTask(mockTask());
     }
     function handleResetAllTasks() {
-        tasksStore.reset();
+        activeModal = 'reset';
     }
 
     // DRAG N DROP handling
@@ -68,6 +70,17 @@
             {/each}
         </div>
     </div>
+    <Dialog open={ (activeModal === "reset") } on:close={() => { activeModal = undefined }}>
+        <DialogOverlay class="dlg-Overlay" />
+        <article class="dlg-Container">
+            <DialogTitle>Remise à zéro des tâches</DialogTitle>
+            <DialogDescription>Si vous confirmez l'action, toutes les tâches seront définitivement effacées de la liste.</DialogDescription>
+            <menu class="dlg-Container_ActionsMenu">
+                <button class="secondary outline" on:click={() => { activeModal = undefined }}>Annuler</button>
+                <button on:click={() => { activeModal = undefined; tasksStore.reset() }}>Reset</button>
+            </menu>
+        </article>
+    </Dialog> 
 </main>
 
 <style lang="scss">
