@@ -12,31 +12,9 @@ export type Task = {
     dateDone?: number
 }
 
-// MOCK TASK BUILDER
-export const mockTask:() => Task = () => {
-    const timestamp = new Date().getTime();
-    const id = String(Math.round(timestamp / (Math.random() * 10000000)));
-
-    const result:Task = {
-        id,
-        label: `Tâche factice ${ id }`,
-        isActive : false,
-        isUrgent : false,
-        isImportant : false,
-        isDone : false,
-        dateCreated : timestamp
-    }
-
-    if((Math.random() - 0.5) > 0)  {
-        result.description = `description d'une tâche factice`;
-    }
-
-    return result;
-}
-
 const initTasksStore = () => {
     // initial data
-    const initialTasks:Task[] = [ mockTask(), mockTask(), mockTask() ];
+    const initialTasks:Task[] = [];
 
     const { subscribe, set, update } = writable(initialTasks);
 
