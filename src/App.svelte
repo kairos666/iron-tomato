@@ -1,11 +1,12 @@
 <script lang="ts">
     import Task from './lib/Task.svelte';
-    import { mockTask, tasksStore } from './stores/tasks';
+    import { tasksStore } from './stores/tasks';
     import type { Task as TaskType } from './stores/tasks';
     import { onDestroy, afterUpdate } from 'svelte';
     import Sortable from 'sortablejs';
-    import { Dialog, DialogOverlay, DialogTitle, DialogDescription } from "@rgossiaux/svelte-headlessui";
     import AppHeader from './lib/AppHeader.svelte';
+    import DialogTaskForm from './lib/DialogTaskForm.svelte';
+    import DialogReset from './lib/DialogReset.svelte';
 
     let tasksArray:TaskType[] = [];
     let activeModal:undefined|'reset'|'task' = undefined;
@@ -13,12 +14,8 @@
     onDestroy(unsubscribeTasksStore);
 
     // handle todos list actions 
-    function handleCreateTask() {
-        activeModal = 'task';
-    }
-    function handleResetAllTasks() {
-        activeModal = 'reset';
-    }
+    function handleCreateTask() { activeModal = 'task'; }
+    function handleResetAllTasks() { activeModal = 'reset'; }
 
     // DRAG N DROP handling
     function initDragAndSort(todosList:HTMLElement) {
@@ -59,28 +56,8 @@
             {/each}
         </div>
     </div>
-    <Dialog open={ (activeModal === "reset") } on:close={() => { activeModal = undefined }}>
-        <DialogOverlay class="dlg-Overlay" />
-        <article class="dlg-Container">
-            <DialogTitle>Remise à zéro des tâches</DialogTitle>
-            <DialogDescription>Si vous confirmez l'action, toutes les tâches seront définitivement effacées de la liste.</DialogDescription>
-            <menu class="dlg-Container_ActionsMenu">
-                <button class="secondary outline" on:click={() => { activeModal = undefined }}>Annuler</button>
-                <button on:click={() => { activeModal = undefined; tasksStore.reset() }}>Reset</button>
-            </menu>
-        </article>
-    </Dialog>
-    <Dialog open={ (activeModal === "task") } on:close={() => { activeModal = undefined }}>
-        <DialogOverlay class="dlg-Overlay" />
-        <article class="dlg-Container">
-            <DialogTitle>Créer une tâche</DialogTitle>
-            <DialogDescription>Définir et ajouter une nouvelle tâche à la liste.</DialogDescription>
-            <menu class="dlg-Container_ActionsMenu">
-                <button class="secondary outline" on:click={() => { activeModal = undefined }}>Annuler</button>
-                <button on:click={() => { activeModal = undefined; tasksStore.createTask(mockTask()); }}>Créer</button>
-            </menu>
-        </article>
-    </Dialog> 
+    <DialogReset open={ (activeModal === "reset") } on:close={() => { activeModal = undefined }} />
+    <DialogTaskForm open={ (activeModal === "task") } on:close={() => { activeModal = undefined }} />
 </main>
 
 <style lang="scss">
