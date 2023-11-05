@@ -1,8 +1,10 @@
 <script lang="ts">
+    import { createEventDispatcher } from "svelte";
     import type { Task } from "../stores/tasks";
     import { tasksStore } from '../stores/tasks';
 
     export let data:Task;
+    const dispatch = createEventDispatcher();
 
     // deduce available actions based on data
     $: isAchieveEnabled = !data.isDone;
@@ -13,7 +15,7 @@
     function handleAchieve() { tasksStore.achieveTask(data.id) }
     function handleReopen() { tasksStore.reopenTask(data.id) }
     function handleDelete() { tasksStore.deleteTask(data.id) }
-    function handleModify() { tasksStore.editTask({ ...data, description: (data.description === undefined) ? "EDITED" : `${ data.description } EDITED` }) }
+    function handleModify() { dispatch('edit', data) }
 </script>
 
 <article class="tsk-Card" role="listitem" data-id={ data.id }>

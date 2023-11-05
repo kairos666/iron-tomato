@@ -2,20 +2,21 @@
     import Task from './lib/Task.svelte';
     import { tasksStore } from './stores/tasks';
     import type { Task as TaskType } from './stores/tasks';
-    import { onDestroy, afterUpdate } from 'svelte';
+    import { onDestroy, afterUpdate, type ComponentEvents } from 'svelte';
     import Sortable from 'sortablejs';
     import AppHeader from './lib/AppHeader.svelte';
     import DialogTaskForm from './lib/DialogTaskForm.svelte';
     import DialogReset from './lib/DialogReset.svelte';
 
     let tasksArray:TaskType[] = [];
-    let activeModal:undefined|'reset'|'task' = undefined;
+    let activeModal:undefined|'reset'|'task'|TaskType = undefined; // no modal, reset, new task, edit task
     const unsubscribeTasksStore = tasksStore.subscribe(tasks => tasksArray = tasks);
     onDestroy(unsubscribeTasksStore);
 
     // handle todos list actions 
     function handleCreateTask() { activeModal = 'task'; }
     function handleResetAllTasks() { activeModal = 'reset'; }
+    function handleEditTask(evt:ComponentEvents<Task>['edit']) { activeModal = evt.detail; }
 
     // DRAG N DROP handling
     function initDragAndSort(todosList:HTMLElement) {
@@ -50,14 +51,18 @@
         </header>
         <div use:initDragAndSort role="list">
             {#each tasksArray as task (task.id)}
-                <Task data={ task } />
+                <Task data={ task } on:edit={ handleEditTask } />
             {:else}
                 <p aria-busy="true">Il n'y a pas de tâches</p>
             {/each}
         </div>
     </div>
     <DialogReset open={ (activeModal === "reset") } on:close={() => { activeModal = undefined }} />
-    <DialogTaskForm open={ (activeModal === "task") } on:close={() => { activeModal = undefined }} />
+    <DialogTaskForm 
+        open={ (activeModal === "task" || typeof activeModal === "object") } 
+        initialTask={ (activeModal !== "reset" && activeModal !== "task") ? activeModal : undefined } 
+        on:close={() => { activeModal = undefined }} 
+    />
 </main>
 
 <style lang="scss">
