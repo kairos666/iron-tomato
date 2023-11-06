@@ -10,3 +10,70 @@ $primary-700: #c2185b;
 .sortable-chosen {
     border: 2px solid var(--primary-hover);
 }
+
+// DIALOG - overlay
+.dlg-Overlay {
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100vw; 
+    height: 100vh; 
+    background-color: var(--contrast-hover);
+    backdrop-filter: var(--modal-overlay-backdrop-filter); 
+    opacity: var(--form-element-disabled-opacity);
+}
+// DIALOG - container
+.dlg-Container {
+    position: fixed; 
+    
+    @media (max-width: 575px) {
+        top: 50%; 
+        left: var(--spacing); 
+        width: calc(100vw - 2*var(--spacing));
+        transform: translate(0, -50%);
+        height: auto; 
+        max-height: calc(100vh - 2*var(--spacing));
+        margin:0;
+    }
+
+    @media (min-width: 576px) {
+        top: 50%; 
+        left: 50%; 
+        transform: translate(-50%, -50%);
+        width: 50vw;  
+    }
+
+    .dlg-Container_ActionsMenu {
+        margin-block: 0;
+        padding-inline-start: 0;
+        display: flex;
+        gap: var(--spacing);
+    }
+}
+
+// UTILITIES
+// src https://gist.github.com/ffoodd/000b59f431e3e64e4ce1a24d5bb36034
+.sr-only {
+	border: 0 !important;
+	clip: rect(1px, 1px, 1px, 1px) !important;
+	-webkit-clip-path: inset(50%) !important;
+		clip-path: inset(50%) !important;
+	height: 1px !important;
+	margin: -1px !important;
+	overflow: hidden !important;
+	padding: 0 !important;
+	position: absolute !important;
+	width: 1px !important;
+	white-space: nowrap !important;
+}
+.sr-only-focusable:focus,
+.sr-only-focusable:active {
+	clip: auto !important;
+	-webkit-clip-path: none !important;
+		clip-path: none !important;
+	height: auto !important;
+	margin: auto !important;
+	overflow: visible !important;
+	width: auto !important;
+	white-space: normal !important;
+}

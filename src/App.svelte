@@ -1,86 +1,49 @@
 <script lang="ts">
-    import svelteLogo from './assets/svelte.svg';
-    import appLogo from '/tomacco-logo.png';
     import Task from './lib/Task.svelte';
-    import { mockTask, tasksStore } from './stores/tasks';
+    import { tasksStore } from './stores/tasks';
     import type { Task as TaskType } from './stores/tasks';
-    import { onDestroy, afterUpdate } from 'svelte';
-    import Sortable from 'sortablejs';
+    import { onDestroy, type ComponentEvents } from 'svelte';
+    import AppHeader from './lib/AppHeader.svelte';
+    import DialogTaskForm from './lib/DialogTaskForm.svelte';
+    import DialogReset from './lib/DialogReset.svelte';
+    import TasksList from './lib/TasksList.svelte';
+    import { CircleOff, PlusCircle } from 'lucide-svelte';
 
     let tasksArray:TaskType[] = [];
+    let activeModal:undefined|'reset'|'task'|TaskType = undefined; // no modal, reset, new task, edit task
     const unsubscribeTasksStore = tasksStore.subscribe(tasks => tasksArray = tasks);
     onDestroy(unsubscribeTasksStore);
 
     // handle todos list actions 
-    function handleCreateTask() {
-        tasksStore.createTask(mockTask());
-    }
-    function handleResetAllTasks() {
-        tasksStore.reset();
-    }
-
-    // DRAG N DROP handling
-    function initDragAndSort(todosList:HTMLElement) {
-        // run once on mount
-        const sortable = new Sortable(todosList, {
-            group: "todos-list",
-            chosenClass: "sortable-chosen",
-            handle: ".sortable-handle",
-            swap: true,
-            animation: 200,
-            onEnd(event) {
-                if(event.newIndex === undefined || event.oldIndex === undefined) return;
-                tasksStore.changeTaskOrder(event.oldIndex, event.newIndex)
-            }
-        });
-
-        // lifecycle hooks
-        afterUpdate(() => {
-            // activate/deactivate depending on list size
-            sortable.option('disabled', (tasksArray.length <= 1));
-        });
-        onDestroy(() => sortable.destroy());
-    }
+    function handleCreateTask() { activeModal = 'task'; }
+    function handleResetAllTasks() { activeModal = 'reset'; }
+    function handleEditTask(evt:ComponentEvents<Task>['edit']) { activeModal = evt.detail; }
 </script>
 
 <main>
-    <nav>
-        <h1>Iron tomato</h1>
-        <div>
-            <a href="https://vitejs.dev" target="_blank" rel="noreferrer">
-                <img src={appLogo} class="logo" alt="Tomacco Logo" />
-            </a>
-            <a href="https://svelte.dev" target="_blank" rel="noreferrer">
-                <img src={svelteLogo} class="logo svelte" alt="Svelte Logo" />
-            </a>
-        </div>
-    </nav>
+    <AppHeader />
     <div class="container">
         <header class="lst-ActionMenu">
-            <button on:click={ handleCreateTask }>Créer une tâche</button>
-            <button class="secondary outline" on:click={ handleResetAllTasks }>Reset</button>
+            <button on:click={ handleCreateTask }><PlusCircle /><sapn class="sr-only">Créer une tâche</sapn></button>
+            <button class="secondary outline" on:click={ handleResetAllTasks }><CircleOff /><span class="sr-only">Remise à zéro de la liste</span></button>
         </header>
-        <div use:initDragAndSort role="list">
+        <TasksList>
             {#each tasksArray as task (task.id)}
-                <Task data={ task } />
+                <Task data={ task } on:edit={ handleEditTask } />
             {:else}
                 <p aria-busy="true">Il n'y a pas de tâches</p>
             {/each}
-        </div>
+        </TasksList>
     </div>
+    <DialogReset open={ (activeModal === "reset") } on:close={() => { activeModal = undefined }} />
+    <DialogTaskForm 
+        open={ (activeModal === "task" || typeof activeModal === "object") } 
+        initialTask={ (activeModal !== "reset" && activeModal !== "task") ? activeModal : undefined } 
+        on:close={() => { activeModal = undefined }} 
+    />
 </main>
 
 <style lang="scss">
-    .logo {
-        height: 6em;
-        padding: 1.5em;
-        will-change: filter;
-        transition: filter 300ms;
-    }
-    .logo:hover {
-        filter: drop-shadow(0 0 2em #646cffaa);
-    }
-
     .lst-ActionMenu {
         display:flex;
         gap: var(--spacing);
