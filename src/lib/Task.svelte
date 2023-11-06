@@ -2,6 +2,7 @@
     import { createEventDispatcher } from "svelte";
     import type { Task } from "../stores/tasks";
     import { tasksStore } from '../stores/tasks';
+    import { CheckCircle, Eraser, Pencil, Undo2 } from "lucide-svelte";
 
     export let data:Task;
     const dispatch = createEventDispatcher();
@@ -25,10 +26,10 @@
         <p>{ data.description }</p>
     {/if}
     <menu class="tsk-Card_Menu">
-        {#if isAchieveEnabled} <button on:click={ handleAchieve }>Achever</button> {/if}
-        {#if isReopenEnabled} <button on:click={ handleReopen } class="secondary outline">Rouvrir</button> {/if}
-        {#if isModifyEnabled} <button on:click={ handleModify } class="secondary outline">Modifier</button> {/if}
-        {#if isDeleteEnabled} <button on:click={ handleDelete } class="contrast outline">Supprimer</button> {/if}
+        {#if isAchieveEnabled} <button on:click={ handleAchieve }><CheckCircle /><span class="sr-only">Achever</span></button> {/if}
+        {#if isReopenEnabled} <button on:click={ handleReopen } class="secondary outline"><Undo2 /><span class="sr-only">Rouvrir</span></button> {/if}
+        {#if isModifyEnabled} <button on:click={ handleModify } class="secondary outline"><Pencil /><span class="sr-only">Modifier</span></button> {/if}
+        {#if isDeleteEnabled} <button on:click={ handleDelete } class="contrast outline"><Eraser /><span class="sr-only">Supprimer</span></button> {/if}
     </menu>
 </article>
 

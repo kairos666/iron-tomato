@@ -2,6 +2,7 @@
     import { createEventDispatcher } from "svelte";
     import { tasksStore, type Task } from "../stores/tasks";
     import { Dialog, DialogOverlay, DialogTitle, DialogDescription } from "@rgossiaux/svelte-headlessui";
+    import { Pencil, PlusCircle } from "lucide-svelte";
 
     export let open:boolean;
     export let initialTask:Task|undefined = undefined;
@@ -54,12 +55,12 @@
     <article class="dlg-Container">
         {#if isEdit}
             <hgroup>
-                <DialogTitle>Modifier une tâche</DialogTitle>
+                <DialogTitle><Pencil size={ 32 } /> Modifier une tâche</DialogTitle>
                 <DialogDescription>Mise à jour de la tâche ciblée.</DialogDescription>
             </hgroup>
         {:else}
             <hgroup>
-                <DialogTitle>Créer une tâche</DialogTitle>
+                <DialogTitle><PlusCircle size={ 32 } /> Créer une tâche</DialogTitle>
                 <DialogDescription>Définir et ajouter une nouvelle tâche à la liste.</DialogDescription>
             </hgroup>
         {/if}

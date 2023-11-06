@@ -7,6 +7,7 @@
     import DialogTaskForm from './lib/DialogTaskForm.svelte';
     import DialogReset from './lib/DialogReset.svelte';
     import TasksList from './lib/TasksList.svelte';
+    import { CircleOff, PlusCircle } from 'lucide-svelte';
 
     let tasksArray:TaskType[] = [];
     let activeModal:undefined|'reset'|'task'|TaskType = undefined; // no modal, reset, new task, edit task
@@ -23,8 +24,8 @@
     <AppHeader />
     <div class="container">
         <header class="lst-ActionMenu">
-            <button on:click={ handleCreateTask }>Créer une tâche</button>
-            <button class="secondary outline" on:click={ handleResetAllTasks }>Reset</button>
+            <button on:click={ handleCreateTask }><PlusCircle /><sapn class="sr-only">Créer une tâche</sapn></button>
+            <button class="secondary outline" on:click={ handleResetAllTasks }><CircleOff /><span class="sr-only">Remise à zéro de la liste</span></button>
         </header>
         <TasksList>
             {#each tasksArray as task (task.id)}
