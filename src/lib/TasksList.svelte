@@ -1,9 +1,9 @@
 <script lang="ts">
-    import { tasksStore } from '../stores/tasks';
-    import { onDestroy, afterUpdate } from 'svelte';
+    import { onDestroy, afterUpdate, createEventDispatcher } from 'svelte';
     import Sortable from 'sortablejs';
 
     let todosListElt:HTMLElement;
+    const dispatch = createEventDispatcher();
 
     // DRAG N DROP handling
     function initDragAndSort(todosList:HTMLElement) {
@@ -16,7 +16,7 @@
             animation: 200,
             onEnd(event) {
                 if(event.newIndex === undefined || event.oldIndex === undefined) return;
-                tasksStore.changeTaskOrder(event.oldIndex, event.newIndex)
+                dispatch('reorder', { fromIndex: event.oldIndex, toIndex: event.newIndex });
             }
         });
 

@@ -1,6 +1,6 @@
 <script lang="ts">
     import { createEventDispatcher } from "svelte";
-    import { tasksStore } from "../stores/tasks";
+    import { tasksReset } from "../stores/persistentTasks";
     import { Dialog, DialogOverlay, DialogTitle, DialogDescription } from "@rgossiaux/svelte-headlessui";
     import { CircleOff } from "lucide-svelte";
 
@@ -21,7 +21,7 @@
         </hgroup>
         <menu class="dlg-Container_ActionsMenu">
             <button class="secondary outline" on:click={() => dispatchClose() }>Annuler</button>
-            <button on:click={() => { tasksStore.reset(); dispatchClose() }}>Remise à zéro de la liste</button>
+            <button on:click={() => { tasksReset(); dispatchClose() }}>Remise à zéro de la liste</button>
         </menu>
     </article>
 </Dialog>

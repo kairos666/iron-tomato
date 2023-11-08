@@ -1,23 +1,30 @@
 <script lang="ts">
     import Task from './lib/Task.svelte';
-    import { tasksStore } from './stores/tasks';
-    import type { Task as TaskType } from './stores/tasks';
-    import { onDestroy, type ComponentEvents } from 'svelte';
+    import { allTasksList, taskReorder, type Task as TaskType } from './stores/persistentTasks';
+    import { type ComponentEvents } from 'svelte';
     import AppHeader from './lib/AppHeader.svelte';
     import DialogTaskForm from './lib/DialogTaskForm.svelte';
     import DialogReset from './lib/DialogReset.svelte';
     import TasksList from './lib/TasksList.svelte';
     import { CircleOff, PlusCircle } from 'lucide-svelte';
 
-    let tasksArray:TaskType[] = [];
     let activeModal:undefined|'reset'|'task'|TaskType = undefined; // no modal, reset, new task, edit task
-    const unsubscribeTasksStore = tasksStore.subscribe(tasks => tasksArray = tasks);
-    onDestroy(unsubscribeTasksStore);
 
     // handle todos list actions 
     function handleCreateTask() { activeModal = 'task'; }
     function handleResetAllTasks() { activeModal = 'reset'; }
     function handleEditTask(evt:ComponentEvents<Task>['edit']) { activeModal = evt.detail; }
+    function handleReorderTask(evt:ComponentEvents<Task>['reorder']) {
+        // replicate reordering
+        const workTaskArray:{ id:string, order:number }[] = $allTasksList.map(task => ({ id: task.id, order: task.order }));
+        const taskToBeMoved:{ id:string, order:number } = workTaskArray.splice(evt.detail.fromIndex, 1)[0];
+        workTaskArray.splice(evt.detail.toIndex, 0, taskToBeMoved);
+
+        // reassign order values
+        const resultTaskArray = workTaskArray.map((taskPartial, index) => ({ id: taskPartial.id, order: index + 1 }));
+
+        taskReorder(resultTaskArray); 
+    }
 </script>
 
 <main>
@@ -27,12 +34,16 @@
             <button on:click={ handleCreateTask }><PlusCircle /><sapn class="sr-only">Créer une tâche</sapn></button>
             <button class="secondary outline" on:click={ handleResetAllTasks }><CircleOff /><span class="sr-only">Remise à zéro de la liste</span></button>
         </header>
-        <TasksList>
-            {#each tasksArray as task (task.id)}
-                <Task data={ task } on:edit={ handleEditTask } />
+        <TasksList on:reorder={ handleReorderTask }>
+            {#if $allTasksList}
+                {#each $allTasksList as task (task.id)}
+                        <Task data={ task } on:edit={ handleEditTask } />
+                    {:else}
+                        <p aria-busy="true">Il n'y a pas de tâches</p>
+                {/each}
             {:else}
                 <p aria-busy="true">Il n'y a pas de tâches</p>
-            {/each}
+            {/if}
         </TasksList>
     </div>
     <DialogReset open={ (activeModal === "reset") } on:close={() => { activeModal = undefined }} />

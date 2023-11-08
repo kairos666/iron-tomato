@@ -1,7 +1,6 @@
 <script lang="ts">
     import { createEventDispatcher } from "svelte";
-    import type { Task } from "../stores/tasks";
-    import { tasksStore } from '../stores/tasks';
+    import { taskReopen, taskAchieve, taskDelete, type Task } from '../stores/persistentTasks';
     import { CheckCircle, Eraser, Pencil, Undo2 } from "lucide-svelte";
 
     export let data:Task;
@@ -13,9 +12,9 @@
     $: isDeleteEnabled = !data.isDone;
     $: isModifyEnabled = !data.isDone;
 
-    function handleAchieve() { tasksStore.achieveTask(data.id) }
-    function handleReopen() { tasksStore.reopenTask(data.id) }
-    function handleDelete() { tasksStore.deleteTask(data.id) }
+    function handleAchieve() { taskAchieve(data.id) }
+    function handleReopen() { taskReopen(data.id) }
+    function handleDelete() { taskDelete(data.id) }
     function handleModify() { dispatch('edit', data) }
 </script>
 
