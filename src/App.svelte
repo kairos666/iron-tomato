@@ -8,6 +8,7 @@
     import TasksList from './lib/TasksList.svelte';
     import DialogTaskCreateForm from './lib/DialogTaskCreateForm.svelte';
     import DialogTaskEditForm from './lib/DialogTaskEditForm.svelte';
+    import { PlusCircle } from 'lucide-svelte';
 
     const { setModal, changeListView } = appUIState;
 
@@ -28,13 +29,9 @@
 </script>
 
 <main>
-    <AppHeader 
-        listView={ $appUIState.listView } 
-        on:reset={ () => setModal('reset') } 
-        on:list-view-change={ handleChangeListView } 
-    />
+    <AppHeader listView={ $appUIState.listView } on:reset={ () => setModal('reset') } on:list-view-change={ handleChangeListView } />
     <div class="container">
-        <TasksList on:reorder={ handleReorderTask } on:create-task={ () => setModal('task') }>
+        <TasksList on:reorder={ handleReorderTask }>
             {#if $allTasksList}
                 {#each $allTasksList as task (task.id)}
                         <Task data={ task } on:edit={ handleEditTask } />
@@ -44,6 +41,7 @@
             {:else}
                 <p aria-busy="true">Il n'y a pas de tâches</p>
             {/if}
+            <button slot="add-task" on:click={ () => setModal('task') }><PlusCircle /><span class="sr-only">Créer une tâche</span></button>
         </TasksList>
     </div>
     <DialogReset />
