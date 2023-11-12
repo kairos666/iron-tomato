@@ -1,18 +1,13 @@
 <script lang="ts">
-    import { createEventDispatcher } from "svelte";
     import { tasksReset } from "../stores/persistentTasks";
+    import { appUIState } from '../stores/appUIState';
     import { Dialog, DialogOverlay, DialogTitle, DialogDescription } from "@rgossiaux/svelte-headlessui";
     import { Trash2 } from "lucide-svelte";
 
-    export let open:boolean;
-
-    const dispatch = createEventDispatcher();
-    function dispatchClose() {
-        dispatch('close');
-    }
+    const { clearModal } = appUIState;
 </script>
 
-<Dialog open={ open } on:close={() => dispatchClose() }>
+<Dialog open={ ($appUIState.modal === 'reset') } on:close={() => clearModal() }>
     <DialogOverlay class="dlg-Overlay" />
     <article class="dlg-Container">
         <hgroup>
@@ -20,8 +15,8 @@
             <DialogDescription>Si vous confirmez l'action, toutes les tâches seront définitivement effacées de la liste.</DialogDescription>
         </hgroup>
         <menu class="dlg-Container_ActionsMenu">
-            <button class="secondary outline" on:click={() => dispatchClose() }>Annuler</button>
-            <button on:click={() => { tasksReset(); dispatchClose() }}>Remise à zéro de la liste</button>
+            <button class="secondary outline" on:click={() => clearModal() }>Annuler</button>
+            <button on:click={() => { tasksReset(); clearModal() }}>Remise à zéro de la liste</button>
         </menu>
     </article>
 </Dialog>

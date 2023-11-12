@@ -3,7 +3,7 @@ import { type Task } from './persistentTasks';
 
 export type AppUIState = {
     listView:'todo'|'done'
-    modal:undefined|'reset'|'task'|Task
+    modal:undefined|'reset'|'task'|Task // no modal, reset, new task, edit task
 }
 
 const initAppUIState = () => {
