@@ -1,6 +1,7 @@
 <script lang="ts">
     import { onDestroy, afterUpdate, createEventDispatcher } from 'svelte';
     import Sortable from 'sortablejs';
+    import { PlusCircle } from 'lucide-svelte';
 
     let todosListElt:HTMLElement;
     const dispatch = createEventDispatcher();
@@ -28,8 +29,13 @@
         });
         onDestroy(() => sortable.destroy());
     }
+
+    function onCreateTask() {
+        dispatch('create-task');
+    }
 </script>
 
 <div use:initDragAndSort bind:this={ todosListElt } role="list">
     <slot />
 </div>
+<button on:click={ onCreateTask }><PlusCircle /><span class="sr-only">Créer une tâche</span></button>
