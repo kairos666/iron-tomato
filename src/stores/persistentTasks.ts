@@ -29,8 +29,8 @@ const db = new DexieTasks();
 
 // all tasks stores
 export const allTasksList = liveQuery(() => db.tasks.orderBy('order').toArray());
-export const doneTasksList = liveQuery(() => db.tasks.where('isDone').equals('true').toArray().then(tasks => tasks.sort((a, b) => a.order - b.order)));
-export const unfinishedTasksList = liveQuery(() => db.tasks.where('isDone').equals('false').toArray().then(tasks => tasks.sort((a, b) => a.order - b.order)));
+export const doneTasksList = liveQuery(() => db.tasks.orderBy('order').toArray().then(tasks => tasks.filter(task => task.isDone)));
+export const unfinishedTasksList = liveQuery(() => db.tasks.orderBy('order').toArray().then(tasks => tasks.filter(task => !task.isDone)));
 
 // task action - CREATE
 export async function taskCreate(newTask:BaseTask) {

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { Grid2X2, TimerReset, Trash2 } from 'lucide-svelte';
+    import { CircleDashed, Grid2X2, TimerReset, Trash2 } from 'lucide-svelte';
     import { Popover, PopoverButton, PopoverPanel, RadioGroup, RadioGroupLabel, RadioGroupOption } from "@rgossiaux/svelte-headlessui";
     //import svelteLogo from '../assets/svelte.svg';
     import appLogo from '/tomacco-logo.png';
@@ -33,7 +33,8 @@
             <button disabled class="pop-ItemBtn"><TimerReset /><span>Paramètres pomodoro</span></button>
             <button disabled class="pop-ItemBtn"><Grid2X2 /><span>Paramètres matrice d'eisenhower</span></button>
             <span class="pop-Separator"></span>
-            <button class="pop-ItemBtn" on:click={ onResetTask }><Trash2 /><span>Remise à zéro de la liste</span></button>
+            <button disabled class="pop-ItemBtn"><CircleDashed /><span>Nettoyage des tâches terminées</span></button>
+            <button class="pop-ItemBtn" on:click={ onResetTask }><Trash2 /><span>Remise à zéro de la liste de tâches</span></button>
         </PopoverPanel>
     </Popover>
 </nav>

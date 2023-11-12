@@ -23,7 +23,7 @@
         // lifecycle hooks
         afterUpdate(() => {
             // activate/deactivate depending on list size
-            const itemsCount:number = todosListElt.children.length;
+            const itemsCount:number = todosListElt?.children?.length ?? 0;
             sortable.option('disabled', (itemsCount <= 1));
         });
         onDestroy(() => sortable.destroy());
