@@ -3,6 +3,7 @@
     import { Dialog, DialogOverlay, DialogTitle, DialogDescription } from "@rgossiaux/svelte-headlessui";
     import { PlusCircle } from "lucide-svelte";
     import { appUIState } from "../stores/appUIState";
+    import { tick } from "svelte";
 
     const { clearModal } = appUIState;
 
@@ -28,8 +29,14 @@
         }
 
         // commit changes and close
-        taskCreate(newTask);
+        taskCreate(newTask).then(scrollToBottomOfPage);
         clearModal();
+    }
+
+    // ensure bottom of page to enable chaining task creation
+    async function scrollToBottomOfPage() {
+        await tick();
+        window.scrollTo(0, document.body.scrollHeight);
     }
 </script>
 
