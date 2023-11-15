@@ -33,13 +33,13 @@
     <AppHeader listView={ $appUIState.listView } on:reset={ () => setModal('reset') } on:list-view-change={ handleChangeListView } />
     <div class="container">
         {#if !isReady}
-            <p aria-busy="true">Chargement des tâches</p>
+            <p class="empty-state" aria-busy="true">Chargement des tâches</p>
         {:else if ($appUIState.listView === 'todo')}
             <TasksList on:reorder={ handleReorderTask }>
                 {#each $unfinishedTasksList as task (task.id)}
                     <Task data={ task } on:edit={ handleEditTask } />
                 {:else}
-                    <p><PartyPopper /> Aucune tâche à faire dans la liste</p>
+                    <p class="empty-state"><PartyPopper /> Aucune tâche à faire dans la liste</p>
                 {/each}
                 <button slot="add-task" on:click={ () => setModal('task') }><PlusCircle /><span class="sr-only">Créer une tâche</span></button>
             </TasksList>
@@ -48,7 +48,7 @@
                 {#each $doneTasksList as task (task.id)}
                     <Task data={ task } on:edit={ handleEditTask } />
                 {:else}
-                    <p><Inbox /> Liste des tâches terminées vide</p>
+                    <p class="empty-state"><Inbox /> Liste des tâches terminées vide</p>
                 {/each}
             </TasksList>
         {/if}
@@ -57,3 +57,12 @@
     <DialogTaskCreateForm />
     <DialogTaskEditForm />
 </main>
+
+<style lang="scss">
+    .empty-state {
+        margin: var(--block-spacing-vertical) 0;
+        padding: var(--spacing) var(--block-spacing-horizontal);
+        border-radius: var(--border-radius);
+        background: var(--blockquote-border-color);
+    }
+</style>
