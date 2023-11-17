@@ -78,7 +78,9 @@ export async function taskAchieve(taskID:string) {
 // task action - REOPEN
 export async function taskReopen(taskID:string) {
     try {
-        await db.tasks.update(taskID, { isDone : false, dateDone: undefined });
+        const tasksCount:number = await db.tasks.count();
+        const order:number = 1 + tasksCount; // reopen task should be last
+        await db.tasks.update(taskID, { isDone : false, dateDone: undefined, order });
         console.info(`Task ${ taskID } marked UNDONE`);
     } catch (error) {
         throw new Error(`Failed to mark task ${ taskID } undone : ${ error }`);
