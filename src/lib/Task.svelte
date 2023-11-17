@@ -4,6 +4,7 @@
     import { CheckCircle, Eraser, Pencil, Undo2 } from "lucide-svelte";
 
     export let data:Task;
+    export let isMobile:boolean;
     const dispatch = createEventDispatcher();
 
     // deduce available actions based on data
@@ -22,7 +23,7 @@
     <span draggable="true" aria-labelledby="poignée de la tâche" class="sortable-handle"></span>
     <h2>{ data.label }</h2>
     {#if data.description}
-        <p>{ data.description }</p>
+        <p>{ data.description }</p>:
     {/if}
     <menu class="tsk-Card_Menu">
         {#if isAchieveEnabled} <button on:click={ handleAchieve }><CheckCircle /><span class="sr-only">Achever</span></button> {/if}

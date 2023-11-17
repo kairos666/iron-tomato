@@ -37,7 +37,7 @@
         {:else if ($appUIState.listView === 'todo')}
             <TasksList on:reorder={ handleReorderTask }>
                 {#each $unfinishedTasksList as task (task.id)}
-                    <Task data={ task } on:edit={ handleEditTask } />
+                    <Task data={ task } isMobile={ $appUIState.isMobileViewport } on:edit={ handleEditTask } />
                 {:else}
                     <p class="empty-state"><PartyPopper /> Aucune tâche à faire dans la liste</p>
                 {/each}
@@ -46,7 +46,7 @@
         {:else if ($appUIState.listView === 'done')}
             <TasksList on:reorder={ handleReorderTask }>
                 {#each $doneTasksList as task (task.id)}
-                    <Task data={ task } on:edit={ handleEditTask } />
+                    <Task data={ task } isMobile={ $appUIState.isMobileViewport } on:edit={ handleEditTask } />
                 {:else}
                     <p class="empty-state"><Inbox /> Liste des tâches terminées vide</p>
                 {/each}
