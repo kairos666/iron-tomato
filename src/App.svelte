@@ -1,51 +1,68 @@
 <script lang="ts">
     import Task from './lib/Task.svelte';
-    import { tasksStore } from './stores/tasks';
-    import type { Task as TaskType } from './stores/tasks';
-    import { onDestroy, type ComponentEvents } from 'svelte';
+    import { allTasksList, doneTasksList, unfinishedTasksList, taskReorder} from './stores/persistentTasks';
+    import { appUIState } from './stores/appUIState';
+    import { type ComponentEvents } from 'svelte';
     import AppHeader from './lib/AppHeader.svelte';
-    import DialogTaskForm from './lib/DialogTaskForm.svelte';
     import DialogReset from './lib/DialogReset.svelte';
     import TasksList from './lib/TasksList.svelte';
-    import { CircleOff, PlusCircle } from 'lucide-svelte';
+    import DialogTaskCreateForm from './lib/DialogTaskCreateForm.svelte';
+    import DialogTaskEditForm from './lib/DialogTaskEditForm.svelte';
+    import { Inbox, PartyPopper, PlusCircle } from 'lucide-svelte';
 
-    let tasksArray:TaskType[] = [];
-    let activeModal:undefined|'reset'|'task'|TaskType = undefined; // no modal, reset, new task, edit task
-    const unsubscribeTasksStore = tasksStore.subscribe(tasks => tasksArray = tasks);
-    onDestroy(unsubscribeTasksStore);
+    const { setModal, changeListView } = appUIState;
+    $: isReady = (appUIState !== undefined && $doneTasksList !== undefined && $unfinishedTasksList !== undefined)
 
-    // handle todos list actions 
-    function handleCreateTask() { activeModal = 'task'; }
-    function handleResetAllTasks() { activeModal = 'reset'; }
-    function handleEditTask(evt:ComponentEvents<Task>['edit']) { activeModal = evt.detail; }
+    // handle actions 
+    function handleEditTask(evt:ComponentEvents<Task>['edit']) { setModal(evt.detail) }
+    function handleChangeListView(evt:ComponentEvents<AppHeader>['list-view-change']) { changeListView(evt.detail) }
+    function handleReorderTask(evt:ComponentEvents<Task>['reorder']) {
+        // replicate reordering
+        const workTaskArray:{ id:string, order:number }[] = $allTasksList.map(task => ({ id: task.id, order: task.order }));
+        const taskToBeMoved:{ id:string, order:number } = workTaskArray.splice(evt.detail.fromIndex, 1)[0];
+        workTaskArray.splice(evt.detail.toIndex, 0, taskToBeMoved);
+
+        // reassign order values
+        const resultTaskArray = workTaskArray.map((taskPartial, index) => ({ id: taskPartial.id, order: index + 1 }));
+
+        taskReorder(resultTaskArray); 
+    }
 </script>
 
 <main>
-    <AppHeader />
+    <AppHeader listView={ $appUIState.listView } on:reset={ () => setModal('reset') } on:list-view-change={ handleChangeListView } />
     <div class="container">
-        <header class="lst-ActionMenu">
-            <button on:click={ handleCreateTask }><PlusCircle /><sapn class="sr-only">Créer une tâche</sapn></button>
-            <button class="secondary outline" on:click={ handleResetAllTasks }><CircleOff /><span class="sr-only">Remise à zéro de la liste</span></button>
-        </header>
-        <TasksList>
-            {#each tasksArray as task (task.id)}
-                <Task data={ task } on:edit={ handleEditTask } />
-            {:else}
-                <p aria-busy="true">Il n'y a pas de tâches</p>
-            {/each}
-        </TasksList>
+        {#if !isReady}
+            <p class="empty-state" aria-busy="true">Chargement des tâches</p>
+        {:else if ($appUIState.listView === 'todo')}
+            <TasksList on:reorder={ handleReorderTask }>
+                {#each $unfinishedTasksList as task (task.id)}
+                    <Task data={ task } on:edit={ handleEditTask } />
+                {:else}
+                    <p class="empty-state"><PartyPopper /> Aucune tâche à faire dans la liste</p>
+                {/each}
+                <button slot="add-task" on:click={ () => setModal('task') }><PlusCircle /><span class="sr-only">Créer une tâche</span></button>
+            </TasksList>
+        {:else if ($appUIState.listView === 'done')}
+            <TasksList on:reorder={ handleReorderTask }>
+                {#each $doneTasksList as task (task.id)}
+                    <Task data={ task } on:edit={ handleEditTask } />
+                {:else}
+                    <p class="empty-state"><Inbox /> Liste des tâches terminées vide</p>
+                {/each}
+            </TasksList>
+        {/if}
     </div>
-    <DialogReset open={ (activeModal === "reset") } on:close={() => { activeModal = undefined }} />
-    <DialogTaskForm 
-        open={ (activeModal === "task" || typeof activeModal === "object") } 
-        initialTask={ (activeModal !== "reset" && activeModal !== "task") ? activeModal : undefined } 
-        on:close={() => { activeModal = undefined }} 
-    />
+    <DialogReset />
+    <DialogTaskCreateForm />
+    <DialogTaskEditForm />
 </main>
 
 <style lang="scss">
-    .lst-ActionMenu {
-        display:flex;
-        gap: var(--spacing);
+    .empty-state {
+        margin: var(--block-spacing-vertical) 0;
+        padding: var(--spacing) var(--block-spacing-horizontal);
+        border-radius: var(--border-radius);
+        background: var(--blockquote-border-color);
     }
 </style>
