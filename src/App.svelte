@@ -1,64 +1,62 @@
 <script lang="ts">
-    import svelteLogo from './assets/svelte.svg';
-    import appLogo from '/tomacco-logo.png';
     import Task from './lib/Task.svelte';
-    import { mockTask, tasksStore } from './stores/tasks';
-    import type { Task as TaskType } from './stores/tasks';
-    import { onDestroy } from 'svelte';
+    import { allTasksList, doneTasksList, unfinishedTasksList, taskReorder, tasksDoneReset } from './stores/persistentTasks';
+    import { appUIState } from './stores/appUIState';
+    import { type ComponentEvents } from 'svelte';
+    import AppHeader from './lib/AppHeader.svelte';
+    import DialogReset from './lib/DialogReset.svelte';
+    import TasksList from './lib/TasksList.svelte';
+    import DialogTaskCreateForm from './lib/DialogTaskCreateForm.svelte';
+    import DialogTaskEditForm from './lib/DialogTaskEditForm.svelte';
+    import { Inbox, PartyPopper, PlusCircle } from 'lucide-svelte';
+    import DialogTaskDetail from './lib/DialogTaskDetail.svelte';
 
-    let tasksArray:TaskType[] = [];
-    const unsubscribeTasksStore = tasksStore.subscribe(tasks => tasksArray = tasks);
+    const { setModal, changeListView } = appUIState;
+    $: isReady = (appUIState !== undefined && $doneTasksList !== undefined && $unfinishedTasksList !== undefined)
 
-    onDestroy(unsubscribeTasksStore);
+    // handle actions 
+    function handleSeeTask(evt:ComponentEvents<any>['task-detail']) { setModal(`task-detail-${ evt.detail }`) }
+    function handleEditTask(evt:ComponentEvents<any>['task-edit']) { setModal(`task-edit-${ evt.detail }`) }
+    function handleChangeListView(evt:ComponentEvents<AppHeader>['list-view-change']) { changeListView(evt.detail) }
+    function handleReorderTask(evt:ComponentEvents<Task>['reorder']) {
+        // replicate reordering
+        const workTaskArray:{ id:string, order:number }[] = $allTasksList.map(task => ({ id: task.id, order: task.order }));
+        const taskToBeMoved:{ id:string, order:number } = workTaskArray.splice(evt.detail.fromIndex, 1)[0];
+        workTaskArray.splice(evt.detail.toIndex, 0, taskToBeMoved);
 
-    function handleCreateTask() {
-        tasksStore.createTask(mockTask());
-    }
-    function handleResetAllTasks() {
-        tasksStore.reset();
+        // reassign order values
+        const resultTaskArray = workTaskArray.map((taskPartial, index) => ({ id: taskPartial.id, order: index + 1 }));
+
+        taskReorder(resultTaskArray); 
     }
 </script>
 
 <main>
-    <nav>
-        <h1>Iron tomato</h1>
-        <div>
-            <a href="https://vitejs.dev" target="_blank" rel="noreferrer">
-                <img src={appLogo} class="logo" alt="Tomacco Logo" />
-            </a>
-            <a href="https://svelte.dev" target="_blank" rel="noreferrer">
-                <img src={svelteLogo} class="logo svelte" alt="Svelte Logo" />
-            </a>
-        </div>
-    </nav>
+    <AppHeader listView={ $appUIState.listView } on:reset={ () => setModal('reset') } on:reset-done={ () => tasksDoneReset() } on:list-view-change={ handleChangeListView } />
     <div class="container">
-        <header class="lst-ActionMenu">
-            <button on:click={ handleCreateTask }>Créer une tâche</button>
-            <button class="secondary outline" on:click={ handleResetAllTasks }>Reset</button>
-        </header>
-        {#each tasksArray as task (task.id)}
-            <Task data={ task } />
-        {:else}
-            <p aria-busy="true">Il n'y a pas de tâches</p>
-        {/each}
-        <p>Check out <a href="https://github.com/sveltejs/kit#readme" target="_blank" rel="noreferrer">SvelteKit</a>, the official Svelte app framework powered by Vite!</p>
-        <p class="read-the-docs">Click on the Vite and Svelte logos to learn more</p>
+        {#if !isReady}
+            <p class="empty-state" aria-busy="true">Chargement des tâches</p>
+        {:else if ($appUIState.listView === 'todo')}
+            <TasksList on:reorder={ handleReorderTask }>
+                {#each $unfinishedTasksList as task (task.id)}
+                    <Task data={ task } on:task-edit={ handleEditTask } on:task-detail={ handleSeeTask } />
+                {:else}
+                    <p class="empty-state"><PartyPopper /> Aucune tâche à faire dans la liste</p>
+                {/each}
+                <button slot="add-task" on:click={ () => setModal('task-create') }><PlusCircle /><span class="sr-only">Créer une tâche</span></button>
+            </TasksList>
+        {:else if ($appUIState.listView === 'done')}
+            <TasksList on:reorder={ handleReorderTask }>
+                {#each $doneTasksList as task (task.id)}
+                    <Task data={ task } on:task-edit={ handleEditTask } on:task-detail={ handleSeeTask } />
+                {:else}
+                    <p class="empty-state"><Inbox /> Liste des tâches terminées vide</p>
+                {/each}
+            </TasksList>
+        {/if}
     </div>
+    <DialogReset />
+    <DialogTaskCreateForm />
+    <DialogTaskEditForm />
+    <DialogTaskDetail />
 </main>
-
-<style lang="scss">
-    .logo {
-        height: 6em;
-        padding: 1.5em;
-        will-change: filter;
-        transition: filter 300ms;
-    }
-    .logo:hover {
-        filter: drop-shadow(0 0 2em #646cffaa);
-    }
-
-    .lst-ActionMenu {
-        display:flex;
-        gap: var(--spacing);
-    }
-</style>

@@ -1,52 +1,91 @@
 <script lang="ts">
-    import type { Task } from "../stores/tasks";
-    import { tasksStore } from '../stores/tasks';
+    import { createEventDispatcher } from "svelte";
+    import { taskReopen, taskAchieve, taskDelete, type Task } from '../stores/persistentTasks';
+    import { CheckCircle, Eraser, Eye, Pencil, Undo2 } from "lucide-svelte";
 
     export let data:Task;
+    const dispatch = createEventDispatcher();
 
     // deduce available actions based on data
+    $: hasDescription = !!data.description;
     $: isAchieveEnabled = !data.isDone;
     $: isReopenEnabled = data.isDone;
     $: isDeleteEnabled = !data.isDone;
     $: isModifyEnabled = !data.isDone;
 
-    function handleAchieve() { tasksStore.achieveTask(data.id) }
-    function handleReopen() { tasksStore.reopenTask(data.id) }
-    function handleDelete() { tasksStore.deleteTask(data.id) }
-    function handleModify() { tasksStore.editTask({ ...data, description: (data.description === undefined) ? "EDITED" : `${ data.description } EDITED` }) }
+    function handleDetail() { dispatch('task-detail', data.id) }
+    function handleAchieve() { taskAchieve(data.id) }
+    function handleReopen() { taskReopen(data.id) }
+    function handleDelete() { taskDelete(data.id) }
+    function handleModify() { dispatch('task-edit', data.id) }
 </script>
 
-<article class="tsk-Card">
-    <h2>{ data.label }</h2>
-    {#if data.description}
-        <p>{ data.description }</p>
-    {/if}
+<article class={ isAchieveEnabled ? "tsk-Card tsk-Card-hasDone" : "tsk-Card" } role="listitem" data-id={ data.id }>
+    {#if isAchieveEnabled}<button class="tsk-Btn tsk-Btn-done" on:click={ handleAchieve }><CheckCircle size={ 26 } color="var(--icon-color)" /><span class="sr-only">Achever</span></button>{/if}
+    <h2 draggable="true" aria-labelledby="poignée de la tâche" class="sortable-handle">{ data.label }</h2>
     <menu class="tsk-Card_Menu">
-        {#if isAchieveEnabled} <button on:click={ handleAchieve }>Achever</button> {/if}
-        {#if isReopenEnabled} <button on:click={ handleReopen } class="secondary outline">Rouvrir</button> {/if}
-        {#if isModifyEnabled} <button on:click={ handleModify } class="secondary outline">Modifier</button> {/if}
-        {#if isDeleteEnabled} <button on:click={ handleDelete } class="contrast outline">Supprimer</button> {/if}
+        {#if hasDescription} <button on:click={ handleDetail } class="tsk-Btn"><Eye size={ 26 } color="var(--icon-color)"/><span class="sr-only">Voir description</span></button> {/if}
+        {#if isReopenEnabled} <button on:click={ handleReopen } class="tsk-Btn"><Undo2 size={ 26 } color="var(--icon-color)"/><span class="sr-only">Rouvrir</span></button> {/if}
+        {#if isModifyEnabled} <button on:click={ handleModify } class="tsk-Btn"><Pencil size={ 26 } color="var(--icon-color)"/><span class="sr-only">Modifier</span></button> {/if}
+        {#if isDeleteEnabled} <button on:click={ handleDelete } class="tsk-Btn"><Eraser size={ 26 } color="var(--icon-color)"/><span class="sr-only">Supprimer</span></button> {/if}
     </menu>
 </article>
 
 <style lang="scss">
     .tsk-Card {
+        --task-spacing: 0.5rem;
+        --task-font-size: 0.75rem;
+
+        @media (min-width: 576px) {
+            --task-spacing: 0.75rem;
+            --task-font-size: 1rem;
+        }
+
         display: grid;
-        grid-template-columns: 3fr 1fr;
+        grid-template-columns: 1fr auto;
         grid-template-rows: auto;
         grid-template-areas:
             "title actions";
-        gap: var(--spacing);
-    }
-    .tsk-Card:has(p) {
-        grid-template-rows: auto auto;
-        grid-template-areas:
-            "title actions"
-            "description actions";
+        align-items: center;
+        margin-block: var(--task-spacing);
+        padding: var(--task-spacing);
+        gap: var(--task-spacing);
+
+        &.tsk-Card-hasDone {
+            grid-template-columns: auto 1fr auto;
+            grid-template-areas:
+                "done title actions";
+        }
     }
 
-    h2 { grid-area: title; margin-block-end:0; }
-    p { grid-area: description; margin-block-end:0; }
+    .tsk-Btn {
+        display: inline-block;
+        width: auto;
+        background: none;
+        border:none;
+        padding:0;
+        margin:0;
+        grid-area: done;
+        --icon-color: var(--muted-border-color);
+        .tsk-Card:hover & { --icon-color: var(--secondary); }
+        &:hover, &:focus, &:active { --icon-color: var(--primary); box-shadow:none; }
+        &.tsk-Btn-done { 
+            grid-area: done;
+            --icon-color: var(--muted-border-color);
+            &:hover, &:focus, &:active { --icon-color: var(--ins-color); }
+        }
+    }
+    h2 { 
+        grid-area: title; 
+        margin-block-end:0; 
+        font-size: var(--task-font-size);
+        line-height: 32px;
+        font-weight:500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        cursor:grab;
+    }
 
     .tsk-Card_Menu {
         grid-area: actions;
@@ -54,8 +93,7 @@
         margin:0;
         padding:0;
         display: flex;
-        gap: var(--spacing);
-
-        button { margin-block-end:0; }
+        justify-content: flex-end;
+        gap: var(--task-spacing);
     }
 </style>
