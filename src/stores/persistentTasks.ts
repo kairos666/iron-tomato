@@ -112,6 +112,19 @@ export async function tasksReset() {
     }
 }
 
+// task action - CLEAR all done tasks
+export async function tasksDoneReset() {
+    try {
+        const deletionTargetsIds = await db.tasks.toArray()
+            .then(allTasks => allTasks.filter(task => task.isDone))         // filter only done tasks
+            .then(allDoneTasks => allDoneTasks.map(task => task.id));       // array of IDs to be deleted
+        if(deletionTargetsIds.length > 0) await db.tasks.bulkDelete(deletionTargetsIds);
+        console.info(`CLEARED all done tasks`);
+    } catch (error) {
+        throw new Error(`Failed to reset done tasks collection : ${ error }`);
+    }
+}
+
 // task action - GET by ID
 export async function taskById(taskId:string) {
     try {

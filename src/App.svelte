@@ -1,6 +1,6 @@
 <script lang="ts">
     import Task from './lib/Task.svelte';
-    import { allTasksList, doneTasksList, unfinishedTasksList, taskReorder} from './stores/persistentTasks';
+    import { allTasksList, doneTasksList, unfinishedTasksList, taskReorder, tasksDoneReset } from './stores/persistentTasks';
     import { appUIState } from './stores/appUIState';
     import { type ComponentEvents } from 'svelte';
     import AppHeader from './lib/AppHeader.svelte';
@@ -32,7 +32,7 @@
 </script>
 
 <main>
-    <AppHeader listView={ $appUIState.listView } on:reset={ () => setModal('reset') } on:list-view-change={ handleChangeListView } />
+    <AppHeader listView={ $appUIState.listView } on:reset={ () => setModal('reset') } on:reset-done={ () => tasksDoneReset() } on:list-view-change={ handleChangeListView } />
     <div class="container">
         {#if !isReady}
             <p class="empty-state" aria-busy="true">Chargement des tâches</p>
