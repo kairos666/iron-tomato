@@ -1,17 +1,26 @@
 <script lang="ts">
-    import { type Task, taskEdit } from "../stores/persistentTasks";
+    import { type Task, taskEdit, taskById } from "../stores/persistentTasks";
     import { Dialog, DialogOverlay, DialogTitle, DialogDescription } from "@rgossiaux/svelte-headlessui";
     import { Pencil } from "lucide-svelte";
     import { appUIState } from "../stores/appUIState";
-
     const { clearModal } = appUIState;
-    $: isOpen = (typeof $appUIState.modal === 'object' && $appUIState.modal !== undefined);
+    let initialTask:Task|undefined = undefined;
 
-    // handle pre filled form if edit instead of creation (if statement ensure re-evaluation between openings)
+    $: isModalActive = (typeof $appUIState.modal === 'string' && $appUIState.modal.startsWith('task-edit'));
+    $: targetTaskId = (isModalActive) 
+        ? $appUIState.modal?.replace('task-edit-', '') ?? null 
+        : null;
+    $: if(isModalActive && targetTaskId !== null) {
+        taskById(targetTaskId).then(task => { initialTask = task });
+    } else {
+        initialTask = undefined;
+    }
+
+    // handle pre filled form (if statement ensure re-evaluation between openings)
     let formTaskLabel:string = "";
     let formTaskDescription:string = "";
-    $: if(isOpen) formTaskLabel = ($appUIState.modal as Task)?.label ?? "";
-    $: if(isOpen) formTaskDescription = ($appUIState.modal as Task)?.description ?? "";
+    $: if(isModalActive) formTaskLabel = initialTask?.label ?? "";
+    $: if(isModalActive) formTaskDescription = initialTask?.description ?? "";
 
     function onSubmit(evt:SubmitEvent) {
         evt.preventDefault();
@@ -22,7 +31,7 @@
         
         // format new task
         const editedTask:Task = { 
-                ...($appUIState.modal as Task),
+                ...(initialTask as Task),
                 label: resultLabel, 
                 description: (resultDescription !== "") ? resultDescription : undefined 
         };
@@ -33,22 +42,29 @@
     }
 </script>
 
-<Dialog open={ isOpen } on:close={() => clearModal() }>
+<Dialog open={ isModalActive } on:close={() => clearModal() }>
     <DialogOverlay class="dlg-Overlay" />
     <article class="dlg-Container">
         <hgroup>
             <DialogTitle><Pencil size={ 32 } /> Modifier une tâche</DialogTitle>
             <DialogDescription>Mise à jour de la tâche ciblée.</DialogDescription>
         </hgroup>
-        <form on:submit={ onSubmit }>
-            <label for="task-label">Libellé</label>
-            <input type="text" id="task-label" name="task-label" placeholder="Intitulé de la tâche" value={ formTaskLabel } required />
-            <label for="task-description">Description</label>
-            <textarea id="task-description" name="task-description" placeholder="Descriptif détaillé optionnel de la tâche" value={ formTaskDescription } />
+        {#if !initialTask}
+            <p class="empty-state" aria-busy="true">Chargement de la tâche { targetTaskId }</p>
             <menu class="dlg-Container_ActionsMenu">
-                <button type="reset" class="secondary outline" on:click={() => clearModal() }>Annuler</button>
-                <button type="submit">Modifier la tâche</button>
+                <button class="secondary outline" on:click={() => clearModal() }>Annuler</button>
             </menu>
-        </form>
+        {:else}
+            <form on:submit={ onSubmit }>
+                <label for="task-label">Libellé</label>
+                <input type="text" id="task-label" name="task-label" placeholder="Intitulé de la tâche" value={ formTaskLabel } required />
+                <label for="task-description">Description</label>
+                <textarea id="task-description" name="task-description" placeholder="Descriptif détaillé optionnel de la tâche" value={ formTaskDescription } />
+                <menu class="dlg-Container_ActionsMenu">
+                    <button type="reset" class="secondary outline" on:click={() => clearModal() }>Annuler</button>
+                    <button type="submit">Modifier la tâche</button>
+                </menu>
+            </form>
+        {/if}
     </article>
 </Dialog> 

@@ -111,3 +111,16 @@ export async function tasksReset() {
         throw new Error(`Failed to reset tasks collection : ${ error }`);
     }
 }
+
+// task action - GET by ID
+export async function taskById(taskId:string) {
+    try {
+        const result = await db.tasks.get(parseInt(taskId));
+        if(result === undefined) throw new Error('task not found in DB');
+        console.info(`fetched task with id#${ taskId }`);
+
+        return result;
+    } catch (error) {
+        throw new Error(`Failed to get task with id#${ taskId } : ${ error }`);
+    }
+}

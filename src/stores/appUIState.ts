@@ -1,9 +1,11 @@
 import { writable } from 'svelte/store';
-import { type Task } from './persistentTasks';
+
+type ModalCodes = 'reset'|'task-create';
+type ModalTaskCodes = `${'task-detail'|'task-edit'}-${number}`;
 
 export type AppUIState = {
     listView:'todo'|'done'
-    modal:undefined|'reset'|'task'|Task // no modal, reset, new task, edit task
+    modal:undefined|ModalCodes|ModalTaskCodes // no modal, reset, new task, edit task
     isMobileViewport:boolean // adapt to viewport width (based on pico css breakpoint)
 }
 
@@ -25,7 +27,7 @@ const initAppUIState = () => {
     // Store implementation
     return {
         subscribe,
-        setModal: (modalIdData:'reset'|'task'|Task) => {
+        setModal: (modalIdData:ModalCodes|ModalTaskCodes) => {
             update(state => ({ ...state, modal:modalIdData }));
         },
         clearModal: () => {

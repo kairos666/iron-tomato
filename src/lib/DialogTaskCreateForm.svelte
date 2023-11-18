@@ -40,7 +40,7 @@
     }
 </script>
 
-<Dialog open={ ($appUIState.modal === 'task') } on:close={() => clearModal() }>
+<Dialog open={ ($appUIState.modal === 'task-create') } on:close={() => clearModal() }>
     <DialogOverlay class="dlg-Overlay" />
     <article class="dlg-Container">
         <hgroup>

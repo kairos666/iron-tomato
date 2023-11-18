@@ -9,12 +9,14 @@
     import DialogTaskCreateForm from './lib/DialogTaskCreateForm.svelte';
     import DialogTaskEditForm from './lib/DialogTaskEditForm.svelte';
     import { Inbox, PartyPopper, PlusCircle } from 'lucide-svelte';
+    import DialogTaskDetail from './lib/DialogTaskDetail.svelte';
 
     const { setModal, changeListView } = appUIState;
     $: isReady = (appUIState !== undefined && $doneTasksList !== undefined && $unfinishedTasksList !== undefined)
 
     // handle actions 
-    function handleEditTask(evt:ComponentEvents<Task>['edit']) { setModal(evt.detail) }
+    function handleSeeTask(evt:ComponentEvents<any>['task-detail']) { setModal(`task-detail-${ evt.detail }`) }
+    function handleEditTask(evt:ComponentEvents<any>['task-edit']) { setModal(`task-edit-${ evt.detail }`) }
     function handleChangeListView(evt:ComponentEvents<AppHeader>['list-view-change']) { changeListView(evt.detail) }
     function handleReorderTask(evt:ComponentEvents<Task>['reorder']) {
         // replicate reordering
@@ -37,16 +39,16 @@
         {:else if ($appUIState.listView === 'todo')}
             <TasksList on:reorder={ handleReorderTask }>
                 {#each $unfinishedTasksList as task (task.id)}
-                    <Task data={ task } isMobile={ $appUIState.isMobileViewport } on:edit={ handleEditTask } />
+                    <Task data={ task } on:task-edit={ handleEditTask } on:task-detail={ handleSeeTask } />
                 {:else}
                     <p class="empty-state"><PartyPopper /> Aucune tâche à faire dans la liste</p>
                 {/each}
-                <button slot="add-task" on:click={ () => setModal('task') }><PlusCircle /><span class="sr-only">Créer une tâche</span></button>
+                <button slot="add-task" on:click={ () => setModal('task-create') }><PlusCircle /><span class="sr-only">Créer une tâche</span></button>
             </TasksList>
         {:else if ($appUIState.listView === 'done')}
             <TasksList on:reorder={ handleReorderTask }>
                 {#each $doneTasksList as task (task.id)}
-                    <Task data={ task } isMobile={ $appUIState.isMobileViewport } on:edit={ handleEditTask } />
+                    <Task data={ task } on:task-edit={ handleEditTask } on:task-detail={ handleSeeTask } />
                 {:else}
                     <p class="empty-state"><Inbox /> Liste des tâches terminées vide</p>
                 {/each}
@@ -56,13 +58,5 @@
     <DialogReset />
     <DialogTaskCreateForm />
     <DialogTaskEditForm />
+    <DialogTaskDetail />
 </main>
-
-<style lang="scss">
-    .empty-state {
-        margin: var(--block-spacing-vertical) 0;
-        padding: var(--spacing) var(--block-spacing-horizontal);
-        border-radius: var(--border-radius);
-        background: var(--blockquote-border-color);
-    }
-</style>
