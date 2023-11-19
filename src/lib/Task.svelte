@@ -1,10 +1,10 @@
 <script lang="ts">
-    import { createEventDispatcher } from "svelte";
     import { taskReopen, taskAchieve, taskDelete, type Task } from '../stores/persistentTasks';
+    import { appUIState } from '../stores/appUIState';
     import { CheckCircle, Eraser, Eye, Pencil, Undo2 } from "lucide-svelte";
 
     export let data:Task;
-    const dispatch = createEventDispatcher();
+    const { setModal } = appUIState;
 
     // deduce available actions based on data
     $: hasDescription = !!data.description;
@@ -13,11 +13,11 @@
     $: isDeleteEnabled = !data.isDone;
     $: isModifyEnabled = !data.isDone;
 
-    function handleDetail() { dispatch('task-detail', data.id) }
+    function handleDetail() { setModal(`task-detail-${ parseInt(data.id) }`) }
     function handleAchieve() { taskAchieve(data.id) }
     function handleReopen() { taskReopen(data.id) }
     function handleDelete() { taskDelete(data.id) }
-    function handleModify() { dispatch('task-edit', data.id) }
+    function handleModify() { setModal(`task-edit-${ parseInt(data.id) }`) }
 </script>
 
 <article class="tsk-Card" class:tsk-Card-isDone={ isAchieveEnabled } class:tsk-Card-isUrgent={ data.isUrgent } class:tsk-Card-isImportant={ data.isImportant } role="listitem" data-id={ data.id }>

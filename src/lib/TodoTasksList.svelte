@@ -5,14 +5,11 @@
     import { onDestroy, afterUpdate } from 'svelte';
     import Sortable from 'sortablejs';
     import Task from './Task.svelte';
-    import type { ComponentEvents } from 'svelte';
     
     const { setModal } = appUIState;
     let todosListElt:HTMLElement;
 
     $: isReady = (appUIState !== undefined && $unfinishedTasksList !== undefined)
-    function handleEditTask(evt:ComponentEvents<any>['task-edit']) { setModal(`task-edit-${ evt.detail }`) }
-    function handleSeeTask(evt:ComponentEvents<any>['task-detail']) { setModal(`task-detail-${ evt.detail }`) }
 
     // DRAG N DROP handling
     function initDragAndSort(todosList:HTMLElement) {
@@ -58,7 +55,7 @@
 {:else}
     <div use:initDragAndSort bind:this={ todosListElt } role="list">
         {#each $unfinishedTasksList as task (task.id)}
-            <Task data={ task } on:task-edit={ handleEditTask } on:task-detail={ handleSeeTask } />
+            <Task data={ task } />
         {:else}
             <p class="empty-state"><PartyPopper /> Aucune tâche à faire dans la liste</p>
         {/each}
