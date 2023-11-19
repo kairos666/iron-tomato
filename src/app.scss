@@ -51,6 +51,8 @@ $primary-700: #c2185b;
         padding-inline-start: 0;
         display: flex;
         gap: var(--spacing);
+
+        button { margin-block-end: 0; }
     }
 }
 
