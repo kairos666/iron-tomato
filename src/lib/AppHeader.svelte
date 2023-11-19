@@ -5,8 +5,8 @@
     import { createEventDispatcher } from 'svelte';
     const dispatch = createEventDispatcher();
 
-    export let listView:'todo'|'done';
-    $: dispatch('list-view-change', listView);
+    export let tasksShown:'todo'|'done';
+    $: dispatch('tasks-shown-change', tasksShown);
 
     function onResetTask() { dispatch('reset') } // confirmation modal
     function onResetDoneTask() { dispatch('reset-done') } // no confirmation modal
@@ -20,7 +20,7 @@
     <Popover class="pop-Wrapper">
         <PopoverButton class="pop-TriggerBtn">Plus d'options</PopoverButton>
         <PopoverPanel class="pop-Panel">
-            <RadioGroup class="vslct-Wrapper" bind:value={ listView }>
+            <RadioGroup class="vslct-Wrapper" bind:value={ tasksShown }>
                 <RadioGroupLabel class="vslct-Label">Affichage liste de tâches</RadioGroupLabel>
                 <RadioGroupOption class="vslct-Option" value="todo" let:checked>
                   <span class:checked>Tâches à faire</span>

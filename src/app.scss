@@ -113,7 +113,7 @@ $primary-700: #c2185b;
     }
 }
 
-// view select (RADIO GROUP)
+// tasks shown select (RADIO GROUP)
 .vslct-Wrapper {
     display:flex;
     flex-wrap: wrap;
@@ -139,6 +139,34 @@ $primary-700: #c2185b;
 
             &:active, &:focus, &:hover {
                 background-color: var(--primary-focus);
+            }
+        }
+    }
+}
+
+// list view mode select (RADIO GROUP)
+.tv-Wrapper {
+    display:flex;
+    gap: var(--spacing);
+    padding-inline: calc(var(--spacing) / 2);
+
+    .tv-Label {
+        flex:0 1 100%;
+    }
+    .tv-Option {
+        flex:1 0 auto;
+        gap: calc(var(--spacing) / 2);
+        text-align: center;
+        cursor: pointer;
+
+        &[aria-checked="true"] {
+            color: var(--primary);
+        }
+        &[aria-checked="false"] {
+            color: var(--muted-color);
+
+            &:active, &:focus, &:hover {
+                color: var(--contrast);
             }
         }
     }
