@@ -20,7 +20,7 @@
     function handleModify() { dispatch('task-edit', data.id) }
 </script>
 
-<article class={ isAchieveEnabled ? "tsk-Card tsk-Card-hasDone" : "tsk-Card" } role="listitem" data-id={ data.id }>
+<article class="tsk-Card" class:tsk-Card-isDone={ isAchieveEnabled } class:tsk-Card-isUrgent={ data.isUrgent } class:tsk-Card-isImportant={ data.isImportant } role="listitem" data-id={ data.id }>
     {#if isAchieveEnabled}<button class="tsk-Btn tsk-Btn-done" on:click={ handleAchieve }  data-tooltip="Achever"><CheckCircle size={ 26 } color="var(--icon-color)" /><span class="sr-only">Achever</span></button>{/if}
     <h2 draggable="true" aria-labelledby="poignée de la tâche" class="sortable-handle">{ data.label }</h2>
     <menu class="tsk-Card_Menu">
@@ -35,6 +35,7 @@
     .tsk-Card {
         --task-spacing: 0.5rem;
         --task-font-size: 0.75rem;
+        --category-border-offset: 3px;
 
         @media (min-width: 576px) {
             --task-spacing: 0.75rem;
@@ -50,11 +51,67 @@
         margin-block: var(--task-spacing);
         padding: var(--task-spacing);
         gap: var(--task-spacing);
+        position:relative;
+        z-index: 1;
 
-        &.tsk-Card-hasDone {
+        &.tsk-Card-isDone {
             grid-template-columns: auto 1fr auto;
             grid-template-areas:
                 "done title actions";
+        }
+
+        &.tsk-Card-isUrgent:not(.tsk-Card-isImportant) {
+            background-color: transparent;
+            &::after {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background-color: var(--background-color);
+                border: var(--category-border-offset) solid var(--urgent-color);
+                border-radius: var(--border-radius);
+                z-index: -1;
+            }
+        }
+
+        &.tsk-Card-isImportant:not(.tsk-Card-isUrgent) {
+            background-color: transparent;
+            &::after {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background-color: var(--background-color);
+                border: var(--category-border-offset) solid var(--important-color);
+                border-radius: var(--border-radius);
+                z-index: -1;
+            }
+        }
+
+        &.tsk-Card-isUrgent.tsk-Card-isImportant {
+            background-color: transparent;
+            &::before {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background: linear-gradient(7deg, var(--urgent-color) 0%, var(--urgent-color) 49%, var(--important-color) 51%, var(--important-color) 100%);
+                background-size: 200% 100%;
+                border-radius: var(--border-radius);
+                z-index: -2;
+                animation: animatedgradient 3s ease infinite;
+            }
+            &::after {
+                content: '';
+                position: absolute;
+                inset: var(--category-border-offset);
+                background-color: var(--background-color);
+                border-radius: var(--border-radius);
+                z-index: -1;
+            }
+        }
+
+        @keyframes animatedgradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
     }
 
@@ -72,7 +129,7 @@
         &.tsk-Btn-done { 
             grid-area: done;
             --icon-color: var(--muted-border-color);
-            &:hover, &:focus, &:active { --icon-color: var(--ins-color); }
+            &:hover, &:focus, &:active { --icon-color: var(--done-color); }
         }
     }
     h2 { 
