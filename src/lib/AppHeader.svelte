@@ -44,6 +44,8 @@
         background-color: var(--primary);
         padding: calc(var(--spacing) / 4) var(--spacing);
         margin-block-end: var(--typography-spacing-vertical);
+        position: relative;
+        z-index: 9999;
     }
 
     .hdr-TitleWrapper {
