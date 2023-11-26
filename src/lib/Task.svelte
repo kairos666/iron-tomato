@@ -33,8 +33,6 @@
 
 <style lang="scss">
     .tsk-Card {
-        --task-spacing: 0.5rem;
-        --task-font-size: 0.75rem;
         --category-border-offset: 3px;
 
         @media (min-width: 576px) {

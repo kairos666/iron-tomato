@@ -5,6 +5,8 @@ $primary-700: #c2185b;
 
 // additional variables
 :root {
+    --task-spacing: 0.5rem;
+    --task-font-size: 0.75rem;
     --urgent-color: #ffc93c;
     --important-color: #ff6f3c;
     --done-color: #42b883;
@@ -149,6 +151,7 @@ $primary-700: #c2185b;
     display:flex;
     gap: var(--spacing);
     padding-inline: calc(var(--spacing) / 2);
+    margin-block-end: var(--spacing);
 
     .tv-Label {
         flex:0 1 100%;
@@ -173,7 +176,7 @@ $primary-700: #c2185b;
 }
 
 // empty state container style
-.empty-state {
+.empty-state-emphasized {
     margin: var(--block-spacing-vertical) 0;
     padding: var(--spacing) var(--block-spacing-horizontal);
     border-radius: var(--border-radius);
