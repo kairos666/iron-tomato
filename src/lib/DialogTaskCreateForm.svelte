@@ -13,6 +13,14 @@
     let formTaskIsUrgent:boolean = false;
     let formTaskIsImportant:boolean = false;
 
+    // reset values for each new form
+    function resetFields() {
+        formTaskLabel = "";
+        formTaskDescription = "";
+        formTaskIsUrgent = false;
+        formTaskIsImportant = false;
+    }
+
     function onSubmit(evt:SubmitEvent) {
         evt.preventDefault();
         const submittedFormData = new FormData((evt.target as HTMLFormElement));
@@ -30,8 +38,15 @@
             isDone: false
         }
 
-        // commit changes and close
+        // commit changes, reset and close
         taskCreate(newTask).then(scrollToBottomOfPage);
+        resetFields();
+        clearModal();
+    }
+
+    function onClose() {
+        // reset and close
+        resetFields();
         clearModal();
     }
 
@@ -42,7 +57,7 @@
     }
 </script>
 
-<Dialog open={ ($appUIState.modal === 'task-create') } on:close={() => clearModal() }>
+<Dialog open={ ($appUIState.modal === 'task-create') } on:close={ onClose }>
     <DialogOverlay class="dlg-Overlay" />
     <article class="dlg-Container">
         <hgroup>
@@ -69,7 +84,7 @@
                 </Switch>
             </SwitchGroup>
             <menu class="dlg-Container_ActionsMenu">
-                <button type="reset" class="secondary outline" on:click={() => clearModal() }>Annuler</button>
+                <button type="reset" class="secondary outline" on:click={ onClose }>Annuler</button>
                 <button type="submit">Créer la tâche</button>
             </menu>
         </form>
