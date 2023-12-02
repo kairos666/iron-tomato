@@ -24,7 +24,14 @@ const initAppUIState = () => {
     const { subscribe, update } = writable(initialState);
 
     // react to viewport resize
-    mediaQueryList.onchange = evt => update(state => ({ ...state, isMobileViewport: !evt.matches }));
+    mediaQueryList.onchange = evt => update(state => {
+        const isMobileViewport:boolean = !evt.matches;
+
+        // force list view in mobile
+        const viewMode:'list'|'matrix' = (isMobileViewport) ? 'list' : state.viewMode;
+        
+        return { ...state, viewMode, isMobileViewport }
+    });
 
     // Store implementation
     return {

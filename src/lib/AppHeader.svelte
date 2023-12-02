@@ -41,24 +41,31 @@
 
 <style lang="scss">
     .hdr-Container {
-        background-color: var(--primary);
-        padding: calc(var(--spacing) / 4) var(--spacing);
-        margin-block-end: var(--typography-spacing-vertical);
-        position: relative;
-        z-index: 9999;
+        display:flex;
+        align-items: center;
+        height:100%;
+        padding-inline: calc(var(--spacing) * 0.5);
+        gap: calc(var(--spacing) * 0.5);
+
+        @media (min-width: 576px) {
+            gap: var(--spacing);
+            padding-inline: var(--spacing);
+        }
     }
 
     .hdr-TitleWrapper {
+        flex:1 0 auto;
         display:flex;
-        gap: var(--spacing);
+        gap: inherit;
     }
 
     .hdr-Title { 
+        font-size: 1.25rem;
         margin-block-end: 0;
         color: var(--primary-inverse);
     }
 
     .hdr-Logo {
-        height: 3rem;
+        height: 1.8rem;
     }
 </style>

@@ -1,11 +1,10 @@
 <script lang="ts">
-    import { PartyPopper, PlusCircle } from 'lucide-svelte';
-    import { unfinishedTasksList, allTasksList, taskReorder, type Task as TaskType } from '../stores/persistentTasks';
+    import { PartyPopper } from 'lucide-svelte';
+    import { unfinishedTasksList, taskReorder, type Task as TaskType } from '../stores/persistentTasks';
     import { appUIState } from '../stores/appUIState';
     import Sortable from 'sortablejs';
     import Task from './Task.svelte';
     
-    const { setModal } = appUIState;
     let todosUrImListElt:HTMLElement;
     let todosImListElt:HTMLElement;
     let todosUrListElt:HTMLElement;
@@ -82,7 +81,7 @@
             isImportant,
             isUrgent
         }));
-        
+
         taskReorder(resultTaskArray);
     }
 
@@ -131,48 +130,74 @@
         <p class="empty-state-emphasized" aria-busy="true">Chargement des tâches</p>
     </div>
 {:else}
-    <h3 class="lst-ListHeader">
-        <span class="lst-ListHeader_Label">A faire en premier</span>
-        <span class="lst-ImportantBadge">Important</span>
-        <span class="lst-UrgentBadge">Urgent</span>
-    </h3>
-    <div use:initDragAndSort bind:this={ todosUrImListElt } role="list" data-list="important-and-urgent">
-        {#each urgentAndImportantTasks as task (task.id)}
-            <Task data={ task } />
-        {/each}
-        <p class="lst-empty-state filtered"><PartyPopper /> Aucune tâche importante et urgente</p>
+    <div class="lst-Container" class:lst-Container-matrix={ ($appUIState.viewMode === 'matrix') }>
+        <h3 class="lst-ListHeader" data-header="important-and-urgent">
+            <span class="lst-ListHeader_Label">A faire en premier</span>
+            <span class="lst-ImportantBadge">Important</span>
+            <span class="lst-UrgentBadge">Urgent</span>
+        </h3>
+        <div use:initDragAndSort bind:this={ todosUrImListElt } role="list" data-list="important-and-urgent">
+            {#each urgentAndImportantTasks as task (task.id)}
+                <Task data={ task } />
+            {/each}
+            <p class="lst-empty-state filtered"><PartyPopper /> Aucune tâche importante et urgente</p>
+        </div>
+        <h3 class="lst-ListHeader" data-header="important">
+            <span class="lst-ListHeader_Label">A faire, mais moins urgent</span>
+            <span class="lst-ImportantBadge">Important</span>
+        </h3>
+        <div use:initDragAndSort bind:this={ todosImListElt } role="list" data-list="important">
+            {#each importantTasks as task (task.id)}
+                <Task data={ task } />
+            {/each}
+            <p class="lst-empty-state filtered"><PartyPopper /> Aucune tâche importante</p>
+        </div>
+        <h3 class="lst-ListHeader" data-header="urgent">
+            <span class="lst-ListHeader_Label">A déléguer ou planifier</span>
+            <span class="lst-UrgentBadge">Urgent</span>
+        </h3>
+        <div use:initDragAndSort bind:this={ todosUrListElt } role="list" data-list="urgent">
+            {#each urgentTasks as task (task.id)}
+                <Task data={ task } />
+            {/each}
+            <p class="lst-empty-state filtered"><PartyPopper /> Aucune tâche urgente</p>
+        </div>
+        <h3 class="lst-ListHeader" data-header="backburner"><span class="lst-ListHeader_Label">A ne pas oublier, mais ça peut attendre</span></h3>
+        <div use:initDragAndSort bind:this={ todosListElt } role="list" data-list="backburner">
+            {#each backburnerTasks as task (task.id)}
+                <Task data={ task } />
+            {/each}
+            <p class="lst-empty-state filtered"><PartyPopper /> Aucune tâche</p>
+        </div>
     </div>
-    <h3 class="lst-ListHeader">
-        <span class="lst-ListHeader_Label">A faire, mais moins urgent</span>
-        <span class="lst-ImportantBadge">Important</span>
-    </h3>
-    <div use:initDragAndSort bind:this={ todosImListElt } role="list" data-list="important">
-        {#each importantTasks as task (task.id)}
-            <Task data={ task } />
-        {/each}
-        <p class="lst-empty-state filtered"><PartyPopper /> Aucune tâche importante</p>
-    </div>
-    <h3 class="lst-ListHeader">
-        <span class="lst-ListHeader_Label">A déléguer ou planifier</span>
-        <span class="lst-UrgentBadge">Urgent</span>
-    </h3>
-    <div use:initDragAndSort bind:this={ todosUrListElt } role="list" data-list="urgent">
-        {#each urgentTasks as task (task.id)}
-            <Task data={ task } />
-        {/each}
-        <p class="lst-empty-state filtered"><PartyPopper /> Aucune tâche urgente</p>
-    </div>
-    <h3 class="lst-ListHeader"><span class="lst-ListHeader_Label">A ne pas oublier, mais ça peut attendre</span></h3>
-    <div use:initDragAndSort bind:this={ todosListElt } role="list" data-list="backburner">
-        {#each backburnerTasks as task (task.id)}
-            <Task data={ task } />
-        {/each}
-        <p class="lst-empty-state filtered"><PartyPopper /> Aucune tâche</p>
-    </div>
-    <button class="lst-AddTaskBtn" on:click={ () => setModal('task-create') }><PlusCircle /><span class="sr-only">Créer une tâche</span></button>
 {/if}
 
 <style lang="scss">
+    .lst-Container {
+        &.lst-Container-matrix {
+            display:grid;
+            width: 100%;
+            height: 100%;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: auto 1fr auto 1fr;
+            grid-template-areas: 
+                "iu-header i-header"
+                "iu-list i-list"
+                "u-header b-header"
+                "u-list b-list";
+            column-gap: var(--spacing);
+            row-gap: var(--task-spacing) var(--spacing) var(--task-spacing) var(--spacing);
+        }
+
+        [data-header="important-and-urgent"] { grid-area: iu-header; }
+        [data-header="important"] { grid-area: i-header; }
+        [data-header="urgent"] { grid-area: u-header; }
+        [data-header="backburner"] { grid-area: b-header; }
+        [data-list="important-and-urgent"] { grid-area: iu-list; }
+        [data-list="important"] { grid-area: i-list; }
+        [data-list="urgent"] { grid-area: u-list; }
+        [data-list="backburner"] { grid-area: b-list; }
+    }
     .lst-ListHeader {
         margin-block: 0;
         padding-inline: var(--task-spacing);
@@ -214,7 +239,5 @@
 
         &:only-child { display: block; }
     }
-    .lst-AddTaskBtn {
-        margin-block: var(--spacing) var(--block-spacing-vertical);
-    }
+    
 </style>
