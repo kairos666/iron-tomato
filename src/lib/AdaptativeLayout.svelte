@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { appUIState } from '../stores/appUIState';
     let hasHeader:boolean = $$slots.header;
     let hasFooter:boolean = $$slots.footer;
 </script>
@@ -9,7 +10,7 @@
             <slot name="header" />
         </header>
     {/if}
-    <div class="alyt-Content">
+    <div class="alyt-Content" class:alyt-Content-xLarge={ $appUIState.viewMode === 'matrix' && $appUIState.tasksShown === 'todo' }>
         <slot />
     </div>
     {#if hasFooter}
@@ -37,15 +38,22 @@
     }
 
     .alyt-Content {
-        margin: calc(var(--spacing) * 0.5);
-
+        @media (max-width:575px) {
+            margin: calc(var(--spacing) * 1.25);
+        }
         @media (min-width: 576px) and (max-width:1199px) {
-            margin: var(--spacing);
+            margin: calc(var(--spacing) * 2);
         }
         @media (min-width: 1200px) {
             margin-block: var(--spacing);
             margin-inline: auto;
-            max-width: calc(1200px - 2 * var(--spacing));
+            max-width: calc(1200px - 3.25 * var(--spacing));
+        }
+
+        &.alyt-Content-xLarge {
+            @media (min-width: 1200px) {
+                max-width: calc(100vw - 3.25 * var(--spacing));
+            }
         }
     }
 </style>
