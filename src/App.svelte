@@ -1,34 +1,27 @@
 <script lang="ts">
-    import { tasksDoneReset } from './stores/persistentTasks';
     import { appUIState } from './stores/appUIState';
-    import { type ComponentEvents } from 'svelte';
     import AppHeader from './lib/AppHeader.svelte';
     import DialogReset from './lib/DialogReset.svelte';
     import DialogTaskCreateForm from './lib/DialogTaskCreateForm.svelte';
     import DialogTaskEditForm from './lib/DialogTaskEditForm.svelte';
     import DialogTaskDetail from './lib/DialogTaskDetail.svelte';
-    import TasksViewModeSelect from './lib/TasksViewModeSelect.svelte';
     import DoneTasksList from './lib/DoneTasksList.svelte';
     import TodoTasksList from './lib/TodoTasksList.svelte';
     import AdaptativeLayout from './lib/AdaptativeLayout.svelte';
     import { PlusCircle } from 'lucide-svelte';
 
-    const { setModal, changeTasksShown } = appUIState;
-
-    // handle actions 
-    function handleChangeListView(evt:ComponentEvents<AppHeader>['tasks-shown-change']) { changeTasksShown(evt.detail) }
+    const { setModal } = appUIState;
 </script>
 
 {#if ($appUIState.tasksShown === 'todo')}
     <AdaptativeLayout>
-        <AppHeader slot="header" tasksShown={ $appUIState.tasksShown } on:reset={ () => setModal('reset') } on:reset-done={ () => tasksDoneReset() } on:tasks-shown-change={ handleChangeListView } />
-        <TasksViewModeSelect />
+        <AppHeader slot="header" />
         <TodoTasksList />
         <button slot="footer" class="lst-AddTaskBtn" on:click={ () => setModal('task-create') }><PlusCircle /><span class="sr-only">Créer une tâche</span></button>
     </AdaptativeLayout>
 {:else if ($appUIState.tasksShown === 'done')}
     <AdaptativeLayout>
-        <AppHeader slot="header" tasksShown={ $appUIState.tasksShown } on:reset={ () => setModal('reset') } on:reset-done={ () => tasksDoneReset() } on:tasks-shown-change={ handleChangeListView } />
+        <AppHeader slot="header" />
         <DoneTasksList />
     </AdaptativeLayout>
 {/if}
