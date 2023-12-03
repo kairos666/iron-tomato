@@ -19,16 +19,19 @@
     function handleChangeListView(evt:ComponentEvents<AppHeader>['tasks-shown-change']) { changeTasksShown(evt.detail) }
 </script>
 
-<AdaptativeLayout>
-    <AppHeader slot="header" tasksShown={ $appUIState.tasksShown } on:reset={ () => setModal('reset') } on:reset-done={ () => tasksDoneReset() } on:tasks-shown-change={ handleChangeListView } />
-    {#if ($appUIState.tasksShown === 'todo')}
+{#if ($appUIState.tasksShown === 'todo')}
+    <AdaptativeLayout>
+        <AppHeader slot="header" tasksShown={ $appUIState.tasksShown } on:reset={ () => setModal('reset') } on:reset-done={ () => tasksDoneReset() } on:tasks-shown-change={ handleChangeListView } />
         <TasksViewModeSelect />
         <TodoTasksList />
-    {:else if ($appUIState.tasksShown === 'done')}
+        <button slot="footer" class="lst-AddTaskBtn" on:click={ () => setModal('task-create') }><PlusCircle /><span class="sr-only">Créer une tâche</span></button>
+    </AdaptativeLayout>
+{:else if ($appUIState.tasksShown === 'done')}
+    <AdaptativeLayout>
+        <AppHeader slot="header" tasksShown={ $appUIState.tasksShown } on:reset={ () => setModal('reset') } on:reset-done={ () => tasksDoneReset() } on:tasks-shown-change={ handleChangeListView } />
         <DoneTasksList />
-    {/if}
-    <button slot="footer" class="lst-AddTaskBtn" on:click={ () => setModal('task-create') }><PlusCircle /><span class="sr-only">Créer une tâche</span></button>
-</AdaptativeLayout>
+    </AdaptativeLayout>
+{/if}
 <DialogReset />
 <DialogTaskCreateForm />
 <DialogTaskEditForm />
