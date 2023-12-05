@@ -136,7 +136,7 @@
             <span class="lst-ImportantBadge">Important</span>
             <span class="lst-UrgentBadge">Urgent</span>
         </h3>
-        <div use:initDragAndSort bind:this={ todosUrImListElt } role="list" data-list="important-and-urgent">
+        <div use:initDragAndSort bind:this={ todosUrImListElt } class="lst-List" role="list" data-list="important-and-urgent">
             {#each urgentAndImportantTasks as task (task.id)}
                 <Task data={ task } />
             {/each}
@@ -146,7 +146,7 @@
             <span class="lst-ListHeader_Label">A faire, mais moins urgent</span>
             <span class="lst-ImportantBadge">Important</span>
         </h3>
-        <div use:initDragAndSort bind:this={ todosImListElt } role="list" data-list="important">
+        <div use:initDragAndSort bind:this={ todosImListElt } class="lst-List" role="list" data-list="important">
             {#each importantTasks as task (task.id)}
                 <Task data={ task } />
             {/each}
@@ -156,14 +156,14 @@
             <span class="lst-ListHeader_Label">A déléguer ou planifier</span>
             <span class="lst-UrgentBadge">Urgent</span>
         </h3>
-        <div use:initDragAndSort bind:this={ todosUrListElt } role="list" data-list="urgent">
+        <div use:initDragAndSort bind:this={ todosUrListElt } class="lst-List" role="list" data-list="urgent">
             {#each urgentTasks as task (task.id)}
                 <Task data={ task } />
             {/each}
             <p class="lst-empty-state filtered"><PartyPopper /> Aucune tâche urgente</p>
         </div>
         <h3 class="lst-ListHeader" data-header="backburner"><span class="lst-ListHeader_Label">A ne pas oublier, mais ça peut attendre</span></h3>
-        <div use:initDragAndSort bind:this={ todosListElt } role="list" data-list="backburner">
+        <div use:initDragAndSort bind:this={ todosListElt } class="lst-List" role="list" data-list="backburner">
             {#each backburnerTasks as task (task.id)}
                 <Task data={ task } />
             {/each}
@@ -238,6 +238,23 @@
         background: var(--blockquote-border-color);
 
         &:only-child { display: block; }
+
+        .lst-Container-matrix &:only-child {
+            position:absolute;
+            inset: 5px 0;
+            border: 3px dashed var(--muted-color);
+            display:flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
     }
     
+    .lst-List {
+        .lst-Container-matrix & { 
+            position:relative;
+            min-height: 1rem;
+            overflow-y: auto;
+        }
+    }
 </style>

@@ -21,19 +21,20 @@
 </script>
 
 <article class="tsk-Card" class:tsk-Card-isDone={ isAchieveEnabled } class:tsk-Card-isUrgent={ data.isUrgent } class:tsk-Card-isImportant={ data.isImportant } role="listitem" data-id={ data.id }>
-    {#if isAchieveEnabled}<button class="tsk-Btn tsk-Btn-done" on:click={ handleAchieve }  data-tooltip="Achever"><CheckCircle size={ 26 } color="var(--icon-color)" /><span class="sr-only">Achever</span></button>{/if}
+    {#if isAchieveEnabled}<button class="tsk-Btn tsk-Btn-done" on:click={ handleAchieve }  data-tooltip="Achever" data-placement="right"><CheckCircle size={ 26 } color="var(--icon-color)" /><span class="sr-only">Achever</span></button>{/if}
     <h2 draggable="true" aria-labelledby="poignée de la tâche" class="sortable-handle">{ data.label }</h2>
     <menu class="tsk-Card_Menu">
-        {#if hasDescription} <button on:click={ handleDetail } class="tsk-Btn" data-tooltip="Voir description"><Eye size={ 26 } color="var(--icon-color)"/><span class="sr-only">Voir description</span></button> {/if}
-        {#if isReopenEnabled} <button on:click={ handleReopen } class="tsk-Btn" data-tooltip="Rouvrir"><Undo2 size={ 26 } color="var(--icon-color)"/><span class="sr-only">Rouvrir</span></button> {/if}
-        {#if isModifyEnabled} <button on:click={ handleModify } class="tsk-Btn" data-tooltip="Modifier"><Pencil size={ 26 } color="var(--icon-color)"/><span class="sr-only">Modifier</span></button> {/if}
-        {#if isDeleteEnabled} <button on:click={ handleDelete } class="tsk-Btn" data-tooltip="Supprimer"><Eraser size={ 26 } color="var(--icon-color)"/><span class="sr-only">Supprimer</span></button> {/if}
+        {#if hasDescription} <button on:click={ handleDetail } class="tsk-Btn" data-tooltip="Voir description" data-placement="left"><Eye size={ 26 } color="var(--icon-color)"/><span class="sr-only">Voir description</span></button> {/if}
+        {#if isReopenEnabled} <button on:click={ handleReopen } class="tsk-Btn" data-tooltip="Rouvrir" data-placement="left"><Undo2 size={ 26 } color="var(--icon-color)"/><span class="sr-only">Rouvrir</span></button> {/if}
+        {#if isModifyEnabled} <button on:click={ handleModify } class="tsk-Btn" data-tooltip="Modifier" data-placement="left"><Pencil size={ 26 } color="var(--icon-color)"/><span class="sr-only">Modifier</span></button> {/if}
+        {#if isDeleteEnabled} <button on:click={ handleDelete } class="tsk-Btn" data-tooltip="Supprimer" data-placement="left"><Eraser size={ 26 } color="var(--icon-color)"/><span class="sr-only">Supprimer</span></button> {/if}
     </menu>
 </article>
 
 <style lang="scss">
     .tsk-Card {
         --category-border-offset: 3px;
+        --card-box-shadow: 0px 30px 15px -30px rgba(27,40,50, 0.8);
 
         @media (min-width: 576px) {
             --task-spacing: 0.75rem;
