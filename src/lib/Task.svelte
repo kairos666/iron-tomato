@@ -49,6 +49,18 @@
         position:relative;
         z-index: 1;
 
+        &:not(.tsk-Card-isUrgent):not(.tsk-Card-isImportant) {
+            background-color: transparent;
+            &::after {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background-color: var(--background-color);
+                border: var(--category-border-offset) solid var(--muted-color);
+                border-radius: var(--border-radius);
+                z-index: -1;
+            }
+        }
         &.tsk-Card-isUrgent:not(.tsk-Card-isImportant) {
             background-color: transparent;
             &::after {
