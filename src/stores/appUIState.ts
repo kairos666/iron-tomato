@@ -4,7 +4,8 @@ type ModalCodes = 'reset'|'task-create';
 type ModalTaskCodes = `${'task-detail'|'task-edit'}-${number}`;
 
 export type AppUIState = {
-    listView:'todo'|'done'
+    tasksShown:'todo'|'done'
+    viewMode:'list'|'matrix'
     modal:undefined|ModalCodes|ModalTaskCodes // no modal, reset, new task, edit task
     isMobileViewport:boolean // adapt to viewport width (based on pico css breakpoint)
 }
@@ -14,7 +15,8 @@ const initAppUIState = () => {
 
     // initial data
     const initialState:AppUIState = {
-        listView: 'todo',
+        tasksShown: 'todo',
+        viewMode: 'list',
         modal: undefined,
         isMobileViewport: !mediaQueryList.matches
     };
@@ -22,7 +24,14 @@ const initAppUIState = () => {
     const { subscribe, update } = writable(initialState);
 
     // react to viewport resize
-    mediaQueryList.onchange = evt => update(state => ({ ...state, isMobileViewport: !evt.matches }));
+    mediaQueryList.onchange = evt => update(state => {
+        const isMobileViewport:boolean = !evt.matches;
+
+        // force list view in mobile
+        const viewMode:'list'|'matrix' = (isMobileViewport) ? 'list' : state.viewMode;
+        
+        return { ...state, viewMode, isMobileViewport }
+    });
 
     // Store implementation
     return {
@@ -33,8 +42,11 @@ const initAppUIState = () => {
         clearModal: () => {
             update(state => ({ ...state, modal: undefined }));
         },
-        changeListView: (targetView:'todo'|'done') => {
-            update(state => ({ ...state, listView: targetView }));
+        changeTasksShown: (targetTasksType:'todo'|'done') => {
+            update(state => ({ ...state, tasksShown: targetTasksType }));
+        },
+        changeViewMode: (targetViewMode:'list'|'matrix') => {
+            update(state => ({ ...state, viewMode: targetViewMode }))
         }
     }
 }

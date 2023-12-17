@@ -1,40 +1,36 @@
 <script lang="ts">
-    import { createEventDispatcher } from "svelte";
-    import { taskReopen, taskAchieve, taskDelete, type Task } from '../stores/persistentTasks';
-    import { CheckCircle, Eraser, Eye, Pencil, Undo2 } from "lucide-svelte";
+    import { taskAchieve, taskDelete, type Task } from '../stores/persistentTasks';
+    import { appUIState } from '../stores/appUIState';
+    import { CheckCircle, Eraser, Eye, Pencil } from "lucide-svelte";
 
     export let data:Task;
-    const dispatch = createEventDispatcher();
+    const { setModal } = appUIState;
 
     // deduce available actions based on data
     $: hasDescription = !!data.description;
-    $: isAchieveEnabled = !data.isDone;
-    $: isReopenEnabled = data.isDone;
     $: isDeleteEnabled = !data.isDone;
     $: isModifyEnabled = !data.isDone;
 
-    function handleDetail() { dispatch('task-detail', data.id) }
+    function handleDetail() { setModal(`task-detail-${ parseInt(data.id) }`) }
     function handleAchieve() { taskAchieve(data.id) }
-    function handleReopen() { taskReopen(data.id) }
     function handleDelete() { taskDelete(data.id) }
-    function handleModify() { dispatch('task-edit', data.id) }
+    function handleModify() { setModal(`task-edit-${ parseInt(data.id) }`) }
 </script>
 
-<article class={ isAchieveEnabled ? "tsk-Card tsk-Card-hasDone" : "tsk-Card" } role="listitem" data-id={ data.id }>
-    {#if isAchieveEnabled}<button class="tsk-Btn tsk-Btn-done" on:click={ handleAchieve }><CheckCircle size={ 26 } color="var(--icon-color)" /><span class="sr-only">Achever</span></button>{/if}
+<article class="tsk-Card tsk-Card-isTodo" class:tsk-Card-isUrgent={ data.isUrgent } class:tsk-Card-isImportant={ data.isImportant } role="listitem" data-id={ data.id }>
+    <button class="tsk-Btn tsk-Btn-done" on:click={ handleAchieve }  data-tooltip="Achever" data-placement="right"><CheckCircle size={ 26 } color="var(--icon-color)" /><span class="sr-only">Achever</span></button>
     <h2 draggable="true" aria-labelledby="poignée de la tâche" class="sortable-handle">{ data.label }</h2>
     <menu class="tsk-Card_Menu">
-        {#if hasDescription} <button on:click={ handleDetail } class="tsk-Btn"><Eye size={ 26 } color="var(--icon-color)"/><span class="sr-only">Voir description</span></button> {/if}
-        {#if isReopenEnabled} <button on:click={ handleReopen } class="tsk-Btn"><Undo2 size={ 26 } color="var(--icon-color)"/><span class="sr-only">Rouvrir</span></button> {/if}
-        {#if isModifyEnabled} <button on:click={ handleModify } class="tsk-Btn"><Pencil size={ 26 } color="var(--icon-color)"/><span class="sr-only">Modifier</span></button> {/if}
-        {#if isDeleteEnabled} <button on:click={ handleDelete } class="tsk-Btn"><Eraser size={ 26 } color="var(--icon-color)"/><span class="sr-only">Supprimer</span></button> {/if}
+        {#if hasDescription} <button on:click={ handleDetail } class="tsk-Btn" data-tooltip="Voir description" data-placement="left"><Eye size={ 26 } color="var(--icon-color)"/><span class="sr-only">Voir description</span></button> {/if}
+        {#if isModifyEnabled} <button on:click={ handleModify } class="tsk-Btn" data-tooltip="Modifier" data-placement="left"><Pencil size={ 26 } color="var(--icon-color)"/><span class="sr-only">Modifier</span></button> {/if}
+        {#if isDeleteEnabled} <button on:click={ handleDelete } class="tsk-Btn" data-tooltip="Supprimer" data-placement="left"><Eraser size={ 26 } color="var(--icon-color)"/><span class="sr-only">Supprimer</span></button> {/if}
     </menu>
 </article>
 
 <style lang="scss">
     .tsk-Card {
-        --task-spacing: 0.5rem;
-        --task-font-size: 0.75rem;
+        --category-border-offset: 3px;
+        --card-box-shadow: 0px 30px 15px -30px rgba(27,40,50, 0.8);
 
         @media (min-width: 576px) {
             --task-spacing: 0.75rem;
@@ -42,19 +38,81 @@
         }
 
         display: grid;
-        grid-template-columns: 1fr auto;
+        grid-template-columns: auto 1fr auto;
         grid-template-rows: auto;
         grid-template-areas:
-            "title actions";
+            "done title actions";
         align-items: center;
         margin-block: var(--task-spacing);
         padding: var(--task-spacing);
         gap: var(--task-spacing);
+        position:relative;
+        z-index: 1;
 
-        &.tsk-Card-hasDone {
-            grid-template-columns: auto 1fr auto;
-            grid-template-areas:
-                "done title actions";
+        &:not(.tsk-Card-isUrgent):not(.tsk-Card-isImportant) {
+            background-color: transparent;
+            &::after {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background-color: var(--background-color);
+                border: var(--category-border-offset) solid var(--muted-color);
+                border-radius: var(--border-radius);
+                z-index: -1;
+            }
+        }
+        &.tsk-Card-isUrgent:not(.tsk-Card-isImportant) {
+            background-color: transparent;
+            &::after {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background-color: var(--background-color);
+                border: var(--category-border-offset) solid var(--urgent-color);
+                border-radius: var(--border-radius);
+                z-index: -1;
+            }
+        }
+
+        &.tsk-Card-isImportant:not(.tsk-Card-isUrgent) {
+            background-color: transparent;
+            &::after {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background-color: var(--background-color);
+                border: var(--category-border-offset) solid var(--important-color);
+                border-radius: var(--border-radius);
+                z-index: -1;
+            }
+        }
+
+        &.tsk-Card-isUrgent.tsk-Card-isImportant {
+            background-color: transparent;
+            &::before {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background: linear-gradient(7deg, var(--urgent-color) 0%, var(--urgent-color) 49%, var(--important-color) 51%, var(--important-color) 100%);
+                background-size: 200% 100%;
+                border-radius: var(--border-radius);
+                z-index: -2;
+                animation: animatedgradient 3s ease infinite;
+            }
+            &::after {
+                content: '';
+                position: absolute;
+                inset: var(--category-border-offset);
+                background-color: var(--background-color);
+                border-radius: var(--border-radius);
+                z-index: -1;
+            }
+        }
+
+        @keyframes animatedgradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
     }
 
@@ -72,7 +130,7 @@
         &.tsk-Btn-done { 
             grid-area: done;
             --icon-color: var(--muted-border-color);
-            &:hover, &:focus, &:active { --icon-color: var(--ins-color); }
+            &:hover, &:focus, &:active { --icon-color: var(--done-color); }
         }
     }
     h2 { 

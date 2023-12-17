@@ -88,14 +88,17 @@ export async function taskReopen(taskID:string) {
 }
 
 // task action - REORDER
-export async function taskReorder(reorderAssignements:{ id:string, order:number }[]) {
+export async function taskReorder(reorderAssignements:{ id:string, order:number, isImportant?:boolean, isUrgent?:boolean }[]) {
     try {
-        await db.tasks.bulkUpdate(reorderAssignements.map(taskPartial => ({ 
-            key: taskPartial.id, 
-            changes: {
-                order: taskPartial.order
-            } 
-        })));
+        await db.tasks.bulkUpdate(reorderAssignements.map(taskPartial => {
+            const key:string = taskPartial.id;
+
+            const changes:any = { order: taskPartial.order };
+            if(taskPartial.isImportant !== undefined) changes.isImportant = taskPartial.isImportant;
+            if(taskPartial.isUrgent !== undefined) changes.isUrgent = taskPartial.isUrgent;
+
+            return { key, changes };
+        }));
         console.info(`REORDERED tasks`);
     } catch (error) {
         throw new Error(`Failed to reorder tasks ${ error }`);

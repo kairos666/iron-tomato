@@ -3,8 +3,21 @@ $primary-500: #e91e63;
 $primary-600: #d81b60;
 $primary-700: #c2185b;
 
+// additional variables
+:root {
+    --task-spacing: 0.5rem;
+    --task-font-size: 0.75rem;
+    --urgent-color: #ffc93c;
+    --important-color: #ff6f3c;
+    --done-color: #42b883;
+}
+
 // Import Pico
 @import "@picocss/pico/scss/pico";
+
+// adjust lucid icon alignement
+.lucide-icon { position: relative; top:-2.5px; }
+.lst-AddTaskBtn .lucide-icon { position:static; } // footer add button case
 
 // drag and drop general styles
 .sortable-chosen {
@@ -21,10 +34,12 @@ $primary-700: #c2185b;
     background-color: var(--contrast-hover);
     backdrop-filter: var(--modal-overlay-backdrop-filter); 
     opacity: var(--form-element-disabled-opacity);
+    z-index: 1000;
 }
 // DIALOG - container
 .dlg-Container {
     position: fixed; 
+    z-index: 1001;
     
     @media (max-width: 575px) {
         top: 50%; 
@@ -48,6 +63,8 @@ $primary-700: #c2185b;
         padding-inline-start: 0;
         display: flex;
         gap: var(--spacing);
+
+        button { margin-block-end: 0; }
     }
 }
 
@@ -57,6 +74,7 @@ $primary-700: #c2185b;
 }
 .pop-TriggerBtn {
     margin-block-end: 0;
+    padding:0.15rem 0.5rem;
 }
 .pop-Panel {
     position:absolute;
@@ -99,7 +117,7 @@ $primary-700: #c2185b;
     }
 }
 
-// view select (RADIO GROUP)
+// tasks shown select (RADIO GROUP)
 .vslct-Wrapper {
     display:flex;
     flex-wrap: wrap;
@@ -130,12 +148,78 @@ $primary-700: #c2185b;
     }
 }
 
+// list view mode select (RADIO GROUP)
+.tv-Wrapper {
+    display:flex;
+    gap: var(--spacing);
+    margin-block-end: 0;
+
+    .tv-Option {
+        flex:1 0 auto;
+        gap: calc(var(--spacing) / 2);
+        text-align: center;
+        cursor: pointer;
+        color: var(--primary-inverse);
+        padding:0.15rem 0.5rem;
+        border-radius: var(--border-radius);
+
+        &[aria-checked="true"] {
+            color: var(--primary);
+            background-color: var(--primary-inverse);
+        }
+        &[aria-checked="false"] {
+            &:active, &:focus, &:hover {
+                color: var(--primary-inverse);
+                background-color: var(--primary-hover);
+            }
+        }
+    }
+}
+
 // empty state container style
-.empty-state {
+.empty-state-emphasized {
     margin: var(--block-spacing-vertical) 0;
     padding: var(--spacing) var(--block-spacing-horizontal);
     border-radius: var(--border-radius);
     background: var(--blockquote-border-color);
+}
+
+// SWITCH https://svelte-headlessui.goss.io/docs/2.0/switch#switch-1
+.switch {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    border-radius: 9999px;
+    height: 1.5rem;
+    width: 2.75rem;
+    padding:0;
+    margin-block-end: 0;
+    border: none;
+    transition: background-color 0.15s ease;
+
+    &.switch-enabled { background-color: var(--ins-color); }
+    &.switch-disabled { background-color: var(--muted-border-color); }
+
+    .toggle {
+        display: inline-block;
+        width: 1rem;
+        height: 1rem;
+        background-color: var(--switch-color);
+        border-radius: 9999px;
+        transition: transform 0.15s ease;
+
+        &.toggle-on { transform: translateX(1.5rem); }
+        &.toggle-off { transform: translateX(0.25rem); }
+    }
+}
+
+.switch-group {
+    display:flex;
+    align-items: center;
+    gap: var(--spacing);
+
+    .switch-label { margin-block-end: 0; }
+    margin-block-end: var(--spacing);
 }
 
 // UTILITIES
