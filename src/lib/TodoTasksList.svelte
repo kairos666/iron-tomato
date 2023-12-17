@@ -3,6 +3,7 @@
     import { unfinishedTasksList, taskReorder, type Task as TaskType } from '../stores/persistentTasks';
     import { appUIState } from '../stores/appUIState';
     import Sortable from 'sortablejs';
+    //import Sortable, { AutoScroll } from 'sortablejs/modular/sortable.core.esm';
     import Task from './Task.svelte';
     
     let todosUrImListElt:HTMLElement;
@@ -93,7 +94,10 @@
             chosenClass: "sortable-chosen",
             handle: ".sortable-handle",
             filter: '.filtered',
-            swap: true,
+            scroll: true,
+            forceAutoScrollFallback: true,
+            bubbleScroll: false,
+            scrollSensitivity: 50,
             animation: 200,
             onEnd(event) {
                 if(event.newIndex === undefined || event.oldIndex === undefined || event.from === undefined || event.to === undefined) {
@@ -255,6 +259,7 @@
             position:relative;
             min-height: 1rem;
             overflow-y: auto;
+            overflow-x: hidden;
         }
     }
 </style>
