@@ -39,5 +39,6 @@
         display: flex;
         justify-content: center;
         align-items: center;
+        border: 2px solid var(--primary-inverse);
     }
 </style>
