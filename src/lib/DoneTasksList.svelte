@@ -1,7 +1,7 @@
 <script lang="ts">
     import { Inbox } from 'lucide-svelte';
     import { doneTasksList } from '../stores/persistentTasks';
-    import Task from './Task.svelte';
+    import DoneTask from './DoneTask.svelte';
 
     $: isReady = ($doneTasksList !== undefined)
 </script>
@@ -11,7 +11,7 @@
         <p class="empty-state-emphasized" aria-busy="true">Chargement des tâches terminées</p>
     {:else}
         {#each $doneTasksList as task (task.id)}
-            <Task data={ task } />
+            <DoneTask data={ task } />
         {:else}
             <p class="empty-state-emphasized"><Inbox /> Liste des tâches terminées vide</p>
         {/each}
