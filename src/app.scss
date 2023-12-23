@@ -34,12 +34,12 @@ $primary-700: #c2185b;
     background-color: var(--contrast-hover);
     backdrop-filter: var(--modal-overlay-backdrop-filter); 
     opacity: var(--form-element-disabled-opacity);
-    z-index: 1000;
+    z-index: 10000;
 }
 // DIALOG - container
 .dlg-Container {
     position: fixed; 
-    z-index: 1001;
+    z-index: 10001;
     
     @media (max-width: 575px) {
         top: 50%; 
