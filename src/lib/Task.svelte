@@ -29,13 +29,8 @@
 
 <style lang="scss">
     .tsk-Card {
-        --category-border-offset: 3px;
+        --category-border-offset: 2px;
         --card-box-shadow: 0px 30px 15px -30px rgba(27,40,50, 0.8);
-
-        @media (min-width: 576px) {
-            --task-spacing: 0.75rem;
-            --task-font-size: 1rem;
-        }
 
         display: grid;
         grid-template-columns: auto 1fr auto;
@@ -43,8 +38,8 @@
         grid-template-areas:
             "done title actions";
         align-items: center;
-        margin-block: var(--task-spacing);
-        padding: var(--task-spacing);
+        margin-block: 0;
+        padding: var(--task-spacing) calc(var(--task-spacing) * 2);
         gap: var(--task-spacing);
         position:relative;
         z-index: 1;

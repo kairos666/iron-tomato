@@ -29,13 +29,8 @@
 
 <style lang="scss">
     .tsk-Card {
-        --category-border-offset: 3px;
+        --category-border-offset: 2px;
         --card-box-shadow: 0px 30px 15px -30px rgba(27,40,50, 0.8);
-
-        @media (min-width: 576px) {
-            --task-spacing: 0.75rem;
-            --task-font-size: 1rem;
-        }
 
         display: grid;
         grid-template-columns: auto 1fr auto auto;
@@ -44,7 +39,7 @@
             "done title factors actions";
         align-items: center;
         margin-block: var(--task-spacing);
-        padding: var(--task-spacing);
+        padding: var(--task-spacing) calc(var(--task-spacing) * 2);
         gap: var(--task-spacing);
         position:relative;
         z-index: 1;
@@ -108,6 +103,7 @@
         grid-area: factors;
         display:flex;
         gap: var(--task-spacing);
+        font-size: var(--task-font-size);
     }
     .tsk-Card_FactorsUrgentBadge, .tsk-Card_FactorsImportantBadge {
         padding: 1px 4px;
