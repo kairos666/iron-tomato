@@ -1,17 +1,25 @@
 <script lang="ts">
     import { type BaseTask, taskCreate } from "../stores/persistentTasks";
-    import { Dialog, DialogOverlay, DialogTitle, DialogDescription, Switch, SwitchGroup, SwitchLabel } from "@rgossiaux/svelte-headlessui";
+    import { Dialog, DialogOverlay, DialogTitle, DialogDescription, Switch, SwitchGroup, SwitchLabel, Listbox, ListboxButton, ListboxOptions, ListboxOption } from "@rgossiaux/svelte-headlessui";
     import { AlarmClock, PlusCircle, Siren } from "lucide-svelte";
     import { appUIState } from "../stores/appUIState";
     import { tick } from "svelte";
 
     const { clearModal } = appUIState;
+    const taskCategories = [
+        { id: 'cat-1', name: "Boulot" },
+        { id: 'cat-2', name: "Perso" },
+        { id: 'cat-3', name: "projet A" },
+        { id: 'cat-4', name: "projet B" },
+        { id: 'cat-5', name: "projet C" },
+    ];
 
     // handle pre filled form if edit instead of creation (if statement ensure re-evaluation between openings)
     let formTaskLabel:string = "";
     let formTaskDescription:string = "";
     let formTaskIsUrgent:boolean = false;
     let formTaskIsImportant:boolean = false;
+    let formTaskCategory:string|null = null;
 
     // reset values for each new form
     function resetFields() {
@@ -19,6 +27,7 @@
         formTaskDescription = "";
         formTaskIsUrgent = false;
         formTaskIsImportant = false;
+        formTaskCategory = null;
     }
 
     function onSubmit(evt:SubmitEvent) {
@@ -35,7 +44,8 @@
             isActive: false,
             isUrgent: formTaskIsUrgent,
             isImportant: formTaskIsImportant,
-            isDone: false
+            isDone: false,
+            category: formTaskCategory
         }
 
         // commit changes, reset and close
@@ -69,6 +79,15 @@
             <input type="text" id="task-label" name="task-label" placeholder="Intitulé de la tâche" value={ formTaskLabel } required />
             <label for="task-description">Description</label>
             <textarea id="task-description" name="task-description" placeholder="Descriptif détaillé optionnel de la tâche" value={ formTaskDescription } />
+            <label for="task-cat">Catégorie</label>
+            <Listbox bind:value={ formTaskCategory }>
+                <ListboxButton>{ taskCategories.find(cat => cat.id === formTaskCategory)?.name ?? 'Sans catégorie' }</ListboxButton>
+                <ListboxOptions>
+                    {#each taskCategories as taskCategory (taskCategory.id)}
+                        <ListboxOption value={ taskCategory.id }>{ taskCategory.name }</ListboxOption>
+                    {/each}
+                </ListboxOptions>
+            </Listbox>              
             <SwitchGroup class="switch-group">
                 <SwitchLabel class="switch-label"><AlarmClock /> Marquer urgent</SwitchLabel>
                 <Switch bind:checked={formTaskIsUrgent} class={formTaskIsUrgent ? "switch switch-enabled" : "switch switch-disabled"}>

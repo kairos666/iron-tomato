@@ -7,6 +7,7 @@ export type BaseTask = {
     isUrgent: boolean
     isImportant: boolean
     isDone: boolean
+    category: string|null
 }
 
 export type Task = BaseTask & {
@@ -22,7 +23,7 @@ class DexieTasks extends Dexie {
 
     constructor() {
         super('iron-tomato-tasks');
-        this.version(1).stores({ tasks: '++id, order' });
+        this.version(2).stores({ tasks: '++id, order' });
     }
 }
 const db = new DexieTasks();
