@@ -16,7 +16,7 @@ $primary-700: #c2185b;
 @import "@picocss/pico/scss/pico";
 
 // adjust lucid icon alignement
-.lucide-icon { position: relative; top:-2.5px; }
+.lucide-icon:not(.tsk-Cat) { position: relative; top:-2.5px; }
 .lst-AddTaskBtn .lucide-icon { position:static; } // footer add button case
 
 // drag and drop general styles

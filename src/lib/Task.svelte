@@ -2,6 +2,8 @@
     import { taskAchieve, taskDelete, type Task } from '../stores/persistentTasks';
     import { appUIState } from '../stores/appUIState';
     import { CheckCircle, Eraser, Eye, Pencil } from "lucide-svelte";
+    import TaskCategoryIcon from './TaskCategoryIcon.svelte';
+    import { taskCategories } from '../constants/task-categories';
 
     export let data:Task;
     const { setModal } = appUIState;
@@ -10,6 +12,7 @@
     $: hasDescription = !!data.description;
     $: isDeleteEnabled = !data.isDone;
     $: isModifyEnabled = !data.isDone;
+    $: currentCategory = taskCategories.find(cat => cat.id === data.category) ?? null;
 
     function handleDetail() { setModal(`task-detail-${ parseInt(data.id) }`) }
     function handleAchieve() { taskAchieve(data.id) }
@@ -17,8 +20,9 @@
     function handleModify() { setModal(`task-edit-${ parseInt(data.id) }`) }
 </script>
 
-<article class="tsk-Card tsk-Card-isTodo" class:tsk-Card-isUrgent={ data.isUrgent } class:tsk-Card-isImportant={ data.isImportant } role="listitem" data-id={ data.id }>
+<article class="tsk-Card tsk-Card-isTodo" class:tsk-Card-isUrgent={ data.isUrgent } class:tsk-Card-isImportant={ data.isImportant } class:tsk-Card-hasCategory={ currentCategory } role="listitem" data-id={ data.id }>
     <button class="tsk-Btn tsk-Btn-done" on:click={ handleAchieve }  data-tooltip="Achever" data-placement="right"><CheckCircle size={ 26 } color="var(--icon-color)" /><span class="sr-only">Achever</span></button>
+    {#if currentCategory}<TaskCategoryIcon class="tsk-Cat" name={ currentCategory.icon } stroke-width="1" size="15" color={ currentCategory.color } />{/if}
     <h2 draggable="true" aria-labelledby="poignée de la tâche" class="sortable-handle">{ data.label }</h2>
     <menu class="tsk-Card_Menu">
         {#if hasDescription} <button on:click={ handleDetail } class="tsk-Btn" data-tooltip="Voir description" data-placement="left"><Eye size={ 26 } color="var(--icon-color)"/><span class="sr-only">Voir description</span></button> {/if}
@@ -40,9 +44,15 @@
         align-items: center;
         margin-block: 0;
         padding: var(--task-spacing) calc(var(--task-spacing) * 2);
-        gap: var(--task-spacing);
+        gap: calc(var(--task-spacing) * 1.5);
         position:relative;
         z-index: 1;
+
+        &.tsk-Card-hasCategory {
+            grid-template-columns: auto auto 1fr auto;
+            grid-template-areas:
+            "done cat title actions";
+        }
 
         &:not(.tsk-Card-isUrgent):not(.tsk-Card-isImportant) {
             background-color: transparent;
@@ -109,6 +119,10 @@
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
+    }
+
+    .tsk-Cat {
+        grid-area: cat;
     }
 
     .tsk-Btn {
