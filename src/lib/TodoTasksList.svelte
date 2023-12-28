@@ -16,7 +16,13 @@
 
     $: isReady = (appUIState !== undefined && $unfinishedTasksList !== undefined)
     $: if(isReady) {
-        const result:TaskType[][] = $unfinishedTasksList.reduce((arr, task) => {
+        // category filtering
+        const currentFilters = [...$appUIState.categoryFilters];
+        const filterFunction = (currentFilters.length === 0)
+            ? () => true // everyhting pass
+            : (task:TaskType) => currentFilters.includes(task.category ?? 'none'); // only registered filters
+
+        const result:TaskType[][] = $unfinishedTasksList.filter(filterFunction).reduce((arr, task) => {
             switch(true) {
                 case (task.isImportant && task.isUrgent): arr[0].push(task); break;
                 case (task.isImportant && !task.isUrgent): arr[1].push(task); break;
