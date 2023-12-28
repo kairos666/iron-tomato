@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { Hammer, Palmtree, Globe2, Grape, Rocket } from 'lucide-svelte';
+    import { Hammer, Palmtree, Globe2, Grape, Rocket, Ban } from 'lucide-svelte';
     export let name:string;
     
     $: Icon = (name === 'hammer')
@@ -12,6 +12,8 @@
         ? Grape
         : (name === 'rocket')
         ? Rocket
+        : (name === 'ban')
+        ? Ban
         : null;
 </script>
   

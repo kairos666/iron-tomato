@@ -9,3 +9,6 @@ export const taskCategories = [
     { id: 'cat-4', name: "projet B", icon: 'grape', color: "#ffbe0b" },
     { id: 'cat-5', name: "projet C", icon: 'rocket', color: "#ff006e" },
 ];
+
+// all possible catgories ID + none
+export const allPossibleCategories = ["none", ...taskCategories.map(taskCat => taskCat.id)];

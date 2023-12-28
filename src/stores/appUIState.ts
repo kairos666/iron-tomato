@@ -1,4 +1,5 @@
 import { writable } from 'svelte/store';
+import { allPossibleCategories } from '../constants/task-categories';
 
 type ModalCodes = 'reset'|'task-create';
 type ModalTaskCodes = `${'task-detail'|'task-edit'}-${number}`;
@@ -6,6 +7,7 @@ type ModalTaskCodes = `${'task-detail'|'task-edit'}-${number}`;
 export type AppUIState = {
     tasksShown:'todo'|'done'
     viewMode:'list'|'matrix'
+    categoryFilters:string[]
     modal:undefined|ModalCodes|ModalTaskCodes // no modal, reset, new task, edit task
     isMobileViewport:boolean // adapt to viewport width (based on pico css breakpoint)
 }
@@ -17,6 +19,7 @@ const initAppUIState = () => {
     const initialState:AppUIState = {
         tasksShown: 'todo',
         viewMode: 'list',
+        categoryFilters: [],
         modal: undefined,
         isMobileViewport: !mediaQueryList.matches
     };
@@ -46,7 +49,14 @@ const initAppUIState = () => {
             update(state => ({ ...state, tasksShown: targetTasksType }));
         },
         changeViewMode: (targetViewMode:'list'|'matrix') => {
-            update(state => ({ ...state, viewMode: targetViewMode }))
+            update(state => ({ ...state, viewMode: targetViewMode }));
+        },
+        changeCategoryFilters: (filters:string[]) => {
+            const hasAllPossibleFilters:boolean = (filters.length >= allPossibleCategories.length);
+            update(state => ({ ...state, categoryFilters: (hasAllPossibleFilters) ? [] : filters }));
+        },
+        clearCategoryFilters: () => {
+            update(state => ({ ...state, categoryFilters: [] }));
         }
     }
 }

@@ -17,7 +17,8 @@ $primary-700: #c2185b;
 
 // adjust lucid icon alignement
 .lucide-icon:not(.tsk-Cat) { position: relative; top:-2.5px; }
-.lst-AddTaskBtn .lucide-icon { position:static; } // footer add button case
+.lst-AddTaskBtn .lucide-icon,
+.fltr-Btn .lucide-icon { position:static; } // footer add button case
 
 // drag and drop general styles
 .sortable-chosen {
