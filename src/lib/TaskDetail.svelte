@@ -5,6 +5,7 @@
     import TaskCategoryIcon from "./TaskCategoryIcon.svelte";
     import { exactDateFormatter, relativeHumanFormater } from "../constants/time-formater";
     import { Listbox, ListboxButton, ListboxLabel, ListboxOption, ListboxOptions, Switch, SwitchGroup, SwitchLabel } from "@rgossiaux/svelte-headlessui";
+    import { appUIState } from "../stores/appUIState";
 
     export let taskID:string
     let detailState:'show'|'edit' = 'show';
@@ -17,6 +18,8 @@
     let formTaskIsUrgent:boolean = false;
     let formTaskIsImportant:boolean = false;
     let formTaskCategory:string|null = null;
+
+    const { setModal } = appUIState;
 
     // assign function necessary to avoid reactively updating when user change value in form
     function assignDefaultValue(initialData:Task|undefined, targetProperty:'label'|'description'|'isUrgent'|'isImportant'|'category') {
@@ -96,7 +99,7 @@
         <menu class="tskdtl-Actions">
             <button type="button" class="primary"><CheckCircle color="var(--primary-inverse)" /> Achever</button>
             <button type="button" class="outline" on:click={ () => detailState = 'edit' }><Pencil color="var(--primary)" /> Modifier</button>
-            <button type="button" class="secondary outline"><Eraser color="var(--secondary)" /> Supprimer</button>
+            <button type="button" class="secondary outline" on:click={ () => { if(initialTask) setModal(`task-delete-${ parseInt(initialTask.id) }`) }}><Eraser color="var(--secondary)" /> Supprimer</button>
         </menu>
     </div>
 {:else if detailState === 'edit' && initialTask !== undefined}

@@ -49,7 +49,7 @@ export async function taskCreate(newTask:BaseTask) {
 // task action - DELETE
 export async function taskDelete(taskID:string) {
     try {
-        await db.tasks.delete(taskID);
+        await db.tasks.delete(parseInt(taskID));
         console.info(`Task ${ taskID } DELETED`);
     } catch (error) {
         throw new Error(`Failed to delete task ${ taskID } : ${ error }`);

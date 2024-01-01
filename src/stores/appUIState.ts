@@ -2,7 +2,7 @@ import { writable } from 'svelte/store';
 import { allPossibleCategories } from '../constants/task-categories';
 
 type ModalCodes = 'reset'|'task-create';
-type ModalTaskCodes = `${'task-detail'|'task-edit'}-${number}`;
+type ModalTaskCodes = `task-delete-${number}`;
 
 export type AppUIState = {
     mainView:'dashboard'|'task-detail'

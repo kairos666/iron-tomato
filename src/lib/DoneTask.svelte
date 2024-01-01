@@ -4,12 +4,12 @@
     import { Eraser, Eye, Undo2 } from "lucide-svelte";
 
     export let data:Task;
-    const { setModal } = appUIState;
+    const { changeMainView } = appUIState;
 
     // deduce available actions based on data
     $: hasDescription = !!data.description;
 
-    function handleDetail() { setModal(`task-detail-${ parseInt(data.id) }`) }
+    function handleDetail() { changeMainView('task-detail', parseInt(data.id)) }
     function handleReopen() { taskReopen(data.id) }
     function handleDelete() { taskDelete(data.id) }
 </script>

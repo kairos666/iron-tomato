@@ -3,7 +3,7 @@
     import AppHeader from './lib/AppHeader.svelte';
     import DialogReset from './lib/DialogReset.svelte';
     import DialogTaskCreateForm from './lib/DialogTaskCreateForm.svelte';
-    import DialogTaskDetail from './lib/DialogTaskDetail.svelte';
+    import DialogDeleteTask from './lib/DialogDeleteTask.svelte';
     import DoneTasksList from './lib/DoneTasksList.svelte';
     import TodoTasksList from './lib/TodoTasksList.svelte';
     import AdaptativeLayout from './lib/AdaptativeLayout.svelte';
@@ -35,7 +35,7 @@
 {/if}
 <DialogReset />
 <DialogTaskCreateForm />
-<DialogTaskDetail />
+<DialogDeleteTask />
 
 <style lang="scss">
     .lst-AddTaskBtn {
