@@ -17,6 +17,7 @@ $primary-700: #c2185b;
 
 // adjust lucid icon alignement
 .lucide-icon:not(.tsk-Cat) { position: relative; top:-2.5px; }
+.lucide-icon.tskdtl-Cat { position: relative; top:-5px; }
 .lst-AddTaskBtn .lucide-icon,
 .fltr-Btn .lucide-icon { position:static; } // footer add button case
 

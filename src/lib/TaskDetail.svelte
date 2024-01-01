@@ -1,7 +1,7 @@
 <script lang="ts">
-    import { AlarmClock, Ban, CheckCircle, Eraser, Pencil, Save, Siren, X } from "lucide-svelte";
+    import { AlarmClock, Ban, CheckCircle, Eraser, Pencil, Save, Siren, Undo2, X } from "lucide-svelte";
     import { taskCategories } from "../constants/task-categories";
-    import { type Task, taskEdit, taskById } from "../stores/persistentTasks";
+    import { type Task, taskEdit, taskById, taskAchieve, taskReopen } from "../stores/persistentTasks";
     import TaskCategoryIcon from "./TaskCategoryIcon.svelte";
     import { exactDateFormatter, relativeHumanFormater } from "../constants/time-formater";
     import { Listbox, ListboxButton, ListboxLabel, ListboxOption, ListboxOptions, Switch, SwitchGroup, SwitchLabel } from "@rgossiaux/svelte-headlessui";
@@ -11,6 +11,7 @@
     let detailState:'show'|'edit' = 'show';
     let initialTask:Task|undefined = undefined;
     let creationDateHuman:{ exact:string, relative:string }|undefined = undefined;
+    let achievedDateHuman:{ exact:string, relative:string }|undefined = undefined;
 
     // handle pre filled form (if statement ensure re-evaluation between openings)
     let formTaskLabel:string = "";
@@ -19,7 +20,7 @@
     let formTaskIsImportant:boolean = false;
     let formTaskCategory:string|null = null;
 
-    const { setModal } = appUIState;
+    const { setModal, changeMainView } = appUIState;
 
     // assign function necessary to avoid reactively updating when user change value in form
     function assignDefaultValue(initialData:Task|undefined, targetProperty:'label'|'description'|'isUrgent'|'isImportant'|'category') {
@@ -41,6 +42,12 @@
                 exact: exactDateFormatter.format(task.dateCreated),
                 relative: relativeHumanFormater(task.dateCreated, new Date().getTime())
             };
+            achievedDateHuman = (task.isDone && task.dateDone)
+                ?{
+                    exact: exactDateFormatter.format(task.dateDone),
+                    relative: relativeHumanFormater(task.dateDone, new Date().getTime())
+                }
+                : undefined;
         });
     }
 
@@ -57,6 +64,14 @@
         assignDefaultValue(initialTask, 'category');
     }
     $: editedCategory = taskCategories.find(cat => cat.id === formTaskCategory) ?? null;
+
+    function handleAchieveTask() {
+        taskAchieve(taskID).then(() => changeMainView('dashboard'));
+    }
+
+    function handleReopenTask() {
+        taskReopen(taskID).then(() => changeMainView('dashboard'));
+    }
 
     function onSubmit(evt:SubmitEvent) {
         evt.preventDefault();
@@ -85,10 +100,11 @@
     <div class="tskdtl-ShowLayout">
         <article class="tskdtl-Task">
             <header>
-                <h2>{#if categoryObj !== null }<TaskCategoryIcon class="tskdtl-Cat" name={ categoryObj.icon } stroke-width="1" size="30" color={ categoryObj.color } /> {/if}{ initialTask.label }</h2>
+                <h2>{#if categoryObj !== null }<TaskCategoryIcon class="tskdtl-Cat" name={ categoryObj.icon } stroke-width="1" size="33" color={ categoryObj.color } /> {/if}{ initialTask.label }</h2>
                 {#if initialTask.isImportant }<span class="tskdtl-ImportantBadge"><Siren stroke-width="1" size="15" color="var(--primary-inverse)" /> Important</span>{/if}
                 {#if initialTask.isUrgent }<span class="tskdtl-UrgentBadge"><AlarmClock stroke-width="1" size="15" color="var(--primary-inverse)" /> Urgent</span>{/if}
-                {#if creationDateHuman }<span class="tskdtl-TimeBadge">Créée <time datetime={ creationDateHuman.exact } data-tooltip={ creationDateHuman.exact } data-placement="top">{ creationDateHuman.relative }</time></span>{/if}
+                {#if creationDateHuman }<span class="tskdtl-TimeBadge tskdtl-TimeBadge-creation">Créée <time datetime={ creationDateHuman.exact } data-tooltip={ creationDateHuman.exact } data-placement="top">{ creationDateHuman.relative }</time></span>{/if}
+                {#if achievedDateHuman }<span class="tskdtl-TimeBadge tskdtl-TimeBadge-achievment"><CheckCircle stroke-width="1" size="15" color="var(--primary-inverse)" /> Achevée <time datetime={ achievedDateHuman.exact } data-tooltip={ achievedDateHuman.exact } data-placement="top">{ achievedDateHuman.relative }</time></span>{/if}
             </header>
             {#if initialTask.description}
                 <p>{ initialTask.description }</p>
@@ -97,8 +113,12 @@
             {/if}
         </article>
         <menu class="tskdtl-Actions">
-            <button type="button" class="primary"><CheckCircle color="var(--primary-inverse)" /> Achever</button>
-            <button type="button" class="outline" on:click={ () => detailState = 'edit' }><Pencil color="var(--primary)" /> Modifier</button>
+            {#if initialTask.isDone}
+                <button type="button" class="primary" on:click={ handleReopenTask }><Undo2 color="var(--primary-inverse)" /> Rouvrir</button>
+            {:else}
+                <button type="button" class="primary" on:click={ handleAchieveTask }><CheckCircle color="var(--primary-inverse)" /> Achever</button>
+                <button type="button" class="outline" on:click={ () => detailState = 'edit' }><Pencil color="var(--primary)" /> Modifier</button>
+            {/if}
             <button type="button" class="secondary outline" on:click={ () => { if(initialTask) setModal(`task-delete-${ parseInt(initialTask.id) }`) }}><Eraser color="var(--secondary)" /> Supprimer</button>
         </menu>
     </div>
@@ -108,7 +128,7 @@
             <header>
                 <label for="task-label">Libellé</label>
                 <input type="text" id="task-label" name="task-label" placeholder="Intitulé de la tâche" value={ formTaskLabel } required />
-                {#if creationDateHuman }<span class="tskdtl-TimeBadge">Créée <time datetime={ creationDateHuman.exact } data-tooltip={ creationDateHuman.exact } data-placement="top">{ creationDateHuman.relative }</time></span>{/if}
+                {#if creationDateHuman }<span class="tskdtl-TimeBadge tskdtl-TimeBadge-creation">Créée <time datetime={ creationDateHuman.exact } data-tooltip={ creationDateHuman.exact } data-placement="top">{ creationDateHuman.relative }</time></span>{/if}
             </header>
             <label for="task-description">Description</label>
             <textarea id="task-description" name="task-description" placeholder="Descriptif détaillé optionnel de la tâche" value={ formTaskDescription } />
@@ -193,16 +213,17 @@
         grid-area: actions;
         margin:0;
         padding-inline-start: 0;
-
+        display: flex;
+        gap: var(--spacing);
         @media (max-width:575px) {
-            display: flex;
-            gap: var(--spacing);
-
-            button {
-                margin-block-end: 0;
-                padding: calc(var(--spacing) * 0.5);
-            }
+            button { padding: calc(var(--spacing) * 0.5); }
         }
+
+        @media (min-width:576px) {
+            flex-direction: column;
+        }
+
+        button { margin-block-end: 0; }
     }
 
     // edit
@@ -246,8 +267,10 @@
 
     // transverse
     .tskdtl-UrgentBadge, .tskdtl-ImportantBadge {
-        padding: 1px 6px;
+        padding: 2px 6px;
+        font-size: 0.8rem;
         font-weight: 400;
+        line-height: 1.2;
         border-radius: var(--border-radius);
         color: var(--primary-inverse);
     }
@@ -258,12 +281,15 @@
         background-color: var(--important-color);
     }
     .tskdtl-TimeBadge {
-        padding: 1px 6px;
+        padding: 2px 6px;
+        font-size: 0.8rem;
         font-weight: 400;
+        line-height: 1.2;
         border-radius: var(--border-radius);
         color: var(--primary-inverse);
-        background-color: var(--muted-color);
 
+        &.tskdtl-TimeBadge-creation { background-color: var(--muted-color); }
+        &.tskdtl-TimeBadge-achievment { background-color: var(--done-color); }
         time { border: none }
     }
 </style>

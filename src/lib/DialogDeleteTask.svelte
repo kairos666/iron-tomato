@@ -20,7 +20,7 @@
     <DialogOverlay class="dlg-Overlay" />
     <article class="dlg-Container">
         <hgroup>
-            <DialogTitle><Eraser size="32" /> Supprimer la tâche {targetTaskId}</DialogTitle>
+            <DialogTitle><Eraser size="32" /> Supprimer la tâche</DialogTitle>
             <DialogDescription>Si vous confirmez l'action, la tâche sera définitivement effacée.</DialogDescription>
         </hgroup>
         <menu class="dlg-Container_ActionsMenu">

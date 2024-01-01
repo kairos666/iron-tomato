@@ -69,7 +69,7 @@ export async function taskEdit(editedTask:Task) {
 // task action - ACHIEVE
 export async function taskAchieve(taskID:string) {
     try {
-        await db.tasks.update(taskID, { isDone : true, dateDone: new Date().getTime() });
+        await db.tasks.update(parseInt(taskID), { isDone : true, dateDone: new Date().getTime() });
         console.info(`Task ${ taskID } marked DONE`);
     } catch (error) {
         throw new Error(`Failed to mark task ${ taskID } done : ${ error }`);
@@ -81,7 +81,7 @@ export async function taskReopen(taskID:string) {
     try {
         const tasksCount:number = await db.tasks.count();
         const order:number = 1 + tasksCount; // reopen task should be last
-        await db.tasks.update(taskID, { isDone : false, dateDone: undefined, order });
+        await db.tasks.update(parseInt(taskID), { isDone : false, dateDone: undefined, order });
         console.info(`Task ${ taskID } marked UNDONE`);
     } catch (error) {
         throw new Error(`Failed to mark task ${ taskID } undone : ${ error }`);
