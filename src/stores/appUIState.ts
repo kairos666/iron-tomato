@@ -1,11 +1,15 @@
 import { writable } from 'svelte/store';
+import { allPossibleCategories } from '../constants/task-categories';
 
 type ModalCodes = 'reset'|'task-create';
-type ModalTaskCodes = `${'task-detail'|'task-edit'}-${number}`;
+type ModalTaskCodes = `task-delete-${number}`;
 
 export type AppUIState = {
+    mainView:'dashboard'|'task-detail'
+    activeTask: number|null
     tasksShown:'todo'|'done'
     viewMode:'list'|'matrix'
+    categoryFilters:string[]
     modal:undefined|ModalCodes|ModalTaskCodes // no modal, reset, new task, edit task
     isMobileViewport:boolean // adapt to viewport width (based on pico css breakpoint)
 }
@@ -15,8 +19,11 @@ const initAppUIState = () => {
 
     // initial data
     const initialState:AppUIState = {
+        mainView: 'dashboard',
+        activeTask: null,
         tasksShown: 'todo',
         viewMode: 'list',
+        categoryFilters: [],
         modal: undefined,
         isMobileViewport: !mediaQueryList.matches
     };
@@ -46,7 +53,21 @@ const initAppUIState = () => {
             update(state => ({ ...state, tasksShown: targetTasksType }));
         },
         changeViewMode: (targetViewMode:'list'|'matrix') => {
-            update(state => ({ ...state, viewMode: targetViewMode }))
+            update(state => ({ ...state, viewMode: targetViewMode }));
+        },
+        changeCategoryFilters: (filters:string[]) => {
+            const hasAllPossibleFilters:boolean = (filters.length >= allPossibleCategories.length);
+            update(state => ({ ...state, categoryFilters: (hasAllPossibleFilters) ? [] : filters }));
+        },
+        clearCategoryFilters: () => {
+            update(state => ({ ...state, categoryFilters: [] }));
+        },
+        changeMainView: (newMainView:'dashboard'|'task-detail', newActiveTask?:number) => {
+            if(newMainView === 'task-detail' && typeof newActiveTask !== 'number') {
+                console.warn('invalid command : task-detail without active task number');
+                return;
+            }
+            update(state => ({ ...state, mainView: newMainView, activeTask: newActiveTask ?? null }));
         }
     }
 }

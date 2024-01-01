@@ -5,7 +5,7 @@ $primary-700: #c2185b;
 
 // additional variables
 :root {
-    --task-spacing: 0.5rem;
+    --task-spacing: 0.2rem;
     --task-font-size: 0.75rem;
     --urgent-color: #ffc93c;
     --important-color: #ff6f3c;
@@ -16,8 +16,10 @@ $primary-700: #c2185b;
 @import "@picocss/pico/scss/pico";
 
 // adjust lucid icon alignement
-.lucide-icon { position: relative; top:-2.5px; }
-.lst-AddTaskBtn .lucide-icon { position:static; } // footer add button case
+.lucide-icon:not(.tsk-Cat) { position: relative; top:-2.5px; }
+.lucide-icon.tskdtl-Cat { position: relative; top:-5px; }
+.lst-AddTaskBtn .lucide-icon,
+.fltr-Btn .lucide-icon { position:static; } // footer add button case
 
 // drag and drop general styles
 .sortable-chosen {
@@ -34,12 +36,14 @@ $primary-700: #c2185b;
     background-color: var(--contrast-hover);
     backdrop-filter: var(--modal-overlay-backdrop-filter); 
     opacity: var(--form-element-disabled-opacity);
-    z-index: 1000;
+    z-index: 10000;
 }
 // DIALOG - container
 .dlg-Container {
     position: fixed; 
-    z-index: 1001;
+    z-index: 10001;
+    max-height: 90vh;
+    overflow-y: auto;
     
     @media (max-width: 575px) {
         top: 50%; 
@@ -220,6 +224,86 @@ $primary-700: #c2185b;
 
     .switch-label { margin-block-end: 0; }
     margin-block-end: var(--spacing);
+}
+
+// LISTBOX for task categories
+.tlbx-Listbox {
+    position:relative;
+    z-index: 100;
+
+    .tlbx-Button {
+        --background-color: var(--form-element-background-color);
+        --border-color: var(--form-element-border-color);
+        --color: var(--form-element-color);
+        --icon-color: var(--color);
+
+        position:relative;
+        appearance: none;
+        padding: var(--form-element-spacing-vertical) var(--form-element-spacing-horizontal);
+        width: 100%;
+        height: calc(1rem * var(--line-height) + var(--form-element-spacing-vertical) * 2 + var(--border-width) * 2);
+        background-color: var(--background-color);
+        border-radius: var(--border-radius);
+        border: var(--border-width) solid var(--border-color);
+        text-align:left;
+
+        &:after {
+            content: '';
+            position:absolute;
+            right: var(--spacing);
+            top: calc(50% - 5px);
+            transform: translateY(-50%), rotate(0deg);
+            width: 0px;
+            height: 0px;
+            border-style: solid;
+            border-width: 15px 10px 0 10px;
+            border-color: #415462 transparent transparent transparent;
+        }
+    }
+
+    .tlbx-OptionsList {
+        --background-color: var(--secondary-inverse);
+        --border-color: var(--form-element-border-color);
+        --color: var(--form-element-color);
+
+        position:absolute;
+        left:0;
+        right:0;
+        top: calc(100% - var(--border-radius));
+        background-color: var(--background-color);
+        border-bottom-left-radius: var(--border-radius);
+        border-bottom-right-radius: var(--border-radius);
+        border: 1px solid var(--border-color);
+        list-style: none;
+        margin-block-end: 0;
+        padding: 0;
+        display:flex;
+        flex-direction: column;
+        gap: var(spacing);
+    }
+
+    .tlbx-Option {
+        --icon-color: var(--color);
+        list-style: none;
+        line-height:1.4;
+        margin-inline-start: 0;
+        margin-block-end: 0;
+        padding-inline: var(--spacing);
+        cursor: pointer;
+
+        &:first-child { padding-block-start: var(--task-spacing); }
+        &:last-child { padding-block-end: var(--task-spacing); }
+
+        &:hover, &:focus ,&:active {
+            background-color: var(--primary-focus);
+        }
+
+        &[aria-selected="true"] {
+            color: var(--primary-inverse);
+            --icon-color: var(--primary-inverse);
+            background-color: var(--primary);
+        }
+    }
 }
 
 // UTILITIES

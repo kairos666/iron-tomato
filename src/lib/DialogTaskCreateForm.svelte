@@ -1,9 +1,11 @@
 <script lang="ts">
     import { type BaseTask, taskCreate } from "../stores/persistentTasks";
-    import { Dialog, DialogOverlay, DialogTitle, DialogDescription, Switch, SwitchGroup, SwitchLabel } from "@rgossiaux/svelte-headlessui";
-    import { AlarmClock, PlusCircle, Siren } from "lucide-svelte";
+    import { Dialog, DialogOverlay, DialogTitle, DialogDescription, Switch, SwitchGroup, SwitchLabel, Listbox, ListboxButton, ListboxOptions, ListboxOption, ListboxLabel } from "@rgossiaux/svelte-headlessui";
+    import { AlarmClock, Ban, PlusCircle, Siren } from "lucide-svelte";
     import { appUIState } from "../stores/appUIState";
     import { tick } from "svelte";
+    import TaskCategoryIcon from "./TaskCategoryIcon.svelte";
+    import { taskCategories } from "../constants/task-categories";
 
     const { clearModal } = appUIState;
 
@@ -12,6 +14,9 @@
     let formTaskDescription:string = "";
     let formTaskIsUrgent:boolean = false;
     let formTaskIsImportant:boolean = false;
+    let formTaskCategory:string|null = null;
+
+    $: currentCategory = taskCategories.find(cat => cat.id === formTaskCategory) ?? null;
 
     // reset values for each new form
     function resetFields() {
@@ -19,6 +24,7 @@
         formTaskDescription = "";
         formTaskIsUrgent = false;
         formTaskIsImportant = false;
+        formTaskCategory = null;
     }
 
     function onSubmit(evt:SubmitEvent) {
@@ -35,7 +41,8 @@
             isActive: false,
             isUrgent: formTaskIsUrgent,
             isImportant: formTaskIsImportant,
-            isDone: false
+            isDone: false,
+            category: formTaskCategory
         }
 
         // commit changes, reset and close
@@ -69,6 +76,22 @@
             <input type="text" id="task-label" name="task-label" placeholder="Intitulé de la tâche" value={ formTaskLabel } required />
             <label for="task-description">Description</label>
             <textarea id="task-description" name="task-description" placeholder="Descriptif détaillé optionnel de la tâche" value={ formTaskDescription } />
+            <Listbox class="tlbx-Listbox" bind:value={ formTaskCategory }>
+                <ListboxLabel>Catégorie</ListboxLabel>
+                <ListboxButton class="tlbx-Button">
+                    {#if (currentCategory !== null)}
+                        <TaskCategoryIcon name={ currentCategory.icon } stroke-width="1" size="20" color="var(--icon-color)"/> { currentCategory.name }
+                    {:else}
+                        <Ban stroke-width="1" size="20" color="var(--icon-color)" /> sans catégorie
+                    {/if}
+                </ListboxButton>
+                <ListboxOptions class="tlbx-OptionsList">
+                    <ListboxOption class="tlbx-Option" value={ null }><Ban stroke-width="1" size="20" color="var(--icon-color)" /> sans catégorie</ListboxOption>
+                    {#each taskCategories as taskCategory (taskCategory.id)}
+                        <ListboxOption class="tlbx-Option" value={ taskCategory.id }><TaskCategoryIcon name={ taskCategory.icon } stroke-width="1" size="20" color="var(--icon-color)"/> { taskCategory.name }</ListboxOption>
+                    {/each}
+                </ListboxOptions>
+            </Listbox>              
             <SwitchGroup class="switch-group">
                 <SwitchLabel class="switch-label"><AlarmClock /> Marquer urgent</SwitchLabel>
                 <Switch bind:checked={formTaskIsUrgent} class={formTaskIsUrgent ? "switch switch-enabled" : "switch switch-disabled"}>

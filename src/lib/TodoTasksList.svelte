@@ -3,7 +3,6 @@
     import { unfinishedTasksList, taskReorder, type Task as TaskType } from '../stores/persistentTasks';
     import { appUIState } from '../stores/appUIState';
     import Sortable from 'sortablejs';
-    //import Sortable, { AutoScroll } from 'sortablejs/modular/sortable.core.esm';
     import Task from './Task.svelte';
     
     let todosUrImListElt:HTMLElement;
@@ -17,7 +16,13 @@
 
     $: isReady = (appUIState !== undefined && $unfinishedTasksList !== undefined)
     $: if(isReady) {
-        const result:TaskType[][] = $unfinishedTasksList.reduce((arr, task) => {
+        // category filtering
+        const currentFilters = [...$appUIState.categoryFilters];
+        const filterFunction = (currentFilters.length === 0)
+            ? () => true // everyhting pass
+            : (task:TaskType) => currentFilters.includes(task.category ?? 'none'); // only registered filters
+
+        const result:TaskType[][] = $unfinishedTasksList.filter(filterFunction).reduce((arr, task) => {
             switch(true) {
                 case (task.isImportant && task.isUrgent): arr[0].push(task); break;
                 case (task.isImportant && !task.isUrgent): arr[1].push(task); break;
@@ -144,7 +149,7 @@
             {#each urgentAndImportantTasks as task (task.id)}
                 <Task data={ task } />
             {/each}
-            <p class="lst-empty-state filtered"><PartyPopper /> Aucune tâche importante et urgente</p>
+            <p class="lst-empty-state filtered"><PartyPopper size="15" strokeWidth="1" /> Aucune tâche importante et urgente</p>
         </div>
         <h3 class="lst-ListHeader" data-header="important">
             <span class="lst-ListHeader_Label">A faire, mais moins urgent</span>
@@ -154,7 +159,7 @@
             {#each importantTasks as task (task.id)}
                 <Task data={ task } />
             {/each}
-            <p class="lst-empty-state filtered"><PartyPopper /> Aucune tâche importante</p>
+            <p class="lst-empty-state filtered"><PartyPopper size="15" strokeWidth="1" /> Aucune tâche importante</p>
         </div>
         <h3 class="lst-ListHeader" data-header="urgent">
             <span class="lst-ListHeader_Label">A déléguer ou planifier</span>
@@ -164,14 +169,14 @@
             {#each urgentTasks as task (task.id)}
                 <Task data={ task } />
             {/each}
-            <p class="lst-empty-state filtered"><PartyPopper /> Aucune tâche urgente</p>
+            <p class="lst-empty-state filtered"><PartyPopper size="15" strokeWidth="1" /> Aucune tâche urgente</p>
         </div>
         <h3 class="lst-ListHeader" data-header="backburner"><span class="lst-ListHeader_Label">A ne pas oublier, mais ça peut attendre</span></h3>
         <div use:initDragAndSort bind:this={ todosListElt } class="lst-List" role="list" data-list="backburner">
             {#each backburnerTasks as task (task.id)}
                 <Task data={ task } />
             {/each}
-            <p class="lst-empty-state filtered"><PartyPopper /> Aucune tâche</p>
+            <p class="lst-empty-state filtered"><PartyPopper size="15" strokeWidth="1" /> Aucune tâche</p>
         </div>
     </div>
 {/if}
@@ -183,14 +188,15 @@
             width: 100%;
             height: 100%;
             grid-template-columns: 1fr 1fr;
-            grid-template-rows: auto 1fr auto 1fr;
+            grid-template-rows: auto 1fr var(--spacing) auto 1fr;
             grid-template-areas: 
                 "iu-header i-header"
                 "iu-list i-list"
+                ". ."
                 "u-header b-header"
                 "u-list b-list";
             column-gap: var(--spacing);
-            row-gap: var(--task-spacing) var(--spacing) var(--task-spacing) var(--spacing);
+            row-gap: 0;
         }
 
         [data-header="important-and-urgent"] { grid-area: iu-header; }
@@ -203,7 +209,7 @@
         [data-list="backburner"] { grid-area: b-list; }
     }
     .lst-ListHeader {
-        margin-block: 0;
+        margin-block: 0 var(--task-spacing);
         padding-inline: var(--task-spacing);
         font-size: var(--task-font-size);
         display:grid;
@@ -237,9 +243,10 @@
     .lst-empty-state {
         display: none;
         margin: var(--task-spacing) 0;
-        padding: var(--task-spacing) var(--block-spacing-horizontal);
+        padding: calc(var(--task-spacing) * 2) var(--block-spacing-horizontal);
         border-radius: var(--border-radius);
         background: var(--blockquote-border-color);
+        font-size: var(--task-font-size);
 
         &:only-child { display: block; }
 
@@ -251,10 +258,15 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            margin-block: 0;
         }
     }
     
     .lst-List {
+        display: flex;
+        flex-direction: column;
+        gap: var(--task-spacing);
+
         .lst-Container-matrix & { 
             position:relative;
             min-height: 1rem;

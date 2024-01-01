@@ -1,41 +1,33 @@
 <script lang="ts">
-    import { taskAchieve, taskDelete, type Task } from '../stores/persistentTasks';
+    import { taskAchieve, type Task } from '../stores/persistentTasks';
     import { appUIState } from '../stores/appUIState';
-    import { CheckCircle, Eraser, Eye, Pencil } from "lucide-svelte";
+    import { CheckCircle, Eye } from "lucide-svelte";
+    import TaskCategoryIcon from './TaskCategoryIcon.svelte';
+    import { taskCategories } from '../constants/task-categories';
 
     export let data:Task;
-    const { setModal } = appUIState;
+    const { changeMainView } = appUIState;
 
     // deduce available actions based on data
-    $: hasDescription = !!data.description;
-    $: isDeleteEnabled = !data.isDone;
-    $: isModifyEnabled = !data.isDone;
+    $: currentCategory = taskCategories.find(cat => cat.id === data.category) ?? null;
 
-    function handleDetail() { setModal(`task-detail-${ parseInt(data.id) }`) }
     function handleAchieve() { taskAchieve(data.id) }
-    function handleDelete() { taskDelete(data.id) }
-    function handleModify() { setModal(`task-edit-${ parseInt(data.id) }`) }
+    function handleDetail() { changeMainView('task-detail', parseInt(data.id)) }
 </script>
 
-<article class="tsk-Card tsk-Card-isTodo" class:tsk-Card-isUrgent={ data.isUrgent } class:tsk-Card-isImportant={ data.isImportant } role="listitem" data-id={ data.id }>
+<article class="tsk-Card tsk-Card-isTodo" class:tsk-Card-isUrgent={ data.isUrgent } class:tsk-Card-isImportant={ data.isImportant } class:tsk-Card-hasCategory={ currentCategory } role="listitem" data-id={ data.id }>
     <button class="tsk-Btn tsk-Btn-done" on:click={ handleAchieve }  data-tooltip="Achever" data-placement="right"><CheckCircle size={ 26 } color="var(--icon-color)" /><span class="sr-only">Achever</span></button>
+    {#if currentCategory}<TaskCategoryIcon class="tsk-Cat" name={ currentCategory.icon } stroke-width="1" size="15" color={ currentCategory.color } />{/if}
     <h2 draggable="true" aria-labelledby="poignée de la tâche" class="sortable-handle">{ data.label }</h2>
     <menu class="tsk-Card_Menu">
-        {#if hasDescription} <button on:click={ handleDetail } class="tsk-Btn" data-tooltip="Voir description" data-placement="left"><Eye size={ 26 } color="var(--icon-color)"/><span class="sr-only">Voir description</span></button> {/if}
-        {#if isModifyEnabled} <button on:click={ handleModify } class="tsk-Btn" data-tooltip="Modifier" data-placement="left"><Pencil size={ 26 } color="var(--icon-color)"/><span class="sr-only">Modifier</span></button> {/if}
-        {#if isDeleteEnabled} <button on:click={ handleDelete } class="tsk-Btn" data-tooltip="Supprimer" data-placement="left"><Eraser size={ 26 } color="var(--icon-color)"/><span class="sr-only">Supprimer</span></button> {/if}
+        <button on:click={ handleDetail } class="tsk-Btn" data-tooltip="Voir description" data-placement="left"><Eye size={ 26 } color="var(--icon-color)"/><span class="sr-only">Voir description</span></button>
     </menu>
 </article>
 
 <style lang="scss">
     .tsk-Card {
-        --category-border-offset: 3px;
+        --category-border-offset: 2px;
         --card-box-shadow: 0px 30px 15px -30px rgba(27,40,50, 0.8);
-
-        @media (min-width: 576px) {
-            --task-spacing: 0.75rem;
-            --task-font-size: 1rem;
-        }
 
         display: grid;
         grid-template-columns: auto 1fr auto;
@@ -43,11 +35,17 @@
         grid-template-areas:
             "done title actions";
         align-items: center;
-        margin-block: var(--task-spacing);
-        padding: var(--task-spacing);
-        gap: var(--task-spacing);
+        margin-block: 0;
+        padding: var(--task-spacing) calc(var(--task-spacing) * 2);
+        gap: calc(var(--task-spacing) * 1.5);
         position:relative;
         z-index: 1;
+
+        &.tsk-Card-hasCategory {
+            grid-template-columns: auto auto 1fr auto;
+            grid-template-areas:
+            "done cat title actions";
+        }
 
         &:not(.tsk-Card-isUrgent):not(.tsk-Card-isImportant) {
             background-color: transparent;
@@ -114,6 +112,10 @@
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
+    }
+
+    .tsk-Cat {
+        grid-area: cat;
     }
 
     .tsk-Btn {
