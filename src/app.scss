@@ -236,6 +236,7 @@ $primary-700: #c2185b;
         --color: var(--form-element-color);
         --icon-color: var(--color);
 
+        position:relative;
         appearance: none;
         padding: var(--form-element-spacing-vertical) var(--form-element-spacing-horizontal);
         width: 100%;
@@ -244,6 +245,19 @@ $primary-700: #c2185b;
         border-radius: var(--border-radius);
         border: var(--border-width) solid var(--border-color);
         text-align:left;
+
+        &:after {
+            content: '';
+            position:absolute;
+            right: var(--spacing);
+            top: calc(50% - 5px);
+            transform: translateY(-50%), rotate(0deg);
+            width: 0px;
+            height: 0px;
+            border-style: solid;
+            border-width: 15px 10px 0 10px;
+            border-color: #415462 transparent transparent transparent;
+        }
     }
 
     .tlbx-OptionsList {

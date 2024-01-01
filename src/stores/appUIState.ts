@@ -5,6 +5,8 @@ type ModalCodes = 'reset'|'task-create';
 type ModalTaskCodes = `${'task-detail'|'task-edit'}-${number}`;
 
 export type AppUIState = {
+    mainView:'dashboard'|'task-detail'
+    activeTask: number|null
     tasksShown:'todo'|'done'
     viewMode:'list'|'matrix'
     categoryFilters:string[]
@@ -17,6 +19,8 @@ const initAppUIState = () => {
 
     // initial data
     const initialState:AppUIState = {
+        mainView: 'dashboard',
+        activeTask: null,
         tasksShown: 'todo',
         viewMode: 'list',
         categoryFilters: [],
@@ -57,6 +61,13 @@ const initAppUIState = () => {
         },
         clearCategoryFilters: () => {
             update(state => ({ ...state, categoryFilters: [] }));
+        },
+        changeMainView: (newMainView:'dashboard'|'task-detail', newActiveTask?:number) => {
+            if(newMainView === 'task-detail' && typeof newActiveTask !== 'number') {
+                console.warn('invalid command : task-detail without active task number');
+                return;
+            }
+            update(state => ({ ...state, mainView: newMainView, activeTask: newActiveTask ?? null }));
         }
     }
 }
