@@ -37,8 +37,7 @@
         // format new task
         const newTask:BaseTask = {
             label: resultLabel,
-            description: (resultDescription !== "") ? resultDescription : undefined, 
-            isActive: false,
+            description: (resultDescription !== "") ? resultDescription : undefined,
             isUrgent: formTaskIsUrgent,
             isImportant: formTaskIsImportant,
             isDone: false,

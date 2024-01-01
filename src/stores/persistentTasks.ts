@@ -3,7 +3,6 @@ import Dexie, { liveQuery, type Table } from 'dexie';
 export type BaseTask = {
     label: string
     description?: string
-    isActive: boolean
     isUrgent: boolean
     isImportant: boolean
     isDone: boolean
