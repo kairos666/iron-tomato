@@ -3,7 +3,7 @@
     import { taskCategories } from "../constants/task-categories";
     import { type Task, taskEdit, taskById, taskAchieve, taskReopen } from "../stores/persistentTasks";
     import TaskCategoryIcon from "./TaskCategoryIcon.svelte";
-    import { exactDateFormatter, relativeHumanFormater } from "../utils/time-formater";
+    import { exactDateFormatter, relativeFromToHumanFormater } from "../utils/time-formater";
     import { Listbox, ListboxButton, ListboxLabel, ListboxOption, ListboxOptions, Switch, SwitchGroup, SwitchLabel } from "@rgossiaux/svelte-headlessui";
     import { appUIState } from "../stores/appUIState";
     import TaskWorkHistory from "./TaskWorkHistory.svelte";
@@ -42,12 +42,12 @@
             // format dates for humans  
             creationDateHuman = {
                 exact: exactDateFormatter.format(task.dateCreated),
-                relative: relativeHumanFormater(task.dateCreated, new Date().getTime())
+                relative: relativeFromToHumanFormater(task.dateCreated, new Date().getTime())
             };
             achievedDateHuman = (task.isDone && task.dateDone)
                 ?{
                     exact: exactDateFormatter.format(task.dateDone),
-                    relative: relativeHumanFormater(task.dateDone, new Date().getTime())
+                    relative: relativeFromToHumanFormater(task.dateDone, new Date().getTime())
                 }
                 : undefined;
         });
