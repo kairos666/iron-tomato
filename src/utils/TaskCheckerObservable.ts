@@ -1,7 +1,7 @@
 import { BehaviorSubject, combineLatest, distinctUntilKeyChanged, interval, map, Observable, pairwise, scan, startWith, timeInterval } from "rxjs";
 
 //const minThresholdLoggedWork:number = 1000 * 60 * 5; // 5 minutes minimum otherwise ignored
-const sleepTimeDetectionFrequency:number = 1000 * 60 * 2; // 2 min
+const sleepTimeDetectionFrequency:number = 1000 * 60 * 2; // 2 min (sleep duration accuracy +/- each wake sleep cycle)
 const minDelayThresholdSleepTime:number = 1000; //ms
 const deltaTimeInterval:number = 500; //ms
 

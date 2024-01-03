@@ -3,9 +3,11 @@
     import { taskCategories } from "../constants/task-categories";
     import { type Task, taskEdit, taskById, taskAchieve, taskReopen } from "../stores/persistentTasks";
     import TaskCategoryIcon from "./TaskCategoryIcon.svelte";
-    import { exactDateFormatter, relativeHumanFormater } from "../constants/time-formater";
+    import { exactDateFormatter, relativeHumanFormater } from "../utils/time-formater";
     import { Listbox, ListboxButton, ListboxLabel, ListboxOption, ListboxOptions, Switch, SwitchGroup, SwitchLabel } from "@rgossiaux/svelte-headlessui";
     import { appUIState } from "../stores/appUIState";
+    import TaskWorkHistory from "./TaskWorkHistory.svelte";
+    import TaskCheckTimer from "./TaskCheckTimer.svelte";
 
     export let taskID:string
     let detailState:'show'|'edit' = 'show';
@@ -121,6 +123,17 @@
             {/if}
             <button type="button" class="secondary outline" on:click={ () => { if(initialTask) setModal(`task-delete-${ parseInt(initialTask.id) }`) }}><Eraser color="var(--secondary)" /> Supprimer</button>
         </menu>
+        {#if !initialTask.isDone}
+            <article class="tskdtl-TaskWorkHistory">
+                <header>
+                    <h3>Activité sur la tâche</h3>
+                </header>
+                <TaskCheckTimer taskID={ taskID } />
+                <footer>
+                    <TaskWorkHistory taskID={ taskID } />
+                </footer>
+            </article>
+        {/if}
     </div>
 {:else if detailState === 'edit' && initialTask !== undefined}
     <form class="tskdtl-EditLayout" on:submit={ onSubmit }>
@@ -184,20 +197,21 @@
         grid-template-rows: auto auto auto;
         grid-template-areas: 
             "actions"
-            "task";
+            "task"
+            "work-history";
         column-gap: var(--spacing);
         row-gap: var(--spacing);
 
         @media (min-width:576px) {
             grid-template-columns: 3fr 1fr;
-            grid-template-rows: auto;
+            grid-template-rows: auto auto;
             grid-template-areas: 
-                "task actions";
+                "task actions"
+                "work-history work-history";
         }
     }
 
-    .tskdtl-Task { 
-        grid-area: task;
+    .tskdtl-Task, .tskdtl-TaskEdit, .tskdtl-TaskWorkHistory {
         padding: var(--spacing);
         margin:0;
 
@@ -205,9 +219,17 @@
             padding: var(--spacing);
             margin:calc(var(--spacing) * -1) calc(var(--spacing) * -1) var(--spacing);
         }
-        header h2 {
+        header h2, header h3 {
             margin-block-end: 0;
         }
+
+        footer {
+            padding: var(--spacing);
+            margin: var(--spacing) calc(var(--spacing) * -1) calc(var(--spacing) * -1);
+        }
+    }
+    .tskdtl-Task { 
+        grid-area: task;
     }
     .tskdtl-Actions { 
         grid-area: actions;
@@ -226,22 +248,11 @@
         button { margin-block-end: 0; }
     }
 
-    // edit
-    .tskdtl-TaskEdit {
-        padding: var(--spacing);
-        margin:0;
-
-        header {
-            padding: var(--spacing);
-            margin:calc(var(--spacing) * -1) calc(var(--spacing) * -1) var(--spacing);
-        }
-
-        footer {
-            padding: var(--spacing);
-            margin: var(--spacing) calc(var(--spacing) * -1) calc(var(--spacing) * -1);
-        }
+    .tskdtl-TaskWorkHistory {
+        grid-area: work-history;
     }
 
+    // edit
     .tskdtl-EditActionsMenu {
         display:flex;
         gap: var(--spacing);
