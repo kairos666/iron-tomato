@@ -36,7 +36,11 @@ export const durationHumanFormater = function(msDuration:number):Intl.RelativeTi
         : 0;
 
     // if 0 leave early
-    if(secondsDuration === 0) return durationFormatter.formatToParts(0, 'second').slice(1);
+    if(secondsDuration === 0) {
+        const emptySecondsParts = durationFormatter.formatToParts(0, 'second').slice(1);
+        emptySecondsParts[0].value = '00'; // 2 digit value
+        return emptySecondsParts;
+    } 
 
     let partsResult:Intl.RelativeTimeFormatPart[] = [];
     switch(true) {
