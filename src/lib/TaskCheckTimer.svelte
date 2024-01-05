@@ -4,11 +4,13 @@
     import { TaskCheckerObservable } from "../utils/TaskCheckerObservable";
     import { CalendarClock, Coffee } from "lucide-svelte";
     import DurationDisplay from "./DurationDisplay.svelte";
+    import { taskLogWork, type WorkItem } from "../stores/persistentTasks";
 
     export let taskID:string;
     let checkTimerSubject:BehaviorSubject<string>|null = null;
     let checkTimerSubscription:Subscription|null = null;
-    let timerState:{ checkerState:string, loggedTime:number } = { checkerState: 'NOT STARTED', loggedTime: 0 };   
+    let timerState:{ checkerState:string, loggedTime:number, start:number, end:number } = { checkerState: 'NOT STARTED', loggedTime: 0, start: -1, end: -1 };
+    const minThresholdLoggedWork:number = 1000 * 60 * 0.5; // 5 minutes minimum otherwise ignored (TODO put back 5 min threshomd and not 30 sec)
 
     function onWorkHandler() {
         if(checkTimerSubject) checkTimerSubject.next('WORK');
@@ -22,18 +24,36 @@
         checkTimerSubject = new BehaviorSubject('NOT STARTED');
         checkTimerSubscription = TaskCheckerObservable(checkTimerSubject).subscribe({
             next: timeCheck => { 
-                timerState = { checkerState: timeCheck.state, loggedTime: timeCheck.totalDuration - timeCheck.sleepDuration };
+                timerState = { checkerState: timeCheck.state, loggedTime: timeCheck.totalDuration - timeCheck.sleepDuration, start: timeCheck.start, end: timeCheck.end };
             }
         });
     })
 
     onDestroy(() => {
+        onTriggerWorkLog();
         if(checkTimerSubscription) checkTimerSubscription.unsubscribe();
         checkTimerSubscription = null;
         checkTimerSubject = null;
     })
+
+    function onTriggerWorkLog() {
+        // should trigger for : task achieve (unmount), task edit (unmount), back to dashboard (unmount), close browser tab (page unload), close browser (page unload)
+        // leave early (no work logged or inferior to minThresholdLoggedWork)
+        if(timerState.checkerState === 'NOT STARTED' || timerState.loggedTime < minThresholdLoggedWork) return;
+
+        // convert to work item
+        const workItem:WorkItem = {
+            start: timerState.start,
+            end: timerState.end,
+            duration: timerState.loggedTime
+        };
+        
+        // commit work items to task DB
+        taskLogWork(taskID, workItem);
+    }
 </script>
 
+<svelte:window on:beforeunload={ onTriggerWorkLog } />
 <section class="tst-CheckTimerLayout">
     <button 
         type="button" 
