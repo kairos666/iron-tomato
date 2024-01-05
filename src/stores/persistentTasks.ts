@@ -12,6 +12,7 @@ export type BaseTask = {
 export type WorkItem = {
     start: number
     end: number
+    duration: number
 }
 
 export type Task = BaseTask & {
@@ -153,7 +154,7 @@ export async function taskById(taskId:string) {
 // task action - log work duration to history
 export async function taskLogWork(taskId:string, workItems:WorkItem|WorkItem[]) {
     const taskID:number = parseInt(taskId);
-    const isMonoWorkSession:boolean = Array.isArray(workItems);
+    const isMonoWorkSession:boolean = !Array.isArray(workItems);
     const targetTask = await db.tasks.get(taskID);
 
     if(isNaN(taskID)) throw new Error(`task ID : ${ taskId } not recognized`);
