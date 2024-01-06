@@ -48,12 +48,12 @@
     <figure class="twc-Chronology">
         <span class="twc-Chronology_Start">{ chronology.chronologyRangeStart }</span>
         <ol class="twc-Chronology_Bar">
-        {#each chronology.workSessions as session}
+        {#each chronology.workSessions as session, index}
             <li 
                 class="twc-Chronology_Bar_WorkSession" 
                 style:left={ `${ session.startPerc * 100 }%` } 
                 style:right={ `${ 100 - session.endPerc * 100 }%` }
-            ><span class="sr-only">{ session.label }</span></li>
+            ><span class="sr-only">Session de travail #{ index + 1 }</span></li>
         {/each}
         </ol>
         <span class="twc-Chronology_End">{ chronology.chronologyRangeEnd }</span>
@@ -97,8 +97,9 @@
 
             .twc-Chronology_Bar_WorkSession {
                 position:absolute;
-                height: 1rem;
+                height: calc(1rem - 2px);
                 background-color: var(--primary);
+                margin-block-end: 0;
             }
         }
     }
