@@ -3,8 +3,9 @@ const sPerHour = sPerMinute * 60;
 const sPerDay = sPerHour * 24;
 const sPerMonth = sPerDay * 30;
 const sPerYear = sPerDay * 365;
+const language:string = 'fr-FR';
 
-export const exactDateFormatter:Intl.DateTimeFormat = new Intl.DateTimeFormat('fr-FR', {
+export const exactDateFormatter:Intl.DateTimeFormat = new Intl.DateTimeFormat(language, {
     hour: "numeric",
     minute: "numeric",
     weekday: "long",
@@ -13,11 +14,9 @@ export const exactDateFormatter:Intl.DateTimeFormat = new Intl.DateTimeFormat('f
     year: "numeric"
 });
 
-export const relativeDateFormatter:Intl.RelativeTimeFormat = new Intl.RelativeTimeFormat('fr-FR', { style: 'short', numeric: 'auto' });
-export const durationFormatter:Intl.RelativeTimeFormat = new Intl.RelativeTimeFormat('fr-FR', { style: 'long', numeric: 'always' });
-
-export const relativeFromToHumanFormater = function(fromTimestamp:number, toTimestamp:number):string {
+export const relativeFromToHumanFormater = function(fromTimestamp:number, toTimestamp:number, formatterOpts:Intl.RelativeTimeFormatOptions = { style: 'short', numeric: 'auto' }):string {
     const elapsedSecondsSinceCreation:number = (fromTimestamp - toTimestamp) / 1000;
+    const relativeDateFormatter:Intl.RelativeTimeFormat = new Intl.RelativeTimeFormat(language, formatterOpts);
 
     return (Math.abs(elapsedSecondsSinceCreation) > sPerYear)
         ? relativeDateFormatter.format(Math.floor(elapsedSecondsSinceCreation / sPerYear), 'years')
@@ -30,7 +29,8 @@ export const relativeFromToHumanFormater = function(fromTimestamp:number, toTime
         : relativeDateFormatter.format(Math.floor(elapsedSecondsSinceCreation / sPerMinute), 'minutes')
 }
 
-export const durationHumanFormater = function(msDuration:number):Intl.RelativeTimeFormatPart[] {
+export const durationHumanFormater = function(msDuration:number, formatterOpts:Intl.RelativeTimeFormatOptions = { style: 'long', numeric: 'always' }):Intl.RelativeTimeFormatPart[] {
+    const durationFormatter:Intl.RelativeTimeFormat = new Intl.RelativeTimeFormat(language, formatterOpts);
     let secondsDuration:number = (msDuration >= 0) 
         ? Math.floor(msDuration / 1000)
         : 0;
@@ -71,4 +71,35 @@ export const durationHumanFormater = function(msDuration:number):Intl.RelativeTi
     }
 
     return partsResult;
+}
+
+export const durationFormaterToString = function(msDuration:number, type:'TECH'|'HUMAN', formatterOpts:Intl.RelativeTimeFormatOptions = { style: 'long', numeric: 'always' }):string {
+    const parts:Intl.RelativeTimeFormatPart[] = durationHumanFormater(msDuration, formatterOpts);
+    function techUnitConverter(unit:string) {
+        switch(unit) {
+            case "second": return "S";
+            case "minute": return "M";
+            case "hour": return "H";
+            case "day": return "D";
+            default: return "";
+        }
+    }
+
+    console.table(parts);
+
+    if (type === 'TECH') {
+        return parts.reduce((acc, curr) => {
+            return (curr.type === "integer")
+                ? acc + curr.value + techUnitConverter(curr.unit ?? "no unit")
+                : acc;
+        }, "");
+    }
+    if (type === 'HUMAN') {
+        return parts.reduce((acc, curr) => {
+            return (curr.type === "integer" || curr.type === "literal")
+                ? acc + " " + curr.value
+                : acc;
+        }, "");
+    }
+    throw new Error(`Wrong type: ${ type }, for duration in durationFormaterToString function`);
 }
