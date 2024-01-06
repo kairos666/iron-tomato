@@ -8,6 +8,7 @@
     import { appUIState } from "../stores/appUIState";
     import TaskWorkHistory from "./TaskWorkHistory.svelte";
     import TaskCheckTimer from "./TaskCheckTimer.svelte";
+    import TaskWorkChronology from "./TaskWorkChronology.svelte";
 
     export let taskID:string
     let detailState:'show'|'edit' = 'show';
@@ -124,14 +125,18 @@
             <button type="button" class="secondary outline" on:click={ () => { if(initialTask) setModal(`task-delete-${ parseInt(initialTask.id) }`) }}><Eraser color="var(--secondary)" /> Supprimer</button>
         </menu>
         {#if !initialTask.isDone}
-            <article class="tskdtl-TaskWorkHistory">
+            <article class="tskdtl-TaskWorkChronology">
                 <header>
-                    <h3>Activité sur la tâche</h3>
+                    <h3>Travailler sur la tâche</h3>
                 </header>
                 <TaskCheckTimer taskID={ taskID } />
-                <footer>
-                    <TaskWorkHistory taskID={ taskID } />
-                </footer>
+            </article>
+            <article class="tskdtl-TaskWorkHistory">
+                <header>
+                    <h3>Historique de l'activité sur la tâche</h3>
+                    <TaskWorkChronology taskID={ taskID } />
+                </header>
+                <TaskWorkHistory taskID={ taskID } />
             </article>
         {/if}
     </div>
@@ -194,24 +199,26 @@
         width: 100%;
         height: 100%;
         grid-template-columns: 1fr;
-        grid-template-rows: auto auto auto;
+        grid-template-rows: auto auto auto auto;
         grid-template-areas: 
             "actions"
             "task"
+            "work-chronology"
             "work-history";
         column-gap: var(--spacing);
         row-gap: var(--spacing);
 
         @media (min-width:576px) {
             grid-template-columns: 3fr 1fr;
-            grid-template-rows: auto auto;
+            grid-template-rows: auto auto auto;
             grid-template-areas: 
                 "task actions"
+                "work-chronology work-chronology"
                 "work-history work-history";
         }
     }
 
-    .tskdtl-Task, .tskdtl-TaskEdit, .tskdtl-TaskWorkHistory {
+    .tskdtl-Task, .tskdtl-TaskEdit, .tskdtl-TaskWorkChronology, .tskdtl-TaskWorkHistory {
         padding: var(--spacing);
         margin:0;
 
@@ -246,6 +253,10 @@
         }
 
         button { margin-block-end: 0; }
+    }
+
+    .tskdtl-TaskWorkChronology {
+        grid-area: work-chronology;
     }
 
     .tskdtl-TaskWorkHistory {

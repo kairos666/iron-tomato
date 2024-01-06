@@ -14,6 +14,15 @@ export const exactDateFormatter:Intl.DateTimeFormat = new Intl.DateTimeFormat(la
     year: "numeric"
 });
 
+export const exactDurationFormater:Intl.DateTimeFormat = new Intl.DateTimeFormat(language, {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'short',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+});
+
 export const relativeFromToHumanFormater = function(fromTimestamp:number, toTimestamp:number, formatterOpts:Intl.RelativeTimeFormatOptions = { style: 'short', numeric: 'auto' }):string {
     const elapsedSecondsSinceCreation:number = (fromTimestamp - toTimestamp) / 1000;
     const relativeDateFormatter:Intl.RelativeTimeFormat = new Intl.RelativeTimeFormat(language, formatterOpts);
@@ -84,8 +93,6 @@ export const durationFormaterToString = function(msDuration:number, type:'TECH'|
             default: return "";
         }
     }
-
-    console.table(parts);
 
     if (type === 'TECH') {
         return parts.reduce((acc, curr) => {
