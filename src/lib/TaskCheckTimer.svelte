@@ -10,7 +10,7 @@
     let checkTimerSubject:BehaviorSubject<string>|null = null;
     let checkTimerSubscription:Subscription|null = null;
     let timerState:{ checkerState:string, loggedTime:number, start:number, end:number } = { checkerState: 'NOT STARTED', loggedTime: 0, start: -1, end: -1 };
-    const minThresholdLoggedWork:number = 1000 * 60 * 0.5; // 5 minutes minimum otherwise ignored (TODO put back 5 min threshomd and not 30 sec)
+    const minThresholdLoggedWork:number = 1000 * 60 * 5; // 5 minutes minimum otherwise ignored
 
     function onWorkHandler() {
         if(checkTimerSubject) checkTimerSubject.next('WORK');

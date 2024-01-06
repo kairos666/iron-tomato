@@ -68,6 +68,9 @@
     }
     $: editedCategory = taskCategories.find(cat => cat.id === formTaskCategory) ?? null;
 
+    // details history
+    $: hasHistory = !(initialTask?.workHistory === undefined || initialTask?.workHistory.length === 0);
+
     function handleAchieveTask() {
         taskAchieve(taskID).then(() => changeMainView('dashboard'));
     }
@@ -127,16 +130,26 @@
         {#if !initialTask.isDone}
             <article class="tskdtl-TaskWorkChronology">
                 <header>
-                    <h3>Travailler sur la tâche</h3>
+                    <h3>Travail sur la session en cours</h3>
                 </header>
                 <TaskCheckTimer taskID={ taskID } />
             </article>
             <article class="tskdtl-TaskWorkHistory">
                 <header>
                     <h3>Historique de l'activité sur la tâche</h3>
-                    <TaskWorkChronology taskID={ taskID } />
+                    {#if hasHistory}
+                    <dl class="tskdtl-MainStats">
+                        <dt>Périodes des sessions de travail (TODO - static) :</dt><dd>vendredi 05 janv. 2024, 23:58 - samedi 06 janv. 2024, 21:12</dd>
+                        <dt>Travail effectif cumulé (TODO - static) :</dt><dd>15 heures 35 minutes 32 secondes</dd>
+                    </dl>
+                    {/if}
                 </header>
                 <TaskWorkHistory taskID={ taskID } />
+                {#if hasHistory}
+                <footer>
+                    <TaskWorkChronology taskID={ taskID } />
+                </footer>
+                {/if}
             </article>
         {/if}
     </div>
@@ -261,6 +274,24 @@
 
     .tskdtl-TaskWorkHistory {
         grid-area: work-history;
+    }
+
+    .tskdtl-MainStats {
+        padding-inline-start: 0;
+        margin-block: var(--spacing) 0;
+        display: grid;
+        grid-template-columns: 1fr;
+        grid-auto-rows: auto;
+        grid-gap: calc(var(--spacing) * 0.5);
+
+        @media (min-width:576px) {
+            grid-template-columns: auto 1fr;
+            grid-auto-rows: auto;
+            dt { justify-self: end; }
+        }
+
+        dt { font-style: italic; }
+        dd { margin-inline-start: 0; font-weight: 500; }
     }
 
     // edit
