@@ -182,6 +182,7 @@
 
 <style lang="scss">
     @import "../styles/page-detail-block";
+    @import "../styles/page-detail-badges";
 
     // show
     .tskdtl-ShowLayout {
@@ -256,29 +257,15 @@
     }
 
     // transverse
-    .tskdtl-UrgentBadge, .tskdtl-ImportantBadge {
-        padding: 2px 6px;
-        font-size: 0.8rem;
-        font-weight: 400;
-        line-height: 1.2;
-        border-radius: var(--border-radius);
-        color: var(--primary-inverse);
-    }
     .tskdtl-UrgentBadge {
-        background-color: var(--urgent-color);
+        @include pdb_BadgeStyle(var(--primary-inverse), var(--urgent-color));
     } 
     .tskdtl-ImportantBadge {
-        background-color: var(--important-color);
+        @include pdb_BadgeStyle(var(--primary-inverse), var(--important-color));
     }
     .tskdtl-TimeBadge {
-        padding: 2px 6px;
-        font-size: 0.8rem;
-        font-weight: 400;
-        line-height: 1.2;
-        border-radius: var(--border-radius);
-        color: var(--primary-inverse);
+        @include pdb_BadgeStyle(var(--primary-inverse), var(--muted-color));
 
-        &.tskdtl-TimeBadge-creation { background-color: var(--muted-color); }
         &.tskdtl-TimeBadge-achievment { background-color: var(--done-color); }
         time { border: none }
     }
