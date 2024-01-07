@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { CalendarOff } from "lucide-svelte";
+    import { CalendarOff, CalendarClock, CalendarDays, Coffee } from "lucide-svelte";
     import TaskWorkChronology from "./TaskWorkChronology.svelte";
     import TaskWorkHistory from "./TaskWorkHistory.svelte";
     import { getLiveQueryForTaskId, type WorkItem } from "../../stores/persistentTasks";
@@ -8,8 +8,8 @@
     import PieChart from "../PieChart.svelte";
 
     export let taskID:string;
-    let ratioTotal:{ label:string, percent:number, color:string }[] = [];
-    let ratioSessions:{ label:string, percent:number, color:string }[] = [];
+    let ratioTotal:{ label:string, percent:number, color:string, icon: any, humanDuration: string }[] = [];
+    let ratioSessions:{ label:string, percent:number, color:string, icon: any, humanDuration: string }[] = [];
     $: taskQuery = getLiveQueryForTaskId(taskID);
     $: hasHistory = !($taskQuery?.workHistory === undefined || $taskQuery?.workHistory.length === 0);
     $: if(hasHistory) {
@@ -20,15 +20,16 @@
         const durationWithoutWorkSession:number = durationSinceCreation - durationTotalWorkSessions;
         const taskEffectiveWork:string = durationFormaterToString(durationEffectiveWork, 'HUMAN', { style: 'narrow', numeric: 'always' });
         const taskPauses:string = durationFormaterToString(durationPauses, 'HUMAN', { style: 'narrow', numeric: 'always' });
+        const taskIgnored:string = durationFormaterToString(durationWithoutWorkSession, 'HUMAN', { style: 'narrow', numeric: 'always' });
 
         ratioTotal = [
-            { label: `Travail effectif sur la tâche : ${ taskEffectiveWork }`, percent: 100 * (durationEffectiveWork / durationSinceCreation), color: "var(--primary)" },
-            { label: `Pauses sur la tâche : ${ taskPauses }`, percent: 100 * (durationPauses / durationSinceCreation), color: "var(--muted-color)" },
-            { label: `Tâche ignorée`, percent: 100 * (durationWithoutWorkSession / durationSinceCreation), color: "var(--muted-border-color)" }
+            { label: `Travail effectif sur la tâche`, humanDuration: taskEffectiveWork, percent: 100 * (durationEffectiveWork / durationSinceCreation), color: "var(--primary)", icon: CalendarClock },
+            { label: `Pauses sur la tâche`, humanDuration: taskPauses, percent: 100 * (durationPauses / durationSinceCreation), color: "var(--muted-color)", icon: Coffee },
+            { label: `Tâche ignorée`, humanDuration: taskIgnored, percent: 100 * (durationWithoutWorkSession / durationSinceCreation), color: "var(--muted-border-color)", icon: CalendarDays }
         ];
         ratioSessions = [
-            { label: `Travail effectif sur la tâche : ${ taskEffectiveWork }`, percent: 100 * (durationEffectiveWork / durationTotalWorkSessions), color: "var(--primary)" },
-            { label: `Pauses sur la tâche : ${ taskPauses }`, percent: 100 * (durationPauses / durationTotalWorkSessions), color: "var(--muted-color)" }
+            { label: `Travail effectif sur la tâche`, humanDuration: taskEffectiveWork, percent: 100 * (durationEffectiveWork / durationTotalWorkSessions), color: "var(--primary)", icon: CalendarClock },
+            { label: `Pauses sur la tâche`, humanDuration: taskPauses, percent: 100 * (durationPauses / durationTotalWorkSessions), color: "var(--muted-color)", icon: Coffee }
         ];
     } else {
         ratioTotal = [];
@@ -43,20 +44,38 @@
     </header>
     <TabGroup>
         <TabList class="tab-TabList">
+            <Tab class={ ({selected}) => selected ? "tab-selected" : "tab-unselected" }>Synthèse d'activité</Tab>
             <Tab class={ ({selected}) => selected ? "tab-selected" : "tab-unselected" }>Distribution de l'activité</Tab>
             <Tab class={ ({selected}) => selected ? "tab-selected" : "tab-unselected" }>Historique détaillé</Tab>
         </TabList>
         <TabPanels>
+            <TabPanel class="th-Stats">
+                <section class="th-StatBlock">
+                    <h4 class="th-PieChartTitle">Ratio global</h4>
+                    <PieChart statistics={ ratioTotal } baseSize={ 200 } holeSize={ 75 } style="grid-area:chart;justify-self:center;" />
+                    <div class="th-PieChartLegends">
+                        {#each ratioTotal as legend}
+                            <figure class="th-PieChartLegend" data-tooltip={ `${ legend.humanDuration } (${ Math.round((legend.percent + Number.EPSILON) * 100) / 100 }%)` }>
+                                <svelte:component this={ legend.icon } color={ legend.color } />
+                                <figcaption>{ legend.label }</figcaption>
+                            </figure>
+                        {/each}
+                    </div>
+                </section>
+                <section class="th-StatBlock">
+                    <h4 class="th-PieChartTitle">Ratio focus sessions</h4>
+                    <PieChart statistics={ ratioSessions } baseSize={ 200 } holeSize={ 75 } style="grid-area:chart;justify-self:center;" />
+                    <div class="th-PieChartLegends">
+                        {#each ratioSessions as legend}
+                            <figure class="th-PieChartLegend" data-tooltip={ `${ legend.humanDuration } (${ Math.round((legend.percent + Number.EPSILON) * 100) / 100 }%)` }>
+                                <svelte:component this={ legend.icon } color={ legend.color } />
+                                <figcaption>{ legend.label }</figcaption>
+                            </figure>
+                        {/each}
+                    </div>
+                </section>
+            </TabPanel>
             <TabPanel>
-                <section class="th-StatBlock">
-                    <h4>Ratios depuis la création de la tâche</h4>
-                    <PieChart statistics={ ratioTotal } baseSize={ 150 } holeSize={ 50 } />
-                </section>
-                <section class="th-StatBlock">
-                    <h4>Ratios des sessions de travail</h4>
-                    <PieChart statistics={ ratioSessions } baseSize={ 150 } holeSize={ 50 } />
-                </section>
-                <hr />
                 <section class="th-DistributionSessionsBlock">
                     <h4>Répartition des sessions de travail</h4>
                     <p><small>Plus la couleur de session est foncée et plus la période d'activité est intense.</small></p>
@@ -94,9 +113,49 @@
         @include pdb_BlockStyle(h3);
         grid-area: work-history;
 
-        h4 { margin-block-end: calc(var(--spacing) * 0.35); }
-        p { margin-block-end: calc(var(--spacing) * 0.2); }
         hr { margin-block: calc(var(--spacing) * 2); }
+    }
+
+    .th-StatBlock {
+        margin-block-end: 0;
+        display:grid;
+        align-items: center;
+        grid-gap: var(--spacing);
+
+        h4 { grid-area: title; margin-block-end: 0; }
+        p { margin-block-end: calc(var(--spacing) * 0.2); }
+        .th-PieChartTitle { grid-area: title; }
+        .th-PieChartLegends { grid-area: legend; }
+        @media (max-width:575px) {
+            grid-template-columns: auto;
+            grid-template-rows: auto;
+            grid-template-areas: 
+                "title"
+                "chart"
+                "legend";
+        }
+
+        @media (min-width:576px) {
+            grid-template-columns: auto 1fr;
+            grid-template-rows: auto auto;
+            grid-template-areas: 
+                "title title"
+                "chart legend";
+        }
+
+        .th-PieChartLegends {
+            display:flex;
+            flex-direction: column;
+            gap: var(--spacing);
+        }
+
+        .th-PieChartLegend {
+            margin-block-end: 0;
+            overflow: visible;
+            border-bottom: none;
+
+            figcaption { display:inline; padding-block:0; }
+        }
     }
 
     .th-EmptyHistory { margin-block-end: 0; }

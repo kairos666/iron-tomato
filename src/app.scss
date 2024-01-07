@@ -322,6 +322,24 @@
     }
 }
 
+// custom task detail stats
+.th-Stats {
+    display:flex;
+    
+    @media (max-width:959px) {
+        flex-direction: column;
+        gap: calc(var(--spacing) * 2);
+    }
+
+    @media (min-width:960px) {
+        display:flex;
+        flex-wrap:wrap;
+        gap: var(--spacing);
+
+        > * { flex:0 1 calc(50% - var(--spacing) * 0.5); }
+    }
+}
+
 // UTILITIES
 // src https://gist.github.com/ffoodd/000b59f431e3e64e4ce1a24d5bb36034
 .sr-only {

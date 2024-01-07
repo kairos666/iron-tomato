@@ -3,6 +3,7 @@
     export let baseSize:number = 100;
     export let bgColor:string = 'transparent';
     export let holeSize:number = 0;
+    export let style:string = "";
     let statisticsExtended:{ label:string, percent:number, color:string, dashArray:string, offsetRotation:string }[] = [];
 
     $: statisticsExtended = statistics.map((arc, index, array) => {
@@ -21,7 +22,7 @@
     }
 </script>
 
-<svg width={ baseSize } height={ baseSize }>
+<svg width={ baseSize } height={ baseSize } style={ style }>
     {#each statisticsExtended as arc }
         <circle 
             r={ baseSize / 4 } 
@@ -31,7 +32,7 @@
             style:stroke={ arc.color }
             style:stroke-dasharray={ arc.dashArray }
             style:transform={ `rotate(${ arc.offsetRotation })` }
-            fill={ bgColor } 
+            fill={ bgColor }
         />
     {/each}
 </svg>
