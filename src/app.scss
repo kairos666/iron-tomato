@@ -309,6 +309,7 @@
     gap: var(--spacing);
 
     [role="tab"] {
+        width:auto;
         padding-block: calc(var(--spacing) * 0.25);
         &.tab-selected { color: var(--primary-inverse); background-color: var(--primary); }
         &.tab-unselected { 

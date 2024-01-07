@@ -1,35 +1,79 @@
 <script lang="ts">
-    import { CalendarClock, CalendarDays, CalendarOff } from "lucide-svelte";
+    import { CalendarOff } from "lucide-svelte";
     import TaskWorkChronology from "./TaskWorkChronology.svelte";
     import TaskWorkHistory from "./TaskWorkHistory.svelte";
     import { getLiveQueryForTaskId, type WorkItem } from "../../stores/persistentTasks";
     import { durationFormaterToString } from "../../utils/time-formater";
     import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@rgossiaux/svelte-headlessui";
+    import PieChart from "../PieChart.svelte";
 
     export let taskID:string;
+    let ratioTotal:{ label:string, percent:number, color:string }[] = [];
+    let ratioSessions:{ label:string, percent:number, color:string }[] = [];
     $: taskQuery = getLiveQueryForTaskId(taskID);
     $: hasHistory = !($taskQuery?.workHistory === undefined || $taskQuery?.workHistory.length === 0);
-    $: taskOpenSince = ($taskQuery?.dateCreated !== undefined) ? durationFormaterToString(new Date().getTime() - $taskQuery.dateCreated, 'HUMAN', { style: 'narrow', numeric: 'always' }) : null;
-    $: taskEffectiveWork = (hasHistory) ? durationFormaterToString((($taskQuery as any).workHistory as WorkItem[]).reduce((acc, curr) => acc + curr.duration, 0), 'HUMAN', { style: 'narrow', numeric: 'always' }) : null;
+    $: if(hasHistory) {
+        const durationSinceCreation:number = new Date().getTime() - ($taskQuery as any).dateCreated;
+        const durationTotalWorkSessions:number = (($taskQuery as any).workHistory as WorkItem[]).reduce((acc, curr) => acc + (curr.end - curr.start), 0);
+        const durationEffectiveWork:number = (($taskQuery as any).workHistory as WorkItem[]).reduce((acc, curr) => acc + curr.duration, 0);
+        const durationPauses:number = durationTotalWorkSessions - durationEffectiveWork;
+        const durationWithoutWorkSession:number = durationSinceCreation - durationTotalWorkSessions;
+        const taskEffectiveWork:string = durationFormaterToString(durationEffectiveWork, 'HUMAN', { style: 'narrow', numeric: 'always' });
+        const taskPauses:string = durationFormaterToString(durationPauses, 'HUMAN', { style: 'narrow', numeric: 'always' });
+
+        ratioTotal = [
+            { label: `Travail effectif sur la tâche : ${ taskEffectiveWork }`, percent: 100 * (durationEffectiveWork / durationSinceCreation), color: "var(--primary)" },
+            { label: `Pauses sur la tâche : ${ taskPauses }`, percent: 100 * (durationPauses / durationSinceCreation), color: "var(--muted-color)" },
+            { label: `Tâche ignorée`, percent: 100 * (durationWithoutWorkSession / durationSinceCreation), color: "var(--muted-border-color)" }
+        ];
+        ratioSessions = [
+            { label: `Travail effectif sur la tâche : ${ taskEffectiveWork }`, percent: 100 * (durationEffectiveWork / durationTotalWorkSessions), color: "var(--primary)" },
+            { label: `Pauses sur la tâche : ${ taskPauses }`, percent: 100 * (durationPauses / durationTotalWorkSessions), color: "var(--muted-color)" }
+        ];
+    } else {
+        ratioTotal = [];
+        ratioSessions = [];
+    }
 </script>
 
 {#if hasHistory}
 <article class="th-Block">
     <header>
         <h3>Historique d'activité</h3>
-        {#if taskOpenSince}<span class="th-Badge th-BadgeOpenSince"><CalendarDays stroke-width="1" size="15" color="var(--primary-inverse)" /> tâche ouverte depuis { taskOpenSince }</span>{/if}
-        {#if taskEffectiveWork}<span class="th-Badge th-BadgeCumulatedActiveWork"><CalendarClock stroke-width="1" size="15" color="var(--primary-inverse)" /> travail effectif : { taskEffectiveWork }</span>{/if}
     </header>
     <TabGroup>
         <TabList class="tab-TabList">
-            <Tab class={ ({selected}) => selected ? "tab-selected" : "tab-unselected" }>Chronologie sessions de travail</Tab>
+            <Tab class={ ({selected}) => selected ? "tab-selected" : "tab-unselected" }>Distribution de l'activité</Tab>
             <Tab class={ ({selected}) => selected ? "tab-selected" : "tab-unselected" }>Historique détaillé</Tab>
-            <Tab class={ ({selected}) => selected ? "tab-selected" : "tab-unselected" }>Découpage par jours</Tab>
         </TabList>
         <TabPanels>
-            <TabPanel><TaskWorkChronology taskHistory={ $taskQuery?.workHistory ?? [] } /></TabPanel>
-            <TabPanel><TaskWorkHistory taskHistory={ $taskQuery?.workHistory ?? [] } /></TabPanel>
-            <TabPanel>Content 3</TabPanel>
+            <TabPanel>
+                <section class="th-StatBlock">
+                    <h4>Ratios depuis la création de la tâche</h4>
+                    <PieChart statistics={ ratioTotal } baseSize={ 150 } holeSize={ 50 } />
+                </section>
+                <section class="th-StatBlock">
+                    <h4>Ratios des sessions de travail</h4>
+                    <PieChart statistics={ ratioSessions } baseSize={ 150 } holeSize={ 50 } />
+                </section>
+                <hr />
+                <section class="th-DistributionSessionsBlock">
+                    <h4>Répartition des sessions de travail</h4>
+                    <p><small>Plus la couleur de session est foncée et plus la période d'activité est intense.</small></p>
+                    <TaskWorkChronology taskHistory={ $taskQuery?.workHistory ?? [] } />
+                </section>
+                <hr />
+                <section class="th-DistributionWeekBlock">
+                    <h4>Répartition au cours des jours de la semaine</h4>
+                    <p>TODO</p>
+                </section>
+            </TabPanel>
+            <TabPanel>
+                <section class="th-SessionDetailsBlock">
+                    <h4>Sessions enregistrées</h4>
+                    <TaskWorkHistory taskHistory={ $taskQuery?.workHistory ?? [] } />
+                </section>
+            </TabPanel>
         </TabPanels>
     </TabGroup>
 </article>
@@ -49,13 +93,10 @@
     .th-Block { 
         @include pdb_BlockStyle(h3);
         grid-area: work-history;
-    }
 
-    .th-Badge.th-BadgeOpenSince {
-        @include pdb_BadgeStyle(var(--primary-inverse), var(--muted-color));
-    }
-    .th-Badge.th-BadgeCumulatedActiveWork {
-        @include pdb_BadgeStyle(var(--primary-inverse), var(--primary));
+        h4 { margin-block-end: calc(var(--spacing) * 0.35); }
+        p { margin-block-end: calc(var(--spacing) * 0.2); }
+        hr { margin-block: calc(var(--spacing) * 2); }
     }
 
     .th-EmptyHistory { margin-block-end: 0; }
