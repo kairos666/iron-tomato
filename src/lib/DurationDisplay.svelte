@@ -1,13 +1,14 @@
 <script lang="ts">
-    import { durationHumanFormater } from "../utils/time-formater";
+    import { durationHumanFormater, durationFormaterToString } from "../utils/time-formater";
 
     export let msDuration:number;
     export let style:string = '';
 
     $: timeParts = durationHumanFormater(msDuration);
+    $: dateTimeAttribute = durationFormaterToString(msDuration, 'TECH');
 </script>
 
-<time class="dd-TimeDisplay" style={ style } datetime="pouet" >
+<time class="dd-TimeDisplay" style={ style } datetime={ dateTimeAttribute } >
     {#each timeParts as part}
         <span class:dd-TimeDisplay_Value={ part.type === 'integer' } class:dd-TimeDisplay_Unit={ part.type === 'literal' }>{ part.value }</span>
     {/each}
