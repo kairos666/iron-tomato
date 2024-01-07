@@ -2,19 +2,22 @@
     import { CalendarClock, CalendarDays, CalendarOff } from "lucide-svelte";
     import TaskWorkChronology from "./TaskWorkChronology.svelte";
     import TaskWorkHistory from "./TaskWorkHistory.svelte";
-    import { getLiveQueryForTaskId } from "../../stores/persistentTasks";
+    import { getLiveQueryForTaskId, type WorkItem } from "../../stores/persistentTasks";
+    import { durationFormaterToString } from "../../utils/time-formater";
 
     export let taskID:string;
     $: taskQuery = getLiveQueryForTaskId(taskID);
     $: hasHistory = !($taskQuery?.workHistory === undefined || $taskQuery?.workHistory.length === 0);
+    $: taskOpenSince = ($taskQuery?.dateCreated !== undefined) ? durationFormaterToString(new Date().getTime() - $taskQuery.dateCreated, 'HUMAN', { style: 'narrow', numeric: 'always' }) : null;
+    $: taskEffectiveWork = (hasHistory) ? durationFormaterToString((($taskQuery as any).workHistory as WorkItem[]).reduce((acc, curr) => acc + curr.duration, 0), 'HUMAN', { style: 'narrow', numeric: 'always' }) : null;
 </script>
 
 {#if hasHistory}
 <article class="th-Block">
     <header>
         <h3>Historique d'activité</h3>
-        <span class="th-Badge th-BadgeOpenSince"><CalendarDays stroke-width="1" size="15" color="var(--primary-inverse)" /> tâche ouverte depuis 35 jours 12 heures</span>
-        <span class="th-Badge th-BadgeCumulatedActiveWork"><CalendarClock stroke-width="1" size="15" color="var(--primary-inverse)" /> travail effectif : 15 heures 35 minutes 32 secondess</span>
+        {#if taskOpenSince}<span class="th-Badge th-BadgeOpenSince"><CalendarDays stroke-width="1" size="15" color="var(--primary-inverse)" /> tâche ouverte depuis { taskOpenSince }</span>{/if}
+        {#if taskEffectiveWork}<span class="th-Badge th-BadgeCumulatedActiveWork"><CalendarClock stroke-width="1" size="15" color="var(--primary-inverse)" /> travail effectif : { taskEffectiveWork }</span>{/if}
     </header>
     <TaskWorkHistory taskHistory={ $taskQuery?.workHistory ?? [] } />
     <footer>
