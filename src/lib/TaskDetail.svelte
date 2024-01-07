@@ -67,9 +67,6 @@
     }
     $: editedCategory = taskCategories.find(cat => cat.id === formTaskCategory) ?? null;
 
-    // details history
-    $: hasHistory = !(initialTask?.workHistory === undefined || initialTask?.workHistory.length === 0);
-
     function handleAchieveTask() {
         taskAchieve(taskID).then(() => changeMainView('dashboard'));
     }
@@ -128,7 +125,7 @@
         </menu>
         {#if !initialTask.isDone}
             <TaskTimeCheckerBlock taskID={ taskID } />
-            <TaskHistoryBlock taskID={ taskID } hasHistory={ hasHistory } />
+            <TaskHistoryBlock taskID={ taskID } />
         {/if}
     </div>
 {:else if detailState === 'edit' && initialTask !== undefined}

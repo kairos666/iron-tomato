@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { getLiveQueryForTaskId, type WorkItem } from "../../stores/persistentTasks";
+    import { type WorkItem } from "../../stores/persistentTasks";
     import { exactDurationFormater } from "../../utils/time-formater";
 
     type WorkItemExtended = WorkItem & {
@@ -14,17 +14,15 @@
         workSessions: WorkItemExtended[]
     }
 
-    export let taskID:string;
+    export let taskHistory:WorkItem[];
     let chronology:ChronologicHistory|null = null;
-    $: taskQuery = getLiveQueryForTaskId(taskID);
-    $: if($taskQuery) {
-        if($taskQuery?.workHistory === undefined || $taskQuery?.workHistory.length === 0) {
+    $: if(taskHistory === undefined || taskHistory.length === 0) {
             chronology = null;
         } else {
             // calculate chronology
-            const chronologyStartAndEnd:{ start:number, end:number } = $taskQuery.workHistory.reduce((acc, curr) => ({ start: Math.min(acc.start, curr.start), end: Math.max(acc.end, curr.end) }), { start:Infinity, end:-1 });
+            const chronologyStartAndEnd:{ start:number, end:number } = taskHistory.reduce((acc, curr) => ({ start: Math.min(acc.start, curr.start), end: Math.max(acc.end, curr.end) }), { start:Infinity, end:-1 });
             const chronologyAmplitude:number = chronologyStartAndEnd.end - chronologyStartAndEnd.start;
-            const chronologyWorkSessions:WorkItemExtended[] = $taskQuery.workHistory
+            const chronologyWorkSessions:WorkItemExtended[] = taskHistory
                 .sort((workA, workB) => (workA.start <= workB.start) ? 1 : -1) // ensure chonological order (based on start date)
                 .map(baseWorkSession => {
                     const activeWorkPerc:number = baseWorkSession.duration / (baseWorkSession.end - baseWorkSession.start);
@@ -42,7 +40,6 @@
                 workSessions: chronologyWorkSessions
             };
         }
-    }
 </script>
 
 {#if chronology}

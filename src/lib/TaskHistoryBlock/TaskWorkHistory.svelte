@@ -1,18 +1,9 @@
 <script lang="ts">
-    import { CalendarOff } from "lucide-svelte";
-    import { getLiveQueryForTaskId, type WorkItem } from "../../stores/persistentTasks";
+    import { type WorkItem } from "../../stores/persistentTasks";
 
-    export let taskID:string;
-    $: taskQuery = getLiveQueryForTaskId(taskID);
-    $: hasHistory = !($taskQuery?.workHistory === undefined || $taskQuery?.workHistory.length === 0);
+    export let taskHistory:WorkItem[];
 </script>
 
-{#if hasHistory}
-    <p>history</p>
-{:else}
-    <p class="twh-EmptyHistory"><CalendarOff /> <i>La tâche ne contient pas d'imputations</i></p>
-{/if}
+<p>history</p>
 
-<style lang="scss">
-    .twh-EmptyHistory { margin-block-end: 0; }
-</style>
+<style lang="scss"></style>

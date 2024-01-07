@@ -1,28 +1,36 @@
 <script lang="ts">
+    import { CalendarOff } from "lucide-svelte";
     import TaskWorkChronology from "./TaskWorkChronology.svelte";
     import TaskWorkHistory from "./TaskWorkHistory.svelte";
+    import { getLiveQueryForTaskId } from "../../stores/persistentTasks";
 
     export let taskID:string;
-    export let hasHistory:boolean;
+    $: taskQuery = getLiveQueryForTaskId(taskID);
+    $: hasHistory = !($taskQuery?.workHistory === undefined || $taskQuery?.workHistory.length === 0);
 </script>
 
+{#if hasHistory}
 <article class="th-Block">
     <header>
-        <h3>Historique de l'activité sur la tâche</h3>
-        {#if hasHistory}
+        <h3>Historique d'activité</h3>
         <dl class="th-MainStats">
             <dt>Périodes des sessions de travail (TODO - static) :</dt><dd>vendredi 05 janv. 2024, 23:58 - samedi 06 janv. 2024, 21:12</dd>
             <dt>Travail effectif cumulé (TODO - static) :</dt><dd>15 heures 35 minutes 32 secondes</dd>
         </dl>
-        {/if}
     </header>
-    <TaskWorkHistory taskID={ taskID } />
-    {#if hasHistory}
+    <TaskWorkHistory taskHistory={ $taskQuery?.workHistory ?? [] } />
     <footer>
-        <TaskWorkChronology taskID={ taskID } />
+        <TaskWorkChronology taskHistory={ $taskQuery?.workHistory ?? [] } />
     </footer>
-    {/if}
 </article>
+{:else}
+<article class="th-Block">
+    <header>
+        <h3>Historique d'activité</h3>
+    </header>
+    <p class="th-EmptyHistory"><CalendarOff /> <i>La tâche ne contient pas d'imputations</i></p>
+</article>
+{/if}
 
 <style lang="scss">
     @import "../../styles/page-detail-block";
@@ -49,4 +57,6 @@
         dt { font-style: italic; }
         dd { margin-inline-start: 0; font-weight: 500; }
     }
+
+    .th-EmptyHistory { margin-block-end: 0; }
 </style>
