@@ -4,6 +4,7 @@
     import TaskWorkHistory from "./TaskWorkHistory.svelte";
     import { getLiveQueryForTaskId, type WorkItem } from "../../stores/persistentTasks";
     import { durationFormaterToString } from "../../utils/time-formater";
+    import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@rgossiaux/svelte-headlessui";
 
     export let taskID:string;
     $: taskQuery = getLiveQueryForTaskId(taskID);
@@ -19,10 +20,18 @@
         {#if taskOpenSince}<span class="th-Badge th-BadgeOpenSince"><CalendarDays stroke-width="1" size="15" color="var(--primary-inverse)" /> tâche ouverte depuis { taskOpenSince }</span>{/if}
         {#if taskEffectiveWork}<span class="th-Badge th-BadgeCumulatedActiveWork"><CalendarClock stroke-width="1" size="15" color="var(--primary-inverse)" /> travail effectif : { taskEffectiveWork }</span>{/if}
     </header>
-    <TaskWorkHistory taskHistory={ $taskQuery?.workHistory ?? [] } />
-    <footer>
-        <TaskWorkChronology taskHistory={ $taskQuery?.workHistory ?? [] } />
-    </footer>
+    <TabGroup>
+        <TabList class="tab-TabList">
+            <Tab class={ ({selected}) => selected ? "tab-selected" : "tab-unselected" }>Chronologie sessions de travail</Tab>
+            <Tab class={ ({selected}) => selected ? "tab-selected" : "tab-unselected" }>Historique détaillé</Tab>
+            <Tab class={ ({selected}) => selected ? "tab-selected" : "tab-unselected" }>Découpage par jours</Tab>
+        </TabList>
+        <TabPanels>
+            <TabPanel><TaskWorkChronology taskHistory={ $taskQuery?.workHistory ?? [] } /></TabPanel>
+            <TabPanel><TaskWorkHistory taskHistory={ $taskQuery?.workHistory ?? [] } /></TabPanel>
+            <TabPanel>Content 3</TabPanel>
+        </TabPanels>
+    </TabGroup>
 </article>
 {:else}
 <article class="th-Block">

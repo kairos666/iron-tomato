@@ -303,6 +303,24 @@
     }
 }
 
+// TABS
+.tab-TabList {
+    display:flex;
+    gap: var(--spacing);
+
+    [role="tab"] {
+        padding-block: calc(var(--spacing) * 0.25);
+        &.tab-selected { color: var(--primary-inverse); background-color: var(--primary); }
+        &.tab-unselected { 
+            color: var(--secondary); 
+            background-color: var(--secondary-inverse);
+            border-color: var(--secondary);
+
+            &:hover, &:focus, &:active { color: var(--secondary-inverse); background-color: var(--secondary-hover); }
+        }
+    }
+}
+
 // UTILITIES
 // src https://gist.github.com/ffoodd/000b59f431e3e64e4ce1a24d5bb36034
 .sr-only {

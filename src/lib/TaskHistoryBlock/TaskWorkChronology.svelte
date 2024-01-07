@@ -66,19 +66,21 @@
         width: 100%;
         grid-template-columns: auto auto;
         grid-template-rows: auto auto;
-        grid-template-areas: 
-            "start-date end-date"
-            "chronology-bar chronology-bar";
+        grid-template-areas:
+            "chronology-bar chronology-bar"
+            "start-date end-date";
         column-gap: var(--spacing);
         row-gap: calc(var(--spacing) * 0.5);
 
         .twc-Chronology_Start {
             grid-area: start-date;
+            &::first-letter { text-transform: uppercase; }
         }
 
         .twc-Chronology_End {
             grid-area: end-date;
             justify-self: end;
+            &::first-letter { text-transform: uppercase; }
         }
 
         .twc-Chronology_Bar {
