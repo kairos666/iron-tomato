@@ -1,10 +1,10 @@
 <script lang="ts">
     import { BehaviorSubject, type Subscription } from "rxjs";
     import { onDestroy, onMount } from "svelte";
-    import { TaskCheckerObservable } from "../utils/TaskCheckerObservable";
+    import { TaskCheckerObservable } from "../../utils/TaskCheckerObservable";
     import { CalendarClock, Coffee } from "lucide-svelte";
-    import DurationDisplay from "./DurationDisplay.svelte";
-    import { taskLogWork, type WorkItem } from "../stores/persistentTasks";
+    import DurationDisplay from "../DurationDisplay.svelte";
+    import { taskLogWork, type WorkItem } from "../../stores/persistentTasks";
 
     export let taskID:string;
     let checkTimerSubject:BehaviorSubject<string>|null = null;

@@ -1,6 +1,6 @@
 <script lang="ts">
-    import { getLiveQueryForTaskId, type WorkItem } from "../stores/persistentTasks";
-    import { exactDurationFormater } from "../utils/time-formater";
+    import { getLiveQueryForTaskId, type WorkItem } from "../../stores/persistentTasks";
+    import { exactDurationFormater } from "../../utils/time-formater";
 
     type WorkItemExtended = WorkItem & {
         startPerc: number

@@ -6,9 +6,8 @@
     import { exactDateFormatter, relativeFromToHumanFormater } from "../utils/time-formater";
     import { Listbox, ListboxButton, ListboxLabel, ListboxOption, ListboxOptions, Switch, SwitchGroup, SwitchLabel } from "@rgossiaux/svelte-headlessui";
     import { appUIState } from "../stores/appUIState";
-    import TaskWorkHistory from "./TaskWorkHistory.svelte";
-    import TaskCheckTimer from "./TaskCheckTimer.svelte";
-    import TaskWorkChronology from "./TaskWorkChronology.svelte";
+    import TaskTimeCheckerBlock from "./TaskTimeChecker/TaskTimeCheckerBlock.svelte";
+    import TaskHistoryBlock from "./TaskHistoryBlock/TaskHistoryBlock.svelte";
 
     export let taskID:string
     let detailState:'show'|'edit' = 'show';
@@ -128,29 +127,8 @@
             <button type="button" class="secondary outline" on:click={ () => { if(initialTask) setModal(`task-delete-${ parseInt(initialTask.id) }`) }}><Eraser color="var(--secondary)" /> Supprimer</button>
         </menu>
         {#if !initialTask.isDone}
-            <article class="tskdtl-TaskWorkChronology">
-                <header>
-                    <h3>Travail sur la session en cours</h3>
-                </header>
-                <TaskCheckTimer taskID={ taskID } />
-            </article>
-            <article class="tskdtl-TaskWorkHistory">
-                <header>
-                    <h3>Historique de l'activité sur la tâche</h3>
-                    {#if hasHistory}
-                    <dl class="tskdtl-MainStats">
-                        <dt>Périodes des sessions de travail (TODO - static) :</dt><dd>vendredi 05 janv. 2024, 23:58 - samedi 06 janv. 2024, 21:12</dd>
-                        <dt>Travail effectif cumulé (TODO - static) :</dt><dd>15 heures 35 minutes 32 secondes</dd>
-                    </dl>
-                    {/if}
-                </header>
-                <TaskWorkHistory taskID={ taskID } />
-                {#if hasHistory}
-                <footer>
-                    <TaskWorkChronology taskID={ taskID } />
-                </footer>
-                {/if}
-            </article>
+            <TaskTimeCheckerBlock taskID={ taskID } />
+            <TaskHistoryBlock taskID={ taskID } hasHistory={ hasHistory } />
         {/if}
     </div>
 {:else if detailState === 'edit' && initialTask !== undefined}
@@ -206,6 +184,8 @@
 {/if}
 
 <style lang="scss">
+    @import "../styles/page-detail-block";
+
     // show
     .tskdtl-ShowLayout {
         display:grid;
@@ -216,7 +196,7 @@
         grid-template-areas: 
             "actions"
             "task"
-            "work-chronology"
+            "work-time-checker"
             "work-history";
         column-gap: var(--spacing);
         row-gap: var(--spacing);
@@ -226,27 +206,13 @@
             grid-template-rows: auto auto auto;
             grid-template-areas: 
                 "task actions"
-                "work-chronology work-chronology"
+                "work-time-checker work-time-checker"
                 "work-history work-history";
         }
     }
 
-    .tskdtl-Task, .tskdtl-TaskEdit, .tskdtl-TaskWorkChronology, .tskdtl-TaskWorkHistory {
-        padding: var(--spacing);
-        margin:0;
-
-        header {
-            padding: var(--spacing);
-            margin:calc(var(--spacing) * -1) calc(var(--spacing) * -1) var(--spacing);
-        }
-        header h2, header h3 {
-            margin-block-end: 0;
-        }
-
-        footer {
-            padding: var(--spacing);
-            margin: var(--spacing) calc(var(--spacing) * -1) calc(var(--spacing) * -1);
-        }
+    .tskdtl-Task, .tskdtl-TaskEdit {
+        @include pdb_BlockStyle(h2);
     }
     .tskdtl-Task { 
         grid-area: task;
@@ -266,32 +232,6 @@
         }
 
         button { margin-block-end: 0; }
-    }
-
-    .tskdtl-TaskWorkChronology {
-        grid-area: work-chronology;
-    }
-
-    .tskdtl-TaskWorkHistory {
-        grid-area: work-history;
-    }
-
-    .tskdtl-MainStats {
-        padding-inline-start: 0;
-        margin-block: var(--spacing) 0;
-        display: grid;
-        grid-template-columns: 1fr;
-        grid-auto-rows: auto;
-        grid-gap: calc(var(--spacing) * 0.5);
-
-        @media (min-width:576px) {
-            grid-template-columns: auto 1fr;
-            grid-auto-rows: auto;
-            dt { justify-self: end; }
-        }
-
-        dt { font-style: italic; }
-        dd { margin-inline-start: 0; font-weight: 500; }
     }
 
     // edit

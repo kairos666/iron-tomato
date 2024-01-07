@@ -1,6 +1,6 @@
 <script lang="ts">
     import { CalendarOff } from "lucide-svelte";
-    import { getLiveQueryForTaskId, type WorkItem } from "../stores/persistentTasks";
+    import { getLiveQueryForTaskId, type WorkItem } from "../../stores/persistentTasks";
 
     export let taskID:string;
     $: taskQuery = getLiveQueryForTaskId(taskID);
