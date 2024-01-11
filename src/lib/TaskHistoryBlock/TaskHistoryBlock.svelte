@@ -76,20 +76,20 @@
                 </section>
             </TabPanel>
             <TabPanel>
-                <section class="th-DistributionSessionsBlock">
+                <section class="th-DistributionBlock th-Distribution-week">
+                    <h4>Répartition au cours des jours de la semaine</h4>
+                    <p>TODO</p>
+                </section>
+                <hr />
+                <section class="th-DistributionBlock th-Distribution-sessions">
                     <h4>Répartition des sessions de travail</h4>
                     <p><small>Plus la couleur de session est foncée et plus la période d'activité est intense.</small></p>
                     <TaskWorkChronology taskHistory={ $taskQuery?.workHistory ?? [] } />
                 </section>
-                <hr />
-                <section class="th-DistributionWeekBlock">
-                    <h4>Répartition au cours des jours de la semaine</h4>
-                    <p>TODO</p>
-                </section>
             </TabPanel>
             <TabPanel>
                 <section class="th-SessionDetailsBlock">
-                    <h4>Sessions enregistrées</h4>
+                    <h4>Sessions de travail enregistrées</h4>
                     <TaskWorkHistory taskHistory={ $taskQuery?.workHistory ?? [] } />
                 </section>
             </TabPanel>
@@ -156,6 +156,17 @@
 
             figcaption { display:inline; padding-block:0; }
         }
+    }
+
+    .th-DistributionBlock {
+        margin-block-end: 0;
+        h4 { margin-block-end: 0; }
+        p { margin-block-end: calc(var(--spacing) * 0.5); }
+    }
+
+    .th-SessionDetailsBlock {
+        margin-block-end: 0;
+        h4 { margin-block-end: 0; }
     }
 
     .th-EmptyHistory { margin-block-end: 0; }
