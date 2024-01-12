@@ -27,9 +27,18 @@ import { appUIState } from "../../stores/appUIState";
 </script>
 
 {#if $appUIState.isMobileViewport}
-    {#each taskHistory as historyItem }
-    <p>work session mobile</p>
-    {/each}
+    <ol class="twh-HistoryItem twh-HistoryItem-mobile">
+        {#each taskHistoryExtended as historyItem, index }
+        <li>
+            <h5>#{ taskHistoryExtended.length - index } { exactDurationFormater.format(historyItem.start) }</h5>
+            <ol class="twh-SessionRatio">
+                <li class="twh-SessionRatio_Work" style:width={ `${ historyItem.workPercent }%` }><span class="sr-only">Travail effectif ({ historyItem.workPercent }%)</span></li>
+                <li class="twh-SessionRatio_Pause" style:width={ `${ historyItem.pausePercent }%` }><span class="sr-only">Pauses ({ historyItem.pausePercent }%)</span></li>
+            </ol>
+            <p>Durée de la session { historyItem.sessionHumanDuration } <small>( Travail{ historyItem.workHumanDuration } , Pauses{ historyItem.pauseHumanDuration } )</small></p>
+        </li>
+        {/each}
+    </ol>
 {:else}
     <table role="grid">
         <thead>
@@ -40,7 +49,7 @@ import { appUIState } from "../../stores/appUIState";
         <tbody>
             {#each taskHistoryExtended as historyItem, index }
             <tr>
-                <th scope="row">{ index + 1 }</th>
+                <th scope="row">{ taskHistoryExtended.length - index }</th>
                 <td class="twh-TDDate">{ exactDurationFormater.format(historyItem.start) }</td>
                 <td>
                     <ol class="twh-SessionRatio">
@@ -82,5 +91,15 @@ import { appUIState } from "../../stores/appUIState";
             &.twh-SessionRatio_Work { background-color: var(--active-work-color); }
             &.twh-SessionRatio_Pause { background-color: var(--pause-color); }
         }
+    }
+
+    .twh-HistoryItem.twh-HistoryItem-mobile {
+        list-style:none;
+        padding-inline-start: 0;
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing);
+
+        li, p, h5 { margin-block-end: 0; }
     }
 </style>
