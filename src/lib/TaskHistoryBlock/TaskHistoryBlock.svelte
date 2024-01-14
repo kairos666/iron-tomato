@@ -6,6 +6,7 @@
     import { durationFormaterToString } from "../../utils/time-formater";
     import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@rgossiaux/svelte-headlessui";
     import PieChart from "../PieChart.svelte";
+    import TaskWorkCalendar from "./TaskWorkCalendar.svelte";
 
     export let taskID:string;
     let ratioTotal:{ label:string, percent:number, color:string, icon: any, humanDuration: string }[] = [];
@@ -78,7 +79,8 @@
             <TabPanel>
                 <section class="th-DistributionBlock th-Distribution-week">
                     <h4>Répartition au cours des jours de la semaine</h4>
-                    <p>TODO</p>
+                    <p><small>Répartition du temps de travail par journées.</small></p>
+                    <TaskWorkCalendar taskHistory={ $taskQuery?.workHistory ?? [] } />
                 </section>
                 <hr />
                 <section class="th-DistributionBlock th-Distribution-sessions">

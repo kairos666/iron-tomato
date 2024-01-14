@@ -8,9 +8,14 @@ const language:string = 'fr-FR';
 export const exactDateFormatter:Intl.DateTimeFormat = new Intl.DateTimeFormat(language, {
     hour: "numeric",
     minute: "numeric",
-    weekday: "long",
     day: "numeric",
-    month: "long",
+    month: "numeric",
+    year: "numeric"
+});
+
+export const exactDateShortFormatter:Intl.DateTimeFormat = new Intl.DateTimeFormat(language, {
+    day: "numeric",
+    month: "numeric",
     year: "numeric"
 });
 
@@ -21,6 +26,13 @@ export const exactDurationFormater:Intl.DateTimeFormat = new Intl.DateTimeFormat
     day: '2-digit',
     hour: '2-digit',
     minute: '2-digit'
+});
+
+export const simplifiedDateFormatter:Intl.DateTimeFormat = new Intl.DateTimeFormat(language, {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric"
 });
 
 export const relativeFromToHumanFormater = function(fromTimestamp:number, toTimestamp:number, formatterOpts:Intl.RelativeTimeFormatOptions = { style: 'short', numeric: 'auto' }):string {
@@ -109,4 +121,16 @@ export const durationFormaterToString = function(msDuration:number, type:'TECH'|
         }, "");
     }
     throw new Error(`Wrong type: ${ type }, for duration in durationFormaterToString function`);
+}
+
+export const genericDayTimestamp = function(preciseTimestamp:number):number {
+    // convert precise timestamp to comparable timestamp (same day, same month, same year BUT 0 hours, 0 minutes, 0 milliseconds)
+    const preciseDate:Date = new Date(preciseTimestamp);
+    // 00:00 set to midnight
+    preciseDate.setMilliseconds(0);
+    preciseDate.setSeconds(0);
+    preciseDate.setMinutes(0);
+    preciseDate.setHours(0);
+
+    return preciseDate.getTime();
 }
