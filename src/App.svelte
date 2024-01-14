@@ -10,6 +10,7 @@
     import { PlusCircle } from 'lucide-svelte';
     import TaskDetailHeader from './lib/TaskDetailHeader.svelte';
     import TaskDetail from './lib/TaskDetail.svelte';
+    import ParametersForm from './lib/ParametersBlock/ParametersForm.svelte';
 
     const { setModal } = appUIState;
 </script>
@@ -33,7 +34,7 @@
 {:else if ($appUIState.mainView === 'parameters-settings')}
     <AdaptativeLayout>
         <AppHeader slot="header" />
-        <p>parameters form</p>
+        <ParametersForm />
     </AdaptativeLayout>
 {:else}
     <p>Oups il y'a eu une erreur!</p>
