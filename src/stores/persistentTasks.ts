@@ -3,11 +3,16 @@ import Dexie, { liveQuery, type Table } from 'dexie';
 export type BaseTask = {
     label: string
     description?: string
-    isActive: boolean
     isUrgent: boolean
     isImportant: boolean
     isDone: boolean
     category: string|null
+}
+
+export type WorkItem = {
+    start: number
+    end: number
+    duration: number
 }
 
 export type Task = BaseTask & {
@@ -15,6 +20,7 @@ export type Task = BaseTask & {
     order: number
     dateCreated : number
     dateDone?: number
+    workHistory?: WorkItem[]
 }
 
 // INDEXDB handler class
@@ -32,6 +38,9 @@ const db = new DexieTasks();
 export const allTasksList = liveQuery(() => db.tasks.orderBy('order').toArray());
 export const doneTasksList = liveQuery(() => db.tasks.orderBy('order').toArray().then(tasks => tasks.filter(task => task.isDone)));
 export const unfinishedTasksList = liveQuery(() => db.tasks.orderBy('order').toArray().then(tasks => tasks.filter(task => !task.isDone)));
+
+// custom live query for specific task
+export const getLiveQueryForTaskId = (taskID:string) => liveQuery(() => db.tasks.get(parseInt(taskID)));
 
 // task action - CREATE
 export async function taskCreate(newTask:BaseTask) {
@@ -139,5 +148,35 @@ export async function taskById(taskId:string) {
         return result;
     } catch (error) {
         throw new Error(`Failed to get task with id#${ taskId } : ${ error }`);
+    }
+}
+
+// task action - log work duration to history
+export async function taskLogWork(taskId:string, workItems:WorkItem|WorkItem[]) {
+    const taskID:number = parseInt(taskId);
+    const isMonoWorkSession:boolean = !Array.isArray(workItems);
+    const targetTask = await db.tasks.get(taskID);
+
+    if(isNaN(taskID)) throw new Error(`task ID : ${ taskId } not recognized`);
+    if(targetTask === undefined) throw new Error('task not found in DB');
+
+    // deep clone targeted task + add workHistory init
+    const deepCloneWorkHistory:WorkItem[] = (targetTask.workHistory)
+        ? JSON.parse(JSON.stringify(targetTask.workHistory))
+        : [];
+    let result:Task = { ...targetTask, workHistory: deepCloneWorkHistory };
+
+    // process task update
+    if(isMonoWorkSession) {
+        result.workHistory?.push((workItems as WorkItem));
+    } else {
+        result.workHistory?.push(...(workItems as WorkItem[]));
+    }
+
+    try {
+        await db.tasks.update(taskID, result);
+        console.info(`Task ${ taskId } WORK LOGGED (${ (workItems as WorkItem[])?.length ?? 1 }x work items)`);
+    } catch (error) {
+        throw new Error(`Failed to log work on task ${ taskId } : ${ error }`);
     }
 }

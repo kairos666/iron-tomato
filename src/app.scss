@@ -1,7 +1,7 @@
-// Override default variables
-$primary-500: #e91e63;
-$primary-600: #d81b60;
-$primary-700: #c2185b;
+@import "./styles/variables.scss";
+
+// Import Pico
+@import "@picocss/pico/scss/pico";
 
 // additional variables
 :root {
@@ -11,9 +11,6 @@ $primary-700: #c2185b;
     --important-color: #ff6f3c;
     --done-color: #42b883;
 }
-
-// Import Pico
-@import "@picocss/pico/scss/pico";
 
 // adjust lucid icon alignement
 .lucide-icon:not(.tsk-Cat) { position: relative; top:-2.5px; }
@@ -303,6 +300,43 @@ $primary-700: #c2185b;
             --icon-color: var(--primary-inverse);
             background-color: var(--primary);
         }
+    }
+}
+
+// TABS
+.tab-TabList {
+    display:flex;
+    gap: var(--spacing);
+
+    [role="tab"] {
+        width:auto;
+        padding-block: calc(var(--spacing) * 0.25);
+        &.tab-selected { color: var(--primary-inverse); background-color: var(--primary); }
+        &.tab-unselected { 
+            color: var(--secondary); 
+            background-color: var(--secondary-inverse);
+            border-color: var(--secondary);
+
+            &:hover, &:focus, &:active { color: var(--secondary-inverse); background-color: var(--secondary-hover); }
+        }
+    }
+}
+
+// custom task detail stats
+.th-Stats {
+    display:flex;
+    
+    @media (max-width:959px) {
+        flex-direction: column;
+        gap: calc(var(--spacing) * 2);
+    }
+
+    @media (min-width:960px) {
+        display:flex;
+        flex-wrap:wrap;
+        gap: var(--spacing);
+
+        > * { flex:0 1 calc(50% - var(--spacing) * 0.5); }
     }
 }
 

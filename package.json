@@ -1,7 +1,7 @@
 {
     "name": "iron-tomato",
     "private": true,
-    "version": "2.1.0",
+    "version": "3.0.0",
     "type": "module",
     "scripts": {
         "dev": "vite",
@@ -25,6 +25,7 @@
     "dependencies": {
         "dexie": "^4.0.1-beta.1",
         "lucide-svelte": "^0.292.0",
+        "rxjs": "^7.8.1",
         "sortablejs": "^1.15.0"
     },
     "overrides": {

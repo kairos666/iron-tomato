@@ -10,7 +10,7 @@
             <slot name="header" />
         </header>
     {/if}
-    <div class="alyt-Content" class:alyt-Content-xLarge={ $appUIState.viewMode === 'matrix' && $appUIState.tasksShown === 'todo' }>
+    <div class="alyt-Content" class:alyt-Content-xLarge={ $appUIState.mainView === 'dashboard' && $appUIState.viewMode === 'matrix' && $appUIState.tasksShown === 'todo' }>
         <slot />
     </div>
     {#if hasFooter}

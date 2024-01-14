@@ -3,9 +3,11 @@
     import { taskCategories } from "../constants/task-categories";
     import { type Task, taskEdit, taskById, taskAchieve, taskReopen } from "../stores/persistentTasks";
     import TaskCategoryIcon from "./TaskCategoryIcon.svelte";
-    import { exactDateFormatter, relativeHumanFormater } from "../constants/time-formater";
+    import { exactDateFormatter, relativeFromToHumanFormater } from "../utils/time-formater";
     import { Listbox, ListboxButton, ListboxLabel, ListboxOption, ListboxOptions, Switch, SwitchGroup, SwitchLabel } from "@rgossiaux/svelte-headlessui";
     import { appUIState } from "../stores/appUIState";
+    import TaskTimeCheckerBlock from "./TaskTimeChecker/TaskTimeCheckerBlock.svelte";
+    import TaskHistoryBlock from "./TaskHistoryBlock/TaskHistoryBlock.svelte";
 
     export let taskID:string
     let detailState:'show'|'edit' = 'show';
@@ -40,12 +42,12 @@
             // format dates for humans  
             creationDateHuman = {
                 exact: exactDateFormatter.format(task.dateCreated),
-                relative: relativeHumanFormater(task.dateCreated, new Date().getTime())
+                relative: relativeFromToHumanFormater(task.dateCreated, new Date().getTime())
             };
             achievedDateHuman = (task.isDone && task.dateDone)
                 ?{
                     exact: exactDateFormatter.format(task.dateDone),
-                    relative: relativeHumanFormater(task.dateDone, new Date().getTime())
+                    relative: relativeFromToHumanFormater(task.dateDone, new Date().getTime())
                 }
                 : undefined;
         });
@@ -121,6 +123,10 @@
             {/if}
             <button type="button" class="secondary outline" on:click={ () => { if(initialTask) setModal(`task-delete-${ parseInt(initialTask.id) }`) }}><Eraser color="var(--secondary)" /> Supprimer</button>
         </menu>
+        {#if !initialTask.isDone}
+            <TaskTimeCheckerBlock taskID={ taskID } />
+            <TaskHistoryBlock taskID={ taskID } />
+        {/if}
     </div>
 {:else if detailState === 'edit' && initialTask !== undefined}
     <form class="tskdtl-EditLayout" on:submit={ onSubmit }>
@@ -175,39 +181,39 @@
 {/if}
 
 <style lang="scss">
+    @import "../styles/page-detail-block";
+    @import "../styles/page-detail-badges";
+
     // show
     .tskdtl-ShowLayout {
         display:grid;
         width: 100%;
         height: 100%;
         grid-template-columns: 1fr;
-        grid-template-rows: auto auto auto;
+        grid-template-rows: auto auto auto auto;
         grid-template-areas: 
             "actions"
-            "task";
+            "task"
+            "work-time-checker"
+            "work-history";
         column-gap: var(--spacing);
         row-gap: var(--spacing);
 
         @media (min-width:576px) {
             grid-template-columns: 3fr 1fr;
-            grid-template-rows: auto;
+            grid-template-rows: auto auto auto;
             grid-template-areas: 
-                "task actions";
+                "task actions"
+                "work-time-checker work-time-checker"
+                "work-history work-history";
         }
     }
 
+    .tskdtl-Task, .tskdtl-TaskEdit {
+        @include pdb_BlockStyle(h2);
+    }
     .tskdtl-Task { 
         grid-area: task;
-        padding: var(--spacing);
-        margin:0;
-
-        header {
-            padding: var(--spacing);
-            margin:calc(var(--spacing) * -1) calc(var(--spacing) * -1) var(--spacing);
-        }
-        header h2 {
-            margin-block-end: 0;
-        }
     }
     .tskdtl-Actions { 
         grid-area: actions;
@@ -227,21 +233,6 @@
     }
 
     // edit
-    .tskdtl-TaskEdit {
-        padding: var(--spacing);
-        margin:0;
-
-        header {
-            padding: var(--spacing);
-            margin:calc(var(--spacing) * -1) calc(var(--spacing) * -1) var(--spacing);
-        }
-
-        footer {
-            padding: var(--spacing);
-            margin: var(--spacing) calc(var(--spacing) * -1) calc(var(--spacing) * -1);
-        }
-    }
-
     .tskdtl-EditActionsMenu {
         display:flex;
         gap: var(--spacing);
@@ -266,29 +257,15 @@
     }
 
     // transverse
-    .tskdtl-UrgentBadge, .tskdtl-ImportantBadge {
-        padding: 2px 6px;
-        font-size: 0.8rem;
-        font-weight: 400;
-        line-height: 1.2;
-        border-radius: var(--border-radius);
-        color: var(--primary-inverse);
-    }
     .tskdtl-UrgentBadge {
-        background-color: var(--urgent-color);
+        @include pdb_BadgeStyle(var(--primary-inverse), var(--urgent-color));
     } 
     .tskdtl-ImportantBadge {
-        background-color: var(--important-color);
+        @include pdb_BadgeStyle(var(--primary-inverse), var(--important-color));
     }
     .tskdtl-TimeBadge {
-        padding: 2px 6px;
-        font-size: 0.8rem;
-        font-weight: 400;
-        line-height: 1.2;
-        border-radius: var(--border-radius);
-        color: var(--primary-inverse);
+        @include pdb_BadgeStyle(var(--primary-inverse), var(--muted-color));
 
-        &.tskdtl-TimeBadge-creation { background-color: var(--muted-color); }
         &.tskdtl-TimeBadge-achievment { background-color: var(--done-color); }
         time { border: none }
     }

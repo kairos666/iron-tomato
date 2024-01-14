@@ -1,0 +1,17 @@
+@mixin pdb_BlockStyle($headerType) {
+    padding: var(--spacing);
+    margin:0;
+
+    header {
+        padding: var(--spacing);
+        margin:calc(var(--spacing) * -1) calc(var(--spacing) * -1) var(--spacing);
+    }
+    header #{$headerType} {
+        margin-block-end: 0;
+    }
+
+    footer {
+        padding: var(--spacing);
+        margin: var(--spacing) calc(var(--spacing) * -1) calc(var(--spacing) * -1);
+    }
+}
