@@ -30,6 +30,11 @@
         <TaskDetailHeader slot="header" />
         <TaskDetail taskID={ String($appUIState.activeTask) } />
     </AdaptativeLayout>
+{:else if ($appUIState.mainView === 'parameters-settings')}
+    <AdaptativeLayout>
+        <AppHeader slot="header" />
+        <p>parameters form</p>
+    </AdaptativeLayout>
 {:else}
     <p>Oups il y'a eu une erreur!</p>
 {/if}
