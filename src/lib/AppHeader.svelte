@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { Ban, CircleDashed, FilterX, Grid2X2, List, TimerReset, Trash2 } from 'lucide-svelte';
+    import { Sliders, CircleDashed, FilterX, Grid2X2, List, Trash2 } from 'lucide-svelte';
     import { Popover, PopoverButton, PopoverPanel, RadioGroup, RadioGroupLabel, RadioGroupOption } from "@rgossiaux/svelte-headlessui";
     import appLogo from '/tomacco-logo.png';
     import { appUIState } from '../stores/appUIState';
@@ -8,7 +8,7 @@
     import TaskCategoryIcon from './TaskCategoryIcon.svelte';
     import { taskCategories } from '../constants/task-categories';
 
-    const { setModal, changeTasksShown, changeViewMode, changeCategoryFilters, clearCategoryFilters } = appUIState;
+    const { setModal, changeTasksShown, changeViewMode, changeCategoryFilters, clearCategoryFilters, changeMainView } = appUIState;
     let tempViewMode:'list'|'matrix' = $appUIState.viewMode;
     let tempTasksShown:'todo'|'done' = $appUIState.tasksShown;
     let catFiltersState:{ id:string, name:string, icon:string, color:string, isFilterActive:boolean, isNoFilters:boolean }[] = [];
@@ -95,11 +95,10 @@
                 <button class="pop-ItemBtn" disabled={ ($appUIState.categoryFilters.length === 0) } on:click={ () => clearCategoryFilters() }><FilterX />Ne pas filtrer</button>
             </div>
             <span class="pop-Separator"></span>
-            <button disabled class="pop-ItemBtn"><TimerReset /><span>Paramètres pomodoro</span></button>
-            <button disabled class="pop-ItemBtn"><Grid2X2 /><span>Paramètres matrice d'eisenhower</span></button>
-            <span class="pop-Separator"></span>
             <button class="pop-ItemBtn" on:click={ () => tasksDoneReset() }><CircleDashed /><span>Nettoyage des tâches terminées</span></button>
             <button class="pop-ItemBtn" on:click={ () => setModal('reset') }><Trash2 /><span>Remise à zéro de la liste de tâches</span></button>
+            <span class="pop-Separator"></span>
+            <button class="pop-ItemBtn" on:click={ () => changeMainView('parameters-settings') }><Sliders /><span>Paramètres</span></button>
         </PopoverPanel>
     </Popover>
 </nav>
