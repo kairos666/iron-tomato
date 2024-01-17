@@ -5,6 +5,7 @@ const parametersLocalStorageKey:string = 'app-parameters';
  * all parameters in flat object
  * prefixes list:
  * p = pomodoro
+ * m = maggic clock
  */
 export type ParameterState = {
     pWorkDuration: number // ms of work session for pomodoro
@@ -13,6 +14,7 @@ export type ParameterState = {
     pLongPauseFrequency: number // long pause every N pause
     pAutoFlow: boolean // auto switch from state, or manual
     pPlaySound: boolean // play sounds or not
+    mRatioWorkPause: number // ratio work / pause 
 }
 
 export const defaultParameterState:ParameterState = {
@@ -21,7 +23,8 @@ export const defaultParameterState:ParameterState = {
     pLongPauseDuration: 1000 * 60 * 60 * 15,
     pLongPauseFrequency: 4,
     pAutoFlow: false,
-    pPlaySound: false
+    pPlaySound: false,
+    mRatioWorkPause: 5 // 5 minutes work / 1 minute pause (classic pomodoro 25 minutes work / 5 min short pause) => ratio = 5
 }
 
 const initParameterState = () => {
