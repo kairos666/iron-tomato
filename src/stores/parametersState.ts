@@ -27,18 +27,23 @@ export const defaultParameterState:ParameterState = {
     mRatioWorkPause: 5 // 5 minutes work / 1 minute pause (classic pomodoro 25 minutes work / 5 min short pause) => ratio = 5
 }
 
-const initParameterState = () => {
-    // fetch locally stored parameters for initiating store
-    let initialState:ParameterState = defaultParameterState;
+function evaluateInitialState():ParameterState {
     try {
         const localStateString:string|null = localStorage.getItem(parametersLocalStorageKey);
-        if(localStateString === null) return;
-        initialState = JSON.parse(localStateString);
+        if(localStateString === null) {
+            console.log('No user parameters found, apply defaults');
+            return defaultParameterState;
+        }
+        return JSON.parse(localStateString);
     } catch (error) {
         console.warn('Local storage couldn\'t be read, maybe not valid JSON');
-        initialState = defaultParameterState;
+        return defaultParameterState;
     }
+}
 
+const initParameterState = () => {
+    // fetch locally stored parameters for initiating store
+    let initialState:ParameterState = evaluateInitialState();
     const { subscribe, update } = writable(initialState);
 
     return {
@@ -55,4 +60,4 @@ export const parameterState = initParameterState();
  * Auto subscribe and store parameters for each change
  * state must be serializable in JSON
  */
- parameterState?.subscribe(stateObj => localStorage.setItem(parametersLocalStorageKey, JSON.stringify(stateObj)));
+parameterState?.subscribe(stateObj => localStorage.setItem(parametersLocalStorageKey, JSON.stringify(stateObj)));

@@ -1,34 +1,100 @@
 <script lang="ts">
     import { Save, X } from "lucide-svelte";
+    import { parameterState, type ParameterState }from "../../stores/parametersState";
+    import { onDestroy } from 'svelte';
+    import { appUIState } from "../../stores/appUIState";
+
+    let hasLoadedParameters:boolean = false;
+    let pWorkDuration:number;
+    let pShortPauseDuration:number;
+    let pLongPauseDuration:number;
+    let pLongPauseFrequency:number;
+    let pAutoFlow:boolean;
+    let pPlaySound:boolean;
+    let mRatioWorkPause:number;
+    const { changeMainView } = appUIState;
+
+    // update form values if state is updated (classic style)
+    const unsubscribeCb = parameterState.subscribe(parameterState => {
+        pWorkDuration = parameterState.pWorkDuration / (1000 * 60 * 60);
+        pShortPauseDuration = parameterState.pShortPauseDuration / (1000 * 60 * 60);
+        pLongPauseDuration = parameterState.pLongPauseDuration / (1000 * 60 * 60);
+        pLongPauseFrequency = parameterState.pLongPauseFrequency;
+        pAutoFlow = parameterState.pAutoFlow;
+        pPlaySound = parameterState.pPlaySound;
+        mRatioWorkPause = parameterState.mRatioWorkPause;
+        hasLoadedParameters = true;
+    });
+    onDestroy(() => {
+        unsubscribeCb();
+    });
+
+    // convert form values to state values
+    function fromFormValuesToState():ParameterState {
+        return {
+            pWorkDuration: pWorkDuration * (1000 * 60 * 60),
+            pShortPauseDuration: pShortPauseDuration * (1000 * 60 * 60),
+            pLongPauseDuration: pLongPauseDuration * (1000 * 60 * 60),
+            pLongPauseFrequency,
+            pAutoFlow,
+            pPlaySound,
+            mRatioWorkPause
+        }
+    }
 
     function onSubmit(evt:SubmitEvent) {
         evt.preventDefault();
-        alert('TODO parameters submit');
+        parameterState.changeParameters(fromFormValuesToState());
+        changeMainView('dashboard');
     }
 </script>
 
-<form class="pf-Form" on:submit={ onSubmit }>
-    <fieldset class="pf-ParamBlock">
-        <legend>Paramètres liste de tâches et matrice d'Eisenhower</legend>
-        <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>
-    </fieldset>
-    <fieldset class="pf-ParamBlock">
-        <legend>Paramètres imputation du temps de travail</legend>
-        <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>
-    </fieldset>
-    <fieldset class="pf-ParamBlock">
-        <legend>Paramètres MAGGIC clock</legend>
-        <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>
-    </fieldset>
-    <fieldset class="pf-ParamBlock">
-        <legend>Paramètres POMODORO</legend>
-        <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>
-    </fieldset>
-    <menu class="pf-ParamFormActions">
-        <button type="reset" class="secondary outline" disabled><X color="var(--secondary)" /> Annuler</button>
-        <button type="submit" class="primary" disabled><Save color="var(--primary-inverse)" /> Appliquer les modifications</button>
-    </menu>
-</form>
+{#if hasLoadedParameters}
+    <form class="pf-Form" on:submit={ onSubmit }>
+        <!-- <fieldset class="pf-ParamBlock">
+            <legend>Paramètres liste de tâches et matrice d'Eisenhower</legend>
+            <p>TODO</p>
+        </fieldset>
+        <fieldset class="pf-ParamBlock">
+            <legend>Paramètres imputation du temps de travail</legend>
+            <p>TODO</p>
+        </fieldset> -->
+        <fieldset class="pf-ParamBlock">
+            <legend>Paramètres MAGGIC clock</legend>
+            <label for="maggic-ratio">Ratio travail / pause</label>
+            <input type="number" step="1" min="1" id="maggic-ratio" name="maggic-ratio" bind:value={ mRatioWorkPause } required />
+            <small>pour 25 minutes de travail, environ { Math.round(25 / mRatioWorkPause) } minutes de pause</small>
+        </fieldset>
+        <fieldset class="pf-ParamBlock">
+            <legend>Paramètres POMODORO</legend>
+            <label for="pomo-work-duration">Durée d'une session de travail (en minutes)</label>
+            <input type="number" step="1" min="1" id="pomo-work-duration" name="pomo-work-duration" bind:value={ pWorkDuration } required disabled />
+            <label for="pomo-short-pause-duration">Durée d'une session de pause courte (en minutes)</label>
+            <input type="number" step="1" min="1" id="pomo-short-pause-duration" name="pomo-short-pause-duration" bind:value={ pShortPauseDuration } required disabled />
+            <label for="pomo-long-pause-duration">Durée d'une session de pause longue (en minutes)</label>
+            <input type="number" step="1" min="1" id="pomo-long-pause-duration" name="pomo-long-pause-duration" bind:value={ pLongPauseDuration } required disabled />
+            <label for="pomo-long-pause-frequency">Fréquence des pauses longues</label>
+            <input type="number" step="1" min="1" id="pomo-long-pause-frequency" name="pomo-long-pause-frequency" bind:value={ pLongPauseFrequency } required disabled />
+            <small>une pause longue après { pLongPauseFrequency } pauses courtes</small>
+            <label for="pomo-auto-flow">Enchaînement des sessions POMODORO</label>
+            <select id="pomo-auto-flow" name="pomo-auto-flow" bind:value={ pAutoFlow } required disabled>
+                <option value={ true }>Automatique</option>
+                <option value={ false }>Manuel</option>
+            </select>
+            <label for="pomo-play-sound">Son pour marquer la fin d'une session</label>
+            <select id="pomo-play-sound" name="pomo-play-sound" bind:value={ pPlaySound } required disabled>
+                <option value={ true }>Jouer un son</option>
+                <option value={ false }>Muet</option>
+            </select>
+        </fieldset>
+        <menu class="pf-ParamFormActions">
+            <button type="reset" class="secondary outline" on:click={ () => changeMainView('dashboard') }><X color="var(--secondary)" /> Annuler</button>
+            <button type="submit" class="primary"><Save color="var(--primary-inverse)" /> Appliquer les modifications</button>
+        </menu>
+    </form>
+{:else}
+    <p class="empty-state-emphasized">Paramètres en cours de chargement</p>
+{/if}
 
 <style lang="scss">
     @import "../../styles/variables.scss";
@@ -48,6 +114,12 @@
     }
     .pf-ParamBlock {
         margin-block: 0;
+
+        legend {
+            font-size: 1.25rem;
+            color: var(--primary);
+            margin-block-end: var(--spacing);
+        }
     }
     .pf-ParamFormActions {
         padding-inline-start: 0;
