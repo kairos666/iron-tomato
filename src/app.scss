@@ -306,7 +306,7 @@
 // TABS
 .tab-TabList {
     display:flex;
-    gap: var(--spacing);
+    gap: calc(var(--spacing) * 0.5);
 
     [role="tab"] {
         width:auto;
