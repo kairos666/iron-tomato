@@ -1,21 +1,7 @@
-import { BehaviorSubject, combineLatest, distinctUntilKeyChanged, interval, map, Observable, pairwise, scan, startWith, timeInterval } from "rxjs";
+import { BehaviorSubject, combineLatest, distinctUntilKeyChanged, interval, Observable, scan, timeInterval } from "rxjs";
 
-const sleepTimeDetectionFrequency:number = 1000 * 60 * 2; // 2 min (sleep duration accuracy +/- each wake sleep cycle)
 const minDelayThresholdSleepTime:number = 1000; //ms
 const deltaTimeInterval:number = 500; //ms
-
-export const SystemSleepChecker:() => Observable<'SLEEP'|'WAKE'> = () => {
-    return interval(sleepTimeDetectionFrequency).pipe(
-        map(iterationCount => ({ iteration: iterationCount, timestamp: new Date().getTime() })),
-        pairwise(),
-        map(([first, second]) => {
-            const iterationDiff:number = second.timestamp - (first.timestamp + sleepTimeDetectionFrequency);
-
-            return (iterationDiff < minDelayThresholdSleepTime) ? 'WAKE' : 'SLEEP';
-        }),
-        startWith(('WAKE' as 'SLEEP'|'WAKE'))
-    )
-}
 
 type TimeCheck = {
     state:string // NOT STARTED|WORK|PAUSE
