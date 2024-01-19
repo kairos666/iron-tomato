@@ -1,5 +1,6 @@
 <script lang="ts">
     import TaskCheckTimer from "./TaskCheckTimer.svelte";
+    import TaskMaggicTimer from "./TaskMaggicTimer.svelte";
 
     export let taskID:string;
     let timeCheckStyle:'basic'|'maggic'|'pomodoro' = 'basic';
@@ -15,7 +16,7 @@
         </menu>
     </header>
     {#if timeCheckStyle === 'maggic'}
-    <p>TODO MAGGIC clock</p>
+    <TaskMaggicTimer taskID={ taskID } />
     {:else if timeCheckStyle === 'pomodoro'}
     <p>TODO POMODORO clock</p>
     {:else}
