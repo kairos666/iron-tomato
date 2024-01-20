@@ -1,47 +1,87 @@
 <script lang="ts">
+    import { BehaviorSubject, Subscription } from "rxjs";
     import { CalendarClock, Coffee } from "lucide-svelte";
     import { onDestroy, onMount } from "svelte";
-
-    type MaggicClockData = {
-        workDuration:number
-        pauseDuration:number
-    }
+    import { taskLogWork, type WorkItem } from "../../stores/persistentTasks";
+    import { TaskMaggicCheckerObservable } from "../../utils/TaskMaggicCheckerObservable";
+    import { durationFormaterToString, formatMsDuration } from "../../utils/time-formater";
+    import MaggicRatio from "./MaggicRatio.svelte";
 
     type MaggicClockDisplay = {
         sessionTotalDuration:string
+        datetimeSessionTotalDuration:string
         workDuration:string
+        datetimeWorkDuration:string
         pauseDuration:string
-        offsetType: 'work'|'pause'
-        offsetDuration: string
+        datetimePauseDuration:string
     }
 
     export let taskID:string;
-    let maggicClockData:MaggicClockData = {
-        workDuration: 25 * 60 * 60 * 1000 + 12 * 1000,
-        pauseDuration: 5 * 60 *60 * 1000
-    }
+    let maggicTimerSubject:BehaviorSubject<string>|null = null;
+    let maggicTimerSubscription:Subscription|null = null;
+    let timerState:{ checkerState:string, sleepDuration:number, workDuration:number, pauseDuration:number, start:number, end:number } = { checkerState: 'NOT STARTED', sleepDuration: 0, workDuration: 0, pauseDuration: 0, start: -1, end: -1 };
     let maggicClockDisplay:MaggicClockDisplay = {
-        sessionTotalDuration: "30:12",
-        workDuration: "25 min",
-        pauseDuration: "5 min",
-        offsetType: 'pause',
-        offsetDuration: "+ 1,34 sec"
+        sessionTotalDuration: "",
+        datetimeSessionTotalDuration: "0",
+        workDuration: "",
+        datetimeWorkDuration: "0",
+        pauseDuration: "",
+        datetimePauseDuration: "0"
+    }
+    const minThresholdLoggedWork:number = 1000 * 60 * 5; // 5 minutes minimum otherwise ignored
+
+    // GUI interactivity
+    function onWorkHandler() {
+        if(maggicTimerSubject) maggicTimerSubject.next('WORK');
     }
 
-    // handle data display
+    function onPauseHandler() {
+        if(maggicTimerSubject) maggicTimerSubject.next('PAUSE');
+    }
 
     // handle work log
     onMount(() => {
-        console.log('Maggic clock - MOUNTED');
+        maggicTimerSubject = new BehaviorSubject('NOT STARTED');
+        maggicTimerSubscription = TaskMaggicCheckerObservable(maggicTimerSubject).subscribe({
+            next: timeCheck => { 
+                const { state: checkerState, sleepDuration, workDuration, pauseDuration, start, end } = timeCheck;
+                // hard data
+                timerState = { checkerState, sleepDuration, workDuration, pauseDuration, start, end };
+                // human display data
+                const sessionDuration:number = workDuration + pauseDuration;
+                maggicClockDisplay = {
+                    sessionTotalDuration: (sessionDuration === 0) ? "" : formatMsDuration(sessionDuration, 'hour'),
+                    datetimeSessionTotalDuration: durationFormaterToString(workDuration + pauseDuration, 'TECH'),
+                    workDuration: (workDuration === 0) ? "" : formatMsDuration(workDuration, 'minute'),
+                    datetimeWorkDuration: durationFormaterToString(workDuration, 'TECH'),
+                    pauseDuration: (pauseDuration === 0) ? "" : formatMsDuration(pauseDuration, 'minute'),
+                    datetimePauseDuration: durationFormaterToString(pauseDuration, 'TECH')
+                }
+            }
+        });
     });
 
     onDestroy(() => {
         onTriggerWorkLog();
-        console.log('Maggic clock - DESTROYED');
+        if(maggicTimerSubscription) maggicTimerSubscription.unsubscribe();
+        maggicTimerSubscription = null;
+        maggicTimerSubject = null;
     })
 
     function onTriggerWorkLog() {
-        console.log('Maggic clock - log work');
+        // should trigger for : task achieve (unmount), task edit (unmount), back to dashboard (unmount), close browser tab (page unload), close browser (page unload)
+        // leave early (no work logged or inferior to minThresholdLoggedWork)
+        if(timerState.checkerState === 'NOT STARTED' || timerState.workDuration < minThresholdLoggedWork) return;
+
+        // convert to work item
+        const workItem:WorkItem = {
+            start: timerState.start,
+            end: timerState.end,
+            duration: timerState.workDuration
+        };
+        
+        // commit work items to task DB
+        taskLogWork(taskID, workItem);
     }
 </script>
 
@@ -50,25 +90,23 @@
     <button 
         type="button" 
         class="tmt-Btn tmt-Btn-work" 
-        disabled={ false } 
-        on:click={ () => { console.log('Maggic clock - work'); } }
+        disabled={ timerState.checkerState === 'WORK' }
+        on:click={ onWorkHandler }
         data-tooltip="Travailler"
         data-placement="top"
     ><CalendarClock /><span class="sr-only">Imputer</span></button>
     <button 
         type="button" 
         class="tmt-Btn tmt-Btn-pause" 
-        disabled={ false } 
-        on:click={ () => { console.log('Maggic clock - pause'); } }
+        disabled={ timerState.checkerState !== 'WORK' }
+        on:click={ onPauseHandler }
         data-tooltip="Faire une pause"
         data-placement="top"
     ><Coffee /><span class="sr-only">Pause</span></button>
-    <time class="tmt-SessionTotalDuration" datetime="TODO">{ maggicClockDisplay.sessionTotalDuration }</time>
-    <time class="tmt-WorkDuration" datetime="TODO">{ maggicClockDisplay.workDuration }</time>
-    <time class="tmt-PauseDuration" datetime="TODO">{ maggicClockDisplay.pauseDuration }</time>
-    <figure class="tmt-Ratio">
-        <figcaption class="tmt-Ratio_Offset">{ maggicClockDisplay.offsetDuration } {#if maggicClockDisplay.offsetType === 'work'}<CalendarClock />{:else}<Coffee />{/if}</figcaption>
-    </figure>
+    <time class="tmt-SessionTotalDuration" datetime={ maggicClockDisplay.datetimeSessionTotalDuration }>{ maggicClockDisplay.sessionTotalDuration }</time>
+    <time class="tmt-WorkDuration" datetime={ maggicClockDisplay.datetimeWorkDuration }>{ maggicClockDisplay.workDuration }</time>
+    <time class="tmt-PauseDuration" datetime={ maggicClockDisplay.datetimePauseDuration }>{ maggicClockDisplay.pauseDuration }</time>
+    <MaggicRatio workDuration={ timerState.workDuration } pauseDuration={ timerState.pauseDuration } targetRatio={ 5 } style="grid-area:ratio-counter;justify-self:center;align-self:end;" />
 </section>
 
 <style lang="scss">
@@ -124,17 +162,6 @@
         @media (min-width: 1200px) {
             justify-self: end;
             align-self: end;
-        }
-    }
-    .tmt-Ratio {
-        grid-area: ratio-counter;
-        justify-self: center;
-        align-self: end;
-        margin-block-end: 0;
-
-        .tmt-Ratio_Offset {
-            padding-block: 0;
-            font-size: 0.9rem;
         }
     }
 
