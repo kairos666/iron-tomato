@@ -122,7 +122,7 @@
         line-height: 1.5rem;
 
         &.twc-CalendarDay-weekend { border-color:var(--muted-border-color); }
-        &.twc-CalendarDay-worked { background-color: var(--primary); color: var(--background-color); }
+        &.twc-CalendarDay-worked { background-color: var(--work-color); color: var(--background-color); }
         time { display:block; width:100%; height: 100%; border-bottom: none; }
     }
 </style>

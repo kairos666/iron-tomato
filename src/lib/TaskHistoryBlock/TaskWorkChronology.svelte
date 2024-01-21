@@ -84,16 +84,13 @@
         }
 
         .twc-Chronology_Bar {
-            --pause-color: var(--muted-border-color);
-            --active-work-color: var(--primary);
-
             grid-area: chronology-bar;
             position: relative;
             width:100%;
             height: 1rem;
             border-radius: 0.5rem;
             overflow: hidden;
-            border:1px solid var(--pause-color);
+            border:1px solid var(--muted-border-color);
             background-color: var(--background-color);
             list-style:none;
             padding-inline-start: 0;
@@ -102,7 +99,7 @@
             .twc-Chronology_Bar_WorkSession {
                 position:absolute;
                 height: calc(1rem - 2px);
-                background-color: color-mix(in srgb, var(--pause-color) var(--pause-percentage), var(--active-work-color) var(--active-work-percentage));
+                background-color: color-mix(in srgb, var(--pause-color) var(--pause-percentage), var(--work-color) var(--active-work-percentage));
                 margin-block-end: 0;
             }
         }

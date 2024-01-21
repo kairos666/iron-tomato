@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { CalendarClock, Coffee } from "lucide-svelte";
+    import { CalendarClock, Coffee, Moon } from "lucide-svelte";
 import { appUIState } from "../../stores/appUIState";
     import { type WorkItem } from "../../stores/persistentTasks";
     import { durationFormaterToString, exactDurationFormater } from "../../utils/time-formater";
@@ -49,7 +49,7 @@ import { appUIState } from "../../stores/appUIState";
         <thead>
             <th scope="col">#</th>
             <th scope="col">Date</th>
-            <th scope="col">Session de travail ( <CalendarClock color="var(--primary)" /> Travail effectif | <Coffee  color="var(--muted-color)" /> Pause )</th>
+            <th scope="col">Session de travail ( <CalendarClock color="var(--work-color)" /> Travail effectif | <Coffee  color="var(--pause-color)" /> Pause | <Moon  color="var(--sleep-color)" /> Sleep )</th>
         </thead>
         <tbody>
             {#each taskHistoryExtended as historyItem, index }
@@ -77,10 +77,6 @@ import { appUIState } from "../../stores/appUIState";
     .twh-TDDate::first-letter { text-transform: capitalize; }
 
     .twh-SessionRatio {
-        --pause-color: var(--muted-color);
-        --active-work-color: var(--primary);
-        --sleep-color: var(--muted-border-color);
-
         display:flex;
         list-style: none;
         padding-inline-start: 0;
@@ -95,7 +91,7 @@ import { appUIState } from "../../stores/appUIState";
         li { 
             margin-block-end: 0;
 
-            &.twh-SessionRatio_Work { background-color: var(--active-work-color); }
+            &.twh-SessionRatio_Work { background-color: var(--work-color); }
             &.twh-SessionRatio_Pause { background-color: var(--pause-color); }
             &.twh-SessionRatio_Sleep { background-color: var(--sleep-color); }
         }
