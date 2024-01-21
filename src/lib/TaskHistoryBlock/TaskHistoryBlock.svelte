@@ -16,8 +16,8 @@
     $: if(hasHistory) {
         const durationSinceCreation:number = new Date().getTime() - ($taskQuery as any).dateCreated;
         const durationTotalWorkSessions:number = (($taskQuery as any).workHistory as WorkItem[]).reduce((acc, curr) => acc + (curr.end - curr.start), 0);
-        const durationEffectiveWork:number = (($taskQuery as any).workHistory as WorkItem[]).reduce((acc, curr) => acc + curr.duration, 0);
-        const durationPauses:number = durationTotalWorkSessions - durationEffectiveWork;
+        const durationEffectiveWork:number = (($taskQuery as any).workHistory as WorkItem[]).reduce((acc, curr) => acc + curr.wDuration, 0);
+        const durationPauses:number = (($taskQuery as any).workHistory as WorkItem[]).reduce((acc, curr) => acc + curr.pDuration, 0);
         const durationWithoutWorkSession:number = durationSinceCreation - durationTotalWorkSessions;
         const taskEffectiveWork:string = durationFormaterToString(durationEffectiveWork, 'HUMAN', { style: 'narrow', numeric: 'always' });
         const taskPauses:string = durationFormaterToString(durationPauses, 'HUMAN', { style: 'narrow', numeric: 'always' });
