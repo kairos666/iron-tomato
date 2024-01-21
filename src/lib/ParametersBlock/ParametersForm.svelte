@@ -12,7 +12,7 @@
     // update form values if state is updated (classic style)
     const unsubscribeCb = parameterState.subscribe(parameterState => {
         mRatioWorkPause = parameterState.mRatioWorkPause;
-        minThresholdLoggedWork = parameterState.minThresholdLoggedWork / (1000 * 60 * 60);
+        minThresholdLoggedWork = parameterState.minThresholdLoggedWork / (1000 * 60);
         hasLoadedParameters = true;
     });
     onDestroy(() => {
@@ -22,7 +22,7 @@
     // convert form values to state values
     function fromFormValuesToState():ParameterState {
         return {
-            minThresholdLoggedWork: minThresholdLoggedWork * (1000 * 60 * 60),
+            minThresholdLoggedWork: minThresholdLoggedWork * (1000 * 60),
             mRatioWorkPause
         }
     }

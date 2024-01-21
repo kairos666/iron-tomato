@@ -13,7 +13,7 @@ export type ParameterState = {
 }
 
 export const defaultParameterState:ParameterState = {
-    minThresholdLoggedWork: 1000 * 60 * 60 * 5,
+    minThresholdLoggedWork: 1000 * 60 * 5,
     mRatioWorkPause: 5 // 5 minutes work / 1 minute pause (classic pomodoro 25 minutes work / 5 min short pause) => ratio = 5
 }
 
