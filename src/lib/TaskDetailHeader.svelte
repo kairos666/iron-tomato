@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { ArrowLeftCircle, Grid2X2, TimerReset } from 'lucide-svelte';
+    import { ArrowLeftCircle, Sliders } from 'lucide-svelte';
     import { Popover, PopoverButton, PopoverPanel } from "@rgossiaux/svelte-headlessui";
     import appLogo from '/tomacco-logo.png';
     import { appUIState } from '../stores/appUIState';
@@ -19,8 +19,7 @@
         <Popover class="pop-Wrapper">
             <PopoverButton class="pop-TriggerBtn">Plus d'options</PopoverButton>
             <PopoverPanel class="pop-Panel">
-                <button disabled class="pop-ItemBtn"><TimerReset /><span>Paramètres pomodoro</span></button>
-                <button disabled class="pop-ItemBtn"><Grid2X2 /><span>Paramètres matrice d'eisenhower</span></button>
+                <button class="pop-ItemBtn" on:click={ () => changeMainView('parameters-settings') }><Sliders /><span>Paramètres</span></button>
             </PopoverPanel>
         </Popover>
     </div>

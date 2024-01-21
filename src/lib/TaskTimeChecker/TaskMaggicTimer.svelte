@@ -6,6 +6,7 @@
     import { TaskMaggicCheckerObservable } from "../../utils/TaskMaggicCheckerObservable";
     import { durationFormaterToString, formatMsDuration } from "../../utils/time-formater";
     import MaggicRatio from "./MaggicRatio.svelte";
+    import { parameterState } from "../../stores/parametersState";
 
     type MaggicClockDisplay = {
         sessionTotalDuration:string
@@ -106,7 +107,7 @@
     <time class="tmt-SessionTotalDuration" datetime={ maggicClockDisplay.datetimeSessionTotalDuration }>{ maggicClockDisplay.sessionTotalDuration }</time>
     <time class="tmt-WorkDuration" datetime={ maggicClockDisplay.datetimeWorkDuration }>{ maggicClockDisplay.workDuration }</time>
     <time class="tmt-PauseDuration" datetime={ maggicClockDisplay.datetimePauseDuration }>{ maggicClockDisplay.pauseDuration }</time>
-    <MaggicRatio workDuration={ timerState.workDuration } pauseDuration={ timerState.pauseDuration } targetRatio={ 5 } style="grid-area:ratio-counter;justify-self:center;align-self:end;" />
+    <MaggicRatio workDuration={ timerState.workDuration } pauseDuration={ timerState.pauseDuration } targetRatio={ $parameterState.mRatioWorkPause } style="grid-area:ratio-counter;justify-self:center;align-self:end;" />
 </section>
 
 <style lang="scss">
