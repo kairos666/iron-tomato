@@ -12,7 +12,9 @@ export type BaseTask = {
 export type WorkItem = {
     start: number
     end: number
-    duration: number
+    wDuration: number
+    pDuration: number
+    sDuration: number
 }
 
 export type Task = BaseTask & {

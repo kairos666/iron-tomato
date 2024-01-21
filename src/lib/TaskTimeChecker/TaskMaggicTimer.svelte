@@ -77,7 +77,9 @@
         const workItem:WorkItem = {
             start: timerState.start,
             end: timerState.end,
-            duration: timerState.workDuration
+            wDuration: timerState.workDuration,
+            pDuration: timerState.pauseDuration,
+            sDuration: timerState.sleepDuration
         };
         
         // commit work items to task DB
@@ -85,7 +87,7 @@
     }
 </script>
 
-<svelte:window on:beforeunload={ onTriggerWorkLog } />
+<svelte:window on:beforeunload={ evt => { evt.preventDefault(); evt.returnValue = "Enregistrer la session de travail avant de quitter ?"; onTriggerWorkLog(); } } />
 <section class="tmt-MaggicClockLayout">
     <button 
         type="button" 
