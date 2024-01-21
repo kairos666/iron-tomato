@@ -45,16 +45,13 @@
 </script>
 
 <figure class="tmt-Ratio" style={ style } style:--current-ratio-perc={ `${ maggicRatioData.currentRatioPerc }%` } style:--balanced-perc={ `${ maggicRatioData.balancedPerc }%` }>
-    <span class="tmt-Ratio_Offset">{#if maggicRatioData.offsetType !== 'NONE'}<span class="inner" class:inner-left={ maggicRatioData.offsetSide === 'left' } class:inner-right={ maggicRatioData.offsetSide === 'right' }>{ maggicRatioData.offsetDuration } {#if maggicRatioData.offsetType === 'WORK'}<CalendarClock />{:else if maggicRatioData.offsetType === 'PAUSE'}<Coffee />{/if}</span>{/if}</span>
+    <span class="tmt-Ratio_Offset">{#if maggicRatioData.offsetType !== 'NONE'}<span class="inner" class:inner-work={ maggicRatioData.offsetType === 'WORK' } class:inner-pause={ maggicRatioData.offsetType === 'PAUSE' } class:inner-left={ maggicRatioData.offsetSide === 'left' } class:inner-right={ maggicRatioData.offsetSide === 'right' }>{ maggicRatioData.offsetDuration } {#if maggicRatioData.offsetType === 'WORK'}<CalendarClock color="var(--work-color)"/>{:else if maggicRatioData.offsetType === 'PAUSE'}<Coffee color="var(--pause-color)" />{/if}</span>{/if}</span>
     <span class="tmt-Ratio_RatioBar"></span>
     <span class="tmt-Ratio_BalancedRatioThreshold"><span class="inner"><Scale color={ 'var(--muted-color)' } /></span></span>
 </figure>
 
 <style lang="scss">
     .tmt-Ratio {
-        --pause-color: var(--muted-border-color);
-        --active-work-color: var(--primary);
-
         margin-block-end:0;
         display:flex;
         width:100%;
@@ -73,10 +70,16 @@
                 transition: left 0.3s ease;
 
                 &.inner-left {
-                    transform: translateX(calc(-100% - var(--spacing) * 0.5));
+                    transform: translateX(calc(-100% + 12px));
                 }
                 &.inner-right {
-                    transform: translateX(calc(var(--spacing) * 0.5));
+                    transform: translateX(12px);
+                }
+                &.inner-work {
+                    color: var(--work-color);
+                }
+                &.inner-pause {
+                    color: var(--pause-color);
                 }
             }
         }
@@ -85,8 +88,8 @@
             width:100%;
             height: 1rem;
             border-radius: 0.5rem;
-            border:1px solid var(--muted-color);
-            background: linear-gradient(90deg, var(--active-work-color) 0%, var(--active-work-color) var(--current-ratio-perc), var(--pause-color) var(--current-ratio-perc), var(--pause-color) 100%);
+            border:1px solid var(--muted-border-color);
+            background: linear-gradient(90deg, var(--work-color) 0%, var(--work-color) var(--current-ratio-perc), var(--pause-color) var(--current-ratio-perc), var(--pause-color) 100%);
         }
 
         .tmt-Ratio_BalancedRatioThreshold {
@@ -103,6 +106,7 @@
                     position:absolute;
                     transform: translate(-50%, -50%);
                     left:50%;
+                    top:-3px;
                     width: 0px;
                     height: 0px;
                     border-style: solid;

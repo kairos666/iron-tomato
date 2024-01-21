@@ -96,7 +96,7 @@
         on:click={ onWorkHandler }
         data-tooltip="Travailler"
         data-placement="top"
-    ><CalendarClock /><span class="sr-only">Imputer</span></button>
+    ><CalendarClock size="30%" absoluteStrokeWidth={ true } color="var(--icon-color)" /><span class="sr-only">Imputer</span></button>
     <button 
         type="button" 
         class="tmt-Btn tmt-Btn-pause" 
@@ -104,7 +104,7 @@
         on:click={ onPauseHandler }
         data-tooltip="Faire une pause"
         data-placement="top"
-    ><Coffee /><span class="sr-only">Pause</span></button>
+    ><Coffee size="30%" absoluteStrokeWidth={ true } color="var(--icon-color)" /><span class="sr-only">Pause</span></button>
     <time class="tmt-SessionTotalDuration" datetime={ maggicClockDisplay.datetimeSessionTotalDuration }>{ maggicClockDisplay.sessionTotalDuration }</time>
     <time class="tmt-WorkDuration" datetime={ maggicClockDisplay.datetimeWorkDuration }>{ maggicClockDisplay.workDuration }</time>
     <time class="tmt-PauseDuration" datetime={ maggicClockDisplay.datetimePauseDuration }>{ maggicClockDisplay.pauseDuration }</time>
@@ -141,6 +141,7 @@
         align-self: center;
         font-family: 'Courier New', monospace;
         font-size: 5vi;
+        font-weight: 700;
     }
     .tmt-WorkDuration {
         grid-area: work-counter;
@@ -173,12 +174,28 @@
         aspect-ratio:1;
 
         &.tmt-Btn-work {
+            --icon-color: #fff;
             grid-area: work-btn;
             flex:0 1 7.5rem;
+            background-color: var(--work-color);
+            border-color: var(--work-color);
+
+            &:disabled {
+                --icon-color: var(--work-color);
+                background-color: var(--muted-border-color);
+            }
         }
         &.tmt-Btn-pause {
+            --icon-color: #fff;
             grid-area: pause-btn;
             flex:0 1 7.5rem;
+            background-color: var(--pause-color);
+            border-color: var(--pause-color);
+
+            &:disabled {
+                --icon-color: var(--pause-color);
+                background-color: var(--muted-border-color);
+            }
         }
     }
 </style>
