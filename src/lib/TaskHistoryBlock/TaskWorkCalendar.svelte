@@ -56,7 +56,7 @@
         const matchingWeekDay:weekDayItem|undefined = acc.find(item => (item.dateTimestamp === currWorkSessionGenericDayTimestamp));
 
         if(matchingWeekDay) {
-            matchingWeekDay.duration += curr.duration;
+            matchingWeekDay.duration += curr.wDuration;
         } else {
             console.warn(`work distribution in calendar error : ${ new Date(currWorkSessionGenericDayTimestamp) } does not fit, was ignored`);
         }
