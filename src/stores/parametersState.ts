@@ -9,23 +9,11 @@ const parametersLocalStorageKey:string = 'app-parameters';
  */
 export type ParameterState = {
     minThresholdLoggedWork: number // ms of minimal work duration to be logged
-    pWorkDuration: number // ms of work session for pomodoro
-    pShortPauseDuration: number // ms of short pause session for pomodoro
-    pLongPauseDuration: number // ms of long pause session for pomodoro
-    pLongPauseFrequency: number // long pause every N pause
-    pAutoFlow: boolean // auto switch from state, or manual
-    pPlaySound: boolean // play sounds or not
     mRatioWorkPause: number // ratio work / pause 
 }
 
 export const defaultParameterState:ParameterState = {
     minThresholdLoggedWork: 1000 * 60 * 60 * 5,
-    pWorkDuration: 1000 * 60 * 60 * 25,
-    pShortPauseDuration: 1000 * 60 * 60 * 5,
-    pLongPauseDuration: 1000 * 60 * 60 * 15,
-    pLongPauseFrequency: 4,
-    pAutoFlow: false,
-    pPlaySound: false,
     mRatioWorkPause: 5 // 5 minutes work / 1 minute pause (classic pomodoro 25 minutes work / 5 min short pause) => ratio = 5
 }
 
