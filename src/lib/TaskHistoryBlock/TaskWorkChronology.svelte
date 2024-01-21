@@ -25,7 +25,7 @@
             const chronologyWorkSessions:WorkItemExtended[] = taskHistory
                 .sort((workA, workB) => (workA.start <= workB.start) ? 1 : -1) // ensure chonological order (based on start date)
                 .map(baseWorkSession => {
-                    const activeWorkPerc:number = baseWorkSession.duration / (baseWorkSession.end - baseWorkSession.start);
+                    const activeWorkPerc:number = baseWorkSession.wDuration / (baseWorkSession.end - baseWorkSession.start);
                     // evaluate work session zones (start + duration / end can be misleading)
                     return {
                         ...baseWorkSession,
