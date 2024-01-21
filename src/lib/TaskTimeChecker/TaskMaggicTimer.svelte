@@ -29,7 +29,6 @@
         pauseDuration: "",
         datetimePauseDuration: "0"
     }
-    const minThresholdLoggedWork:number = 1000 * 60 * 5; // 5 minutes minimum otherwise ignored
 
     // GUI interactivity
     function onWorkHandler() {
@@ -72,7 +71,7 @@
     function onTriggerWorkLog() {
         // should trigger for : task achieve (unmount), task edit (unmount), back to dashboard (unmount), close browser tab (page unload), close browser (page unload)
         // leave early (no work logged or inferior to minThresholdLoggedWork)
-        if(timerState.checkerState === 'NOT STARTED' || timerState.workDuration < minThresholdLoggedWork) return;
+        if(timerState.checkerState === 'NOT STARTED' || timerState.workDuration < $parameterState.minThresholdLoggedWork) return;
 
         // convert to work item
         const workItem:WorkItem = {

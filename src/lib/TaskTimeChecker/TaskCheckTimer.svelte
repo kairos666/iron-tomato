@@ -5,12 +5,12 @@
     import { CalendarClock, Coffee } from "lucide-svelte";
     import DurationDisplay from "../DurationDisplay.svelte";
     import { taskLogWork, type WorkItem } from "../../stores/persistentTasks";
+    import { parameterState } from "../../stores/parametersState";
 
     export let taskID:string;
     let checkTimerSubject:BehaviorSubject<string>|null = null;
     let checkTimerSubscription:Subscription|null = null;
     let timerState:{ checkerState:string, loggedTime:number, start:number, end:number } = { checkerState: 'NOT STARTED', loggedTime: 0, start: -1, end: -1 };
-    const minThresholdLoggedWork:number = 1000 * 60 * 5; // 5 minutes minimum otherwise ignored
 
     function onWorkHandler() {
         if(checkTimerSubject) checkTimerSubject.next('WORK');
@@ -39,7 +39,7 @@
     function onTriggerWorkLog() {
         // should trigger for : task achieve (unmount), task edit (unmount), back to dashboard (unmount), close browser tab (page unload), close browser (page unload)
         // leave early (no work logged or inferior to minThresholdLoggedWork)
-        if(timerState.checkerState === 'NOT STARTED' || timerState.loggedTime < minThresholdLoggedWork) return;
+        if(timerState.checkerState === 'NOT STARTED' || timerState.loggedTime < $parameterState.minThresholdLoggedWork) return;
 
         // convert to work item
         const workItem:WorkItem = {

@@ -8,6 +8,7 @@ const parametersLocalStorageKey:string = 'app-parameters';
  * m = maggic clock
  */
 export type ParameterState = {
+    minThresholdLoggedWork: number // ms of minimal work duration to be logged
     pWorkDuration: number // ms of work session for pomodoro
     pShortPauseDuration: number // ms of short pause session for pomodoro
     pLongPauseDuration: number // ms of long pause session for pomodoro
@@ -18,6 +19,7 @@ export type ParameterState = {
 }
 
 export const defaultParameterState:ParameterState = {
+    minThresholdLoggedWork: 1000 * 60 * 60 * 5,
     pWorkDuration: 1000 * 60 * 60 * 25,
     pShortPauseDuration: 1000 * 60 * 60 * 5,
     pLongPauseDuration: 1000 * 60 * 60 * 15,

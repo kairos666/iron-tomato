@@ -12,6 +12,7 @@
     let pAutoFlow:boolean;
     let pPlaySound:boolean;
     let mRatioWorkPause:number;
+    let minThresholdLoggedWork:number;
     const { changeMainView } = appUIState;
 
     // update form values if state is updated (classic style)
@@ -23,6 +24,7 @@
         pAutoFlow = parameterState.pAutoFlow;
         pPlaySound = parameterState.pPlaySound;
         mRatioWorkPause = parameterState.mRatioWorkPause;
+        minThresholdLoggedWork = parameterState.minThresholdLoggedWork / (1000 * 60 * 60);
         hasLoadedParameters = true;
     });
     onDestroy(() => {
@@ -38,6 +40,7 @@
             pLongPauseFrequency,
             pAutoFlow,
             pPlaySound,
+            minThresholdLoggedWork: minThresholdLoggedWork * (1000 * 60 * 60),
             mRatioWorkPause
         }
     }
@@ -54,13 +57,12 @@
         <!-- <fieldset class="pf-ParamBlock">
             <legend>Paramètres liste de tâches et matrice d'Eisenhower</legend>
             <p>TODO</p>
-        </fieldset>
-        <fieldset class="pf-ParamBlock">
-            <legend>Paramètres imputation du temps de travail</legend>
-            <p>TODO</p>
         </fieldset> -->
         <fieldset class="pf-ParamBlock">
-            <legend>Paramètres MAGGIC clock</legend>
+            <legend>Paramètres d'activité sur une tâche</legend>
+            <label for="min-work-duration-to-log">Durée minimale de travail pertinente</label>
+            <input type="number" step="1" min="1" id="min-work-duration-to-log" name="min-work-duration-to-log" bind:value={ minThresholdLoggedWork } required />
+            <small>minimum { minThresholdLoggedWork } minutes de travail cumulé pour déclencher l'enregistrement dans l'historique d'activité</small>
             <label for="maggic-ratio">Ratio travail / pause</label>
             <input type="number" step="1" min="1" id="maggic-ratio" name="maggic-ratio" bind:value={ mRatioWorkPause } required />
             <small>pour 25 minutes de travail, environ { Math.round(25 / mRatioWorkPause) } minutes de pause</small>
