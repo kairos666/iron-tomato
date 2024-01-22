@@ -115,12 +115,52 @@ export const durationFormaterToString = function(msDuration:number, type:'TECH'|
     }
     if (type === 'HUMAN') {
         return parts.reduce((acc, curr) => {
-            return (curr.type === "integer" || curr.type === "literal")
-                ? acc + " " + curr.value
+            return (curr.type === "integer")
+                ? acc + " " + String(curr.value).trim()
+                : (curr.type === "literal")
+                ? acc + String(curr.value).trim()
                 : acc;
         }, "");
     }
     throw new Error(`Wrong type: ${ type }, for duration in durationFormaterToString function`);
+}
+
+export const durationParts = function(msDuration:number, maxUnit:'year'|'month'|'day'|'hour'|'minute'|'second'):{ value:number, unit:string }[] {
+    const allUnits:string[] = ['year', 'month', 'day', 'hour', 'minute', 'second'];
+    const targetUnits:string[] = allUnits.slice(allUnits.findIndex(unit => unit === maxUnit));
+
+    return targetUnits.reduce((acc, unit) => {
+        const msPerUnit:number = (unit === 'year')
+            ? sPerYear * 1000
+            : (unit === 'month')
+            ? sPerMonth * 1000
+            : (unit === 'day')
+            ? sPerDay * 1000
+            : (unit === 'hour')
+            ? sPerHour * 1000
+            : (unit === 'minute')
+            ? sPerMinute * 1000
+            : 1000; // ms in seconds
+
+        const currentUnitCount:number = Math.floor(acc.remainderMs / msPerUnit);
+        const newRemainderMS:number = acc.remainderMs % msPerUnit;
+        const newResultItem:{ value:number, unit:string } = { value: currentUnitCount, unit };
+
+        return { remainderMs: newRemainderMS, results: [...acc.results, newResultItem] };
+    }, { remainderMs: msDuration, results: ([] as { value:number, unit:string }[]) }).results;
+}
+
+export const formatMsDuration = function(msDuration:number, maxUnit:'hour'|'minute'):string {
+    const parts = durationParts(msDuration, maxUnit);
+    function doubleDigitString(count:number):string { return (0 <= count && count <= 9) ? `0${ count }` : String(count) }
+    
+    return (maxUnit === 'hour' && parts[0].value > 0)
+        ? `${ doubleDigitString(parts[0].value) }H ${ doubleDigitString(parts[1].value) }:${ doubleDigitString(parts[2].value) }`
+        : (maxUnit === 'hour' && parts[0].value === 0)
+        ? `${ doubleDigitString(parts[1].value) }:${ doubleDigitString(parts[2].value) }`
+        : (maxUnit === 'minute')
+        ? `${ doubleDigitString(parts[0].value) }:${ doubleDigitString(parts[1].value) }`
+        : "";
 }
 
 export const genericDayTimestamp = function(preciseTimestamp:number):number {

@@ -1,14 +1,14 @@
 <script lang="ts">
-    import TaskCheckTimer from "./TaskCheckTimer.svelte";
+    import TaskMaggicTimer from "./TaskMaggicTimer.svelte";
 
     export let taskID:string;
 </script>
 
 <article class="ttc-Block">
-    <header>
-        <h3>Travail sur la session en cours</h3>
+    <header class="ttc-Block_Header">
+        <h3>Activité</h3>
     </header>
-    <TaskCheckTimer taskID={ taskID } />
+    <TaskMaggicTimer taskID={ taskID } />
 </article>
 
 <style lang="scss">
@@ -17,5 +17,13 @@
     .ttc-Block { 
         @include pdb_BlockStyle(h3);
         grid-area: work-time-checker;
+    }
+
+    .ttc-Block_Header {
+        display:flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        gap: var(--spacing);
     }
 </style>

@@ -21,8 +21,7 @@
 </main>
 
 <style lang="scss">
-    $header-height: 2.5rem;
-    $footer-height: 3rem;
+    @import "../styles/variables.scss";
     .alyt-Container {
         --nonContentHeight: 0; // case without header or footer
         > header, > footer {

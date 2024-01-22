@@ -56,7 +56,7 @@
         const matchingWeekDay:weekDayItem|undefined = acc.find(item => (item.dateTimestamp === currWorkSessionGenericDayTimestamp));
 
         if(matchingWeekDay) {
-            matchingWeekDay.duration += curr.duration;
+            matchingWeekDay.duration += curr.wDuration;
         } else {
             console.warn(`work distribution in calendar error : ${ new Date(currWorkSessionGenericDayTimestamp) } does not fit, was ignored`);
         }
@@ -122,7 +122,7 @@
         line-height: 1.5rem;
 
         &.twc-CalendarDay-weekend { border-color:var(--muted-border-color); }
-        &.twc-CalendarDay-worked { background-color: var(--primary); color: var(--background-color); }
+        &.twc-CalendarDay-worked { background-color: var(--work-color); color: var(--background-color); }
         time { display:block; width:100%; height: 100%; border-bottom: none; }
     }
 </style>
