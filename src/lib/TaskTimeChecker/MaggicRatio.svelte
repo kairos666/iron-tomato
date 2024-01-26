@@ -44,9 +44,9 @@
     }
 </script>
 
-<figure class="tmt-Ratio" style={ style } style:--current-ratio-perc={ `${ maggicRatioData.currentRatioPerc }%` } style:--balanced-perc={ `${ maggicRatioData.balancedPerc }%` }>
+<figure class="tmt-Ratio" style={ style } style:--current-ratio={ `${ maggicRatioData.currentRatioPerc / 100 }` } style:--current-ratio-perc={ `${ maggicRatioData.currentRatioPerc }%` } style:--balanced-perc={ `${ maggicRatioData.balancedPerc }%` }>
     <span class="tmt-Ratio_Offset">{#if maggicRatioData.offsetType !== 'NONE'}<span class="inner" class:inner-work={ maggicRatioData.offsetType === 'WORK' } class:inner-pause={ maggicRatioData.offsetType === 'PAUSE' } class:inner-left={ maggicRatioData.offsetSide === 'left' } class:inner-right={ maggicRatioData.offsetSide === 'right' }>{ maggicRatioData.offsetDuration } {#if maggicRatioData.offsetType === 'WORK'}<CalendarClock color="var(--work-color)"/>{:else if maggicRatioData.offsetType === 'PAUSE'}<Coffee color="var(--pause-color)" />{/if}</span>{/if}</span>
-    <span class="tmt-Ratio_RatioBar"></span>
+    <span class="tmt-Ratio_RatioBar"><span class="tmt-Ratio_RatioInnerBar"></span></span>
     <span class="tmt-Ratio_BalancedRatioThreshold"><span class="inner"><Scale color={ 'var(--muted-color)' } /></span></span>
 </figure>
 
@@ -89,7 +89,19 @@
             height: 1rem;
             border-radius: 0.5rem;
             border:1px solid var(--muted-border-color);
-            background: linear-gradient(90deg, var(--work-color) 0%, var(--work-color) var(--current-ratio-perc), var(--pause-color) var(--current-ratio-perc), var(--pause-color) 100%);
+            background-color: var(--pause-color);
+            overflow:hidden;
+            text-align: left;
+
+            .tmt-Ratio_RatioInnerBar {
+                display:block;
+                height:100%;
+                width:100%;
+                background-color: var(--work-color);
+                transform-origin: 0;
+                transform: scaleX(var(--current-ratio));
+                transition: transform 0.3s ease;
+            }
         }
 
         .tmt-Ratio_BalancedRatioThreshold {
