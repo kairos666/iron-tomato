@@ -70,10 +70,10 @@
                 transition: left 0.3s ease;
 
                 &.inner-left {
-                    transform: translateX(calc(-100% + 12px));
+                    transform: translateX(-100%);
                 }
                 &.inner-right {
-                    transform: translateX(12px);
+                    transform: translateX(0);
                 }
                 &.inner-work {
                     color: var(--work-color);
