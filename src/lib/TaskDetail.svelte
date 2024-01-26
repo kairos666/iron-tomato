@@ -125,8 +125,8 @@
         </menu>
         {#if !initialTask.isDone}
             <TaskTimeCheckerBlock taskID={ taskID } />
-            <TaskHistoryBlock taskID={ taskID } />
         {/if}
+        <TaskHistoryBlock taskID={ taskID } />
     </div>
 {:else if detailState === 'edit' && initialTask !== undefined}
     <form class="tskdtl-EditLayout" on:submit={ onSubmit }>
