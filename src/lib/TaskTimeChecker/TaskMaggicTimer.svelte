@@ -96,18 +96,20 @@
         type="button" 
         class="tmt-Btn tmt-Btn-work" 
         disabled={ timerState.state === 'WORK' }
+        aria-pressed={ timerState.state === 'WORK' }
         on:click={ onWorkHandler }
         data-tooltip="Travailler"
         data-placement="top"
-    ><CalendarClock size="30%" absoluteStrokeWidth={ true } color="var(--icon-color)" /><span class="sr-only">Imputer</span></button>
+    ><span class="tmt-Btn_IconWrapper"><CalendarClock size="30%" absoluteStrokeWidth={ true } color="var(--icon-color)" /></span><span class="sr-only">Imputer</span></button>
     <button 
         type="button" 
         class="tmt-Btn tmt-Btn-pause" 
         disabled={ timerState.state !== 'WORK' }
+        aria-pressed={ timerState.state === 'PAUSE' }
         on:click={ onPauseHandler }
         data-tooltip="Faire une pause"
         data-placement="top"
-    ><Coffee size="30%" absoluteStrokeWidth={ true } color="var(--icon-color)" /><span class="sr-only">Pause</span></button>
+    ><span class="tmt-Btn_IconWrapper"><Coffee size="30%" absoluteStrokeWidth={ true } color="var(--icon-color)" /></span><span class="sr-only">Pause</span></button>
     <time class="tmt-SessionTotalDuration" datetime={ maggicClockDisplay.datetimeSessionTotalDuration }>{ maggicClockDisplay.sessionTotalDuration }</time>
     <time class="tmt-WorkDuration" datetime={ maggicClockDisplay.datetimeWorkDuration }>{ maggicClockDisplay.workDuration }</time>
     <time class="tmt-PauseDuration" datetime={ maggicClockDisplay.datetimePauseDuration }>{ maggicClockDisplay.pauseDuration }</time>
@@ -116,6 +118,8 @@
 </section>
 
 <style lang="scss">
+    @import "../../styles/heart-beat-animation";
+    @import "../../styles/wobble-animation";
     .tmt-MaggicClockLayout {
         margin-block-end: 0;
         display:grid;
@@ -178,6 +182,8 @@
         border-radius: 50% 50%;
         aspect-ratio:1;
 
+        .tmt-Btn_IconWrapper { display:inline-block; }
+
         &.tmt-Btn-work {
             --icon-color: #fff;
             grid-area: work-btn;
@@ -200,6 +206,19 @@
             &:disabled {
                 --icon-color: var(--pause-color);
                 background-color: var(--muted-border-color);
+            }
+        }
+
+        &[aria-pressed="true"] {
+            animation-name: heartBeat;
+            animation-duration: 0.5s;
+            animation-timing-function: ease-in-out;
+
+            .tmt-Btn_IconWrapper {
+                animation-name: wobble;
+                animation-duration: 3s;
+                animation-timing-function: ease-in-out;
+                animation-iteration-count: infinite;
             }
         }
     }
