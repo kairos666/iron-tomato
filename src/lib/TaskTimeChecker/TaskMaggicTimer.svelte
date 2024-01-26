@@ -143,6 +143,7 @@
         font-family: 'Courier New', monospace;
         font-size: 5vi;
         font-weight: 700;
+        text-align: center;
     }
     .tmt-WorkDuration {
         grid-area: work-counter;
