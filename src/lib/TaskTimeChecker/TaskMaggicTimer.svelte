@@ -3,7 +3,7 @@
     import { CalendarClock, Coffee } from "lucide-svelte";
     import { onDestroy, onMount } from "svelte";
     import { taskLogWork, type WorkItem } from "../../stores/persistentTasks";
-    import { TaskMaggicCheckerObservable } from "../../utils/TaskMaggicCheckerObservable";
+    import { maggicCheckerObservableBuilder, type MaggicCheck } from "../../utils/maggicCheckerObservable";
     import { durationFormaterToString, formatMsDuration } from "../../utils/time-formater";
     import MaggicRatio from "./MaggicRatio.svelte";
     import { parameterState } from "../../stores/parametersState";
@@ -17,10 +17,12 @@
         datetimePauseDuration:string
     }
 
+    const initialMaggicState:MaggicCheck = { state: 'NOT STARTED', workDuration: 0, pauseDuration: 0, start: -1, end: -1 };
+
     export let taskID:string;
-    let maggicTimerSubject:BehaviorSubject<string>|null = null;
+    let maggicTimerSubject:BehaviorSubject<'NOT STARTED'|'WORK'|'PAUSE'>|null = null;
     let maggicTimerSubscription:Subscription|null = null;
-    let timerState:{ checkerState:string, sleepDuration:number, workDuration:number, pauseDuration:number, start:number, end:number } = { checkerState: 'NOT STARTED', sleepDuration: 0, workDuration: 0, pauseDuration: 0, start: -1, end: -1 };
+    let timerState:MaggicCheck = { ...initialMaggicState };
     let maggicClockDisplay:MaggicClockDisplay = {
         sessionTotalDuration: "",
         datetimeSessionTotalDuration: "0",
@@ -41,12 +43,12 @@
 
     // handle work log
     onMount(() => {
-        maggicTimerSubject = new BehaviorSubject('NOT STARTED');
-        maggicTimerSubscription = TaskMaggicCheckerObservable(maggicTimerSubject).subscribe({
+        maggicTimerSubject = (new BehaviorSubject('NOT STARTED') as BehaviorSubject<'NOT STARTED'|'WORK'|'PAUSE'>);
+        maggicTimerSubscription = maggicCheckerObservableBuilder(maggicTimerSubject, { ...initialMaggicState }, 500).subscribe({
             next: timeCheck => { 
-                const { state: checkerState, sleepDuration, workDuration, pauseDuration, start, end } = timeCheck;
                 // hard data
-                timerState = { checkerState, sleepDuration, workDuration, pauseDuration, start, end };
+                const { workDuration, pauseDuration } = timerState = timeCheck;
+                
                 // human display data
                 const sessionDuration:number = workDuration + pauseDuration;
                 maggicClockDisplay = {
@@ -71,15 +73,14 @@
     function onTriggerWorkLog() {
         // should trigger for : task achieve (unmount), task edit (unmount), back to dashboard (unmount), close browser tab (page unload), close browser (page unload)
         // leave early (no work logged or inferior to minThresholdLoggedWork)
-        if(timerState.checkerState === 'NOT STARTED' || timerState.workDuration < $parameterState.minThresholdLoggedWork) return;
+        if(timerState.state === 'NOT STARTED' || timerState.workDuration < $parameterState.minThresholdLoggedWork) return;
 
         // convert to work item
         const workItem:WorkItem = {
             start: timerState.start,
             end: timerState.end,
             wDuration: timerState.workDuration,
-            pDuration: timerState.pauseDuration,
-            sDuration: timerState.sleepDuration
+            pDuration: timerState.pauseDuration
         };
         
         // commit work items to task DB
@@ -92,7 +93,7 @@
     <button 
         type="button" 
         class="tmt-Btn tmt-Btn-work" 
-        disabled={ timerState.checkerState === 'WORK' }
+        disabled={ timerState.state === 'WORK' }
         on:click={ onWorkHandler }
         data-tooltip="Travailler"
         data-placement="top"
@@ -100,7 +101,7 @@
     <button 
         type="button" 
         class="tmt-Btn tmt-Btn-pause" 
-        disabled={ timerState.checkerState !== 'WORK' }
+        disabled={ timerState.state !== 'WORK' }
         on:click={ onPauseHandler }
         data-tooltip="Faire une pause"
         data-placement="top"
