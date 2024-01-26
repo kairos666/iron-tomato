@@ -17,59 +17,56 @@
         datetimePauseDuration:string
     }
 
-    const initialMaggicState:MaggicCheck = { state: 'NOT STARTED', workDuration: 0, pauseDuration: 0, start: -1, end: -1 };
-
     export let taskID:string;
+    export let startedSession:boolean = false;
+    export const resetSession = () => { dismantleTimerSession(); setupTimerSession(); }
+    const initialMaggicState:MaggicCheck = { state: 'NOT STARTED', workDuration: 0, pauseDuration: 0, start: -1, end: -1 };
+    const initialMaggicClockDisplay:MaggicClockDisplay = { sessionTotalDuration: "", datetimeSessionTotalDuration: "0", workDuration: "", datetimeWorkDuration: "0", pauseDuration: "", datetimePauseDuration: "0" };
     let maggicTimerSubject:BehaviorSubject<'NOT STARTED'|'WORK'|'PAUSE'>|null = null;
     let maggicTimerSubscription:Subscription|null = null;
-    let timerState:MaggicCheck = { ...initialMaggicState };
-    let maggicClockDisplay:MaggicClockDisplay = {
-        sessionTotalDuration: "",
-        datetimeSessionTotalDuration: "0",
-        workDuration: "",
-        datetimeWorkDuration: "0",
-        pauseDuration: "",
-        datetimePauseDuration: "0"
-    }
+    let timerState:MaggicCheck;
+    let maggicClockDisplay:MaggicClockDisplay;
 
     // GUI interactivity
-    function onWorkHandler() {
-        if(maggicTimerSubject) maggicTimerSubject.next('WORK');
-    }
+    function onWorkHandler() { if(maggicTimerSubject) maggicTimerSubject.next('WORK'); }
+    function onPauseHandler() { if(maggicTimerSubject) maggicTimerSubject.next('PAUSE'); }
 
-    function onPauseHandler() {
-        if(maggicTimerSubject) maggicTimerSubject.next('PAUSE');
-    }
-
-    // handle work log
-    onMount(() => {
-        maggicTimerSubject = (new BehaviorSubject('NOT STARTED') as BehaviorSubject<'NOT STARTED'|'WORK'|'PAUSE'>);
-        maggicTimerSubscription = maggicCheckerObservableBuilder(maggicTimerSubject, { ...initialMaggicState }, 500).subscribe({
-            next: timeCheck => { 
-                // hard data
-                const { workDuration, pauseDuration } = timerState = timeCheck;
+    // update timer state
+    function onTimerUpdate(timeCheck:MaggicCheck) {
+        // hard data
+        const { state, workDuration, pauseDuration } = timerState = timeCheck;
                 
-                // human display data
-                const sessionDuration:number = workDuration + pauseDuration;
-                maggicClockDisplay = {
-                    sessionTotalDuration: (sessionDuration === 0) ? "" : formatMsDuration(sessionDuration, 'hour'),
-                    datetimeSessionTotalDuration: durationFormaterToString(workDuration + pauseDuration, 'TECH'),
-                    workDuration: (workDuration === 0) ? "" : formatMsDuration(workDuration, 'minute'),
-                    datetimeWorkDuration: durationFormaterToString(workDuration, 'TECH'),
-                    pauseDuration: (pauseDuration === 0) ? "" : formatMsDuration(pauseDuration, 'minute'),
-                    datetimePauseDuration: durationFormaterToString(pauseDuration, 'TECH')
-                }
-            }
-        });
-    });
+        // human display data
+        const sessionDuration:number = workDuration + pauseDuration;
+        maggicClockDisplay = {
+            sessionTotalDuration: (sessionDuration === 0) ? "" : formatMsDuration(sessionDuration, 'hour'),
+            datetimeSessionTotalDuration: durationFormaterToString(workDuration + pauseDuration, 'TECH'),
+            workDuration: (workDuration === 0) ? "" : formatMsDuration(workDuration, 'minute'),
+            datetimeWorkDuration: durationFormaterToString(workDuration, 'TECH'),
+            pauseDuration: (pauseDuration === 0) ? "" : formatMsDuration(pauseDuration, 'minute'),
+            datetimePauseDuration: durationFormaterToString(pauseDuration, 'TECH')
+        }
 
-    onDestroy(() => {
+        // update session status
+        startedSession = (state !== 'NOT STARTED');
+    }
+
+    
+    function setupTimerSession() {
+        timerState = { ...initialMaggicState };
+        maggicClockDisplay = { ...initialMaggicClockDisplay };
+        maggicTimerSubject = (new BehaviorSubject('NOT STARTED') as BehaviorSubject<'NOT STARTED'|'WORK'|'PAUSE'>);
+        maggicTimerSubscription = maggicCheckerObservableBuilder(maggicTimerSubject, { ...initialMaggicState }, 500).subscribe({ next: onTimerUpdate });
+    }
+
+    function dismantleTimerSession() {
         onTriggerWorkLog();
         if(maggicTimerSubscription) maggicTimerSubscription.unsubscribe();
         maggicTimerSubscription = null;
         maggicTimerSubject = null;
-    })
+    }
 
+    // handle work log
     function onTriggerWorkLog() {
         // should trigger for : task achieve (unmount), task edit (unmount), back to dashboard (unmount), close browser tab (page unload), close browser (page unload)
         // leave early (no work logged or inferior to minThresholdLoggedWork)
@@ -86,10 +83,15 @@
         // commit work items to task DB
         taskLogWork(taskID, workItem);
     }
+
+    // LIFECYCLE actions
+    onMount(setupTimerSession);
+    onDestroy(dismantleTimerSession);
 </script>
 
 <svelte:window on:beforeunload={ evt => { evt.preventDefault(); evt.returnValue = "Enregistrer la session de travail avant de quitter ?"; onTriggerWorkLog(); } } />
 <section class="tmt-MaggicClockLayout">
+    {#if (timerState && maggicClockDisplay)}
     <button 
         type="button" 
         class="tmt-Btn tmt-Btn-work" 
@@ -110,6 +112,7 @@
     <time class="tmt-WorkDuration" datetime={ maggicClockDisplay.datetimeWorkDuration }>{ maggicClockDisplay.workDuration }</time>
     <time class="tmt-PauseDuration" datetime={ maggicClockDisplay.datetimePauseDuration }>{ maggicClockDisplay.pauseDuration }</time>
     <MaggicRatio workDuration={ timerState.workDuration } pauseDuration={ timerState.pauseDuration } targetRatio={ $parameterState.mRatioWorkPause } style="grid-area:ratio-counter;justify-self:center;align-self:end;" />
+    {/if}
 </section>
 
 <style lang="scss">
