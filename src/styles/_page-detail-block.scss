@@ -1,4 +1,4 @@
-@mixin pdb_BlockStyle($headerType) {
+@mixin pdb_BlockStyle($headerType, $hasFooter: false) {
     padding: var(--spacing);
     margin:0;
 
@@ -10,8 +10,10 @@
         margin-block-end: 0;
     }
 
+    @if $hasFooter {
     footer {
         padding: var(--spacing);
         margin: var(--spacing) calc(var(--spacing) * -1) calc(var(--spacing) * -1);
+    }
     }
 }

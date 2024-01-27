@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { CalendarOff, CalendarClock, CalendarDays, Coffee, Moon } from "lucide-svelte";
+    import { CalendarOff, CalendarClock, CalendarDays, Coffee } from "lucide-svelte";
     import TaskWorkChronology from "./TaskWorkChronology.svelte";
     import TaskWorkHistory from "./TaskWorkHistory.svelte";
     import { getLiveQueryForTaskId, type WorkItem } from "../../stores/persistentTasks";
@@ -18,17 +18,14 @@
         const durationTotalWorkSessions:number = (($taskQuery as any).workHistory as WorkItem[]).reduce((acc, curr) => acc + (curr.end - curr.start), 0);
         const durationEffectiveWork:number = (($taskQuery as any).workHistory as WorkItem[]).reduce((acc, curr) => acc + curr.wDuration, 0);
         const durationPauses:number = (($taskQuery as any).workHistory as WorkItem[]).reduce((acc, curr) => acc + curr.pDuration, 0);
-        const durationSleeps:number = (($taskQuery as any).workHistory as WorkItem[]).reduce((acc, curr) => acc + curr.sDuration, 0);
         const durationWithoutWorkSession:number = durationSinceCreation - durationTotalWorkSessions;
         const taskEffectiveWork:string = durationFormaterToString(durationEffectiveWork, 'HUMAN', { style: 'narrow', numeric: 'always' });
         const taskPauses:string = durationFormaterToString(durationPauses, 'HUMAN', { style: 'narrow', numeric: 'always' });
-        const taskSleeps:string = durationFormaterToString(durationSleeps, 'HUMAN', { style: 'narrow', numeric: 'always' });
         const taskIgnored:string = durationFormaterToString(durationWithoutWorkSession, 'HUMAN', { style: 'narrow', numeric: 'always' });
 
         ratioTotal = [
             { label: `Travail effectif sur la tâche`, humanDuration: taskEffectiveWork, percent: 100 * (durationEffectiveWork / durationSinceCreation), color: "var(--work-color)", icon: CalendarClock },
-            { label: `Pauses sur la tâche`, humanDuration: taskPauses, percent: 100 * (durationPauses / durationSinceCreation), color: "var(--pause-color)", icon: Coffee },
-            { label: `Veille sur la tâche`, humanDuration: taskSleeps, percent: 100 * (durationSleeps / durationSinceCreation), color: "var(--sleep-color)", icon: Moon },            
+            { label: `Pauses sur la tâche`, humanDuration: taskPauses, percent: 100 * (durationPauses / durationSinceCreation), color: "var(--pause-color)", icon: Coffee },           
             { label: `Tâche ignorée`, humanDuration: taskIgnored, percent: 100 * (durationWithoutWorkSession / durationSinceCreation), color: "var(--ignore-color)", icon: CalendarDays }
         ];
         ratioSessions = [
@@ -128,7 +125,6 @@
         grid-gap: var(--spacing);
 
         h4 { grid-area: title; margin-block-end: 0; }
-        p { margin-block-end: calc(var(--spacing) * 0.2); }
         .th-PieChartTitle { grid-area: title; }
         .th-PieChartLegends { grid-area: legend; }
         @media (max-width:575px) {

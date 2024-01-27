@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { CalendarClock, Coffee, Moon } from "lucide-svelte";
+    import { CalendarClock, Coffee } from "lucide-svelte";
 import { appUIState } from "../../stores/appUIState";
     import { type WorkItem } from "../../stores/persistentTasks";
     import { durationFormaterToString, exactDurationFormater } from "../../utils/time-formater";
@@ -10,8 +10,6 @@ import { appUIState } from "../../stores/appUIState";
         workHumanDuration: string
         pausePercent:number
         pauseHumanDuration: string
-        sleepPercent:number
-        sleepHumanDuration: string
     }
 
     export let taskHistory:WorkItem[];
@@ -23,9 +21,7 @@ import { appUIState } from "../../stores/appUIState";
             workPercent:100 * (taskHistoryItem.wDuration / (taskHistoryItem.end - taskHistoryItem.start)),
             workHumanDuration: durationFormaterToString(taskHistoryItem.wDuration, 'HUMAN', { style: 'narrow', numeric: 'always' }),
             pausePercent:100 * (taskHistoryItem.pDuration / (taskHistoryItem.end - taskHistoryItem.start)),
-            pauseHumanDuration: durationFormaterToString(taskHistoryItem.pDuration, 'HUMAN', { style: 'narrow', numeric: 'always' }),
-            sleepPercent:100 * (taskHistoryItem.sDuration / (taskHistoryItem.end - taskHistoryItem.start)),
-            sleepHumanDuration: durationFormaterToString(taskHistoryItem.sDuration, 'HUMAN', { style: 'narrow', numeric: 'always' })
+            pauseHumanDuration: durationFormaterToString(taskHistoryItem.pDuration, 'HUMAN', { style: 'narrow', numeric: 'always' })
         }
     });
 </script>
@@ -38,9 +34,8 @@ import { appUIState } from "../../stores/appUIState";
             <ol class="twh-SessionRatio">
                 <li class="twh-SessionRatio_Work" style:width={ `${ historyItem.workPercent }%` }><span class="sr-only">Travail effectif ({ historyItem.workPercent }%)</span></li>
                 <li class="twh-SessionRatio_Pause" style:width={ `${ historyItem.pausePercent }%` }><span class="sr-only">Pauses ({ historyItem.pausePercent }%)</span></li>
-                <li class="twh-SessionRatio_Sleep" style:width={ `${ historyItem.sleepPercent }%` }><span class="sr-only">Sleep ({ historyItem.sleepPercent }%)</span></li>
             </ol>
-            <p>Durée de la session { historyItem.sessionHumanDuration } <small>( Travail{ historyItem.workHumanDuration } , Pause{ historyItem.pauseHumanDuration }, Sleep{ historyItem.sleepHumanDuration } )</small></p>
+            <p>Durée de la session { historyItem.sessionHumanDuration } <small>( Travail{ historyItem.workHumanDuration } , Pause{ historyItem.pauseHumanDuration } )</small></p>
         </li>
         {/each}
     </ol>
@@ -49,7 +44,7 @@ import { appUIState } from "../../stores/appUIState";
         <thead>
             <th scope="col">#</th>
             <th scope="col">Date</th>
-            <th scope="col">Session de travail ( <CalendarClock color="var(--work-color)" /> Travail effectif | <Coffee  color="var(--pause-color)" /> Pause | <Moon  color="var(--sleep-color)" /> Sleep )</th>
+            <th scope="col">Session de travail ( <CalendarClock color="var(--work-color)" /> Travail effectif | <Coffee  color="var(--pause-color)" /> Pause )</th>
         </thead>
         <tbody>
             {#each taskHistoryExtended as historyItem, index }
@@ -60,9 +55,8 @@ import { appUIState } from "../../stores/appUIState";
                     <ol class="twh-SessionRatio">
                         <li class="twh-SessionRatio_Work" style:width={ `${ historyItem.workPercent }%` }><span class="sr-only">Travail effectif ({ historyItem.workPercent }%)</span></li>
                         <li class="twh-SessionRatio_Pause" style:width={ `${ historyItem.pausePercent }%` }><span class="sr-only">Pauses ({ historyItem.pausePercent }%)</span></li>
-                        <li class="twh-SessionRatio_Sleep" style:width={ `${ historyItem.sleepPercent }%` }><span class="sr-only">Sleep ({ historyItem.sleepPercent }%)</span></li>
                     </ol>
-                    <p>Durée de la session { historyItem.sessionHumanDuration } <small>( Travail{ historyItem.workHumanDuration } , Pause{ historyItem.pauseHumanDuration }, Sleep{ historyItem.sleepHumanDuration } )</small></p>
+                    <p>Durée de la session { historyItem.sessionHumanDuration } <small>( Travail{ historyItem.workHumanDuration } , Pause{ historyItem.pauseHumanDuration } )</small></p>
                 </td>
               </tr>
             {/each}
@@ -93,7 +87,6 @@ import { appUIState } from "../../stores/appUIState";
 
             &.twh-SessionRatio_Work { background-color: var(--work-color); }
             &.twh-SessionRatio_Pause { background-color: var(--pause-color); }
-            &.twh-SessionRatio_Sleep { background-color: var(--sleep-color); }
         }
     }
 

@@ -109,9 +109,9 @@
                 {#if achievedDateHuman }<span class="tskdtl-TimeBadge tskdtl-TimeBadge-achievment"><CheckCircle stroke-width="1" size="15" color="var(--primary-inverse)" /> Achevée <time datetime={ achievedDateHuman.exact } data-tooltip={ achievedDateHuman.exact } data-placement="top">{ achievedDateHuman.relative }</time></span>{/if}
             </header>
             {#if initialTask.description}
-                <p>{ initialTask.description }</p>
+                <p class="tskdtl-TaskDesc">{ initialTask.description }</p>
             {:else}
-                <p><i>Pas de description pour cette tâche.</i></p>
+                <p class="tskdtl-TaskDesc"><i>Pas de description pour cette tâche.</i></p>
             {/if}
         </article>
         <menu class="tskdtl-Actions">
@@ -125,8 +125,8 @@
         </menu>
         {#if !initialTask.isDone}
             <TaskTimeCheckerBlock taskID={ taskID } />
-            <TaskHistoryBlock taskID={ taskID } />
         {/if}
+        <TaskHistoryBlock taskID={ taskID } />
     </div>
 {:else if detailState === 'edit' && initialTask !== undefined}
     <form class="tskdtl-EditLayout" on:submit={ onSubmit }>
@@ -209,11 +209,12 @@
         }
     }
 
-    .tskdtl-Task, .tskdtl-TaskEdit {
-        @include pdb_BlockStyle(h2);
+    .tskdtl-TaskEdit {
+        @include pdb_BlockStyle(h2, true);
     }
     .tskdtl-Task { 
         grid-area: task;
+        @include pdb_BlockStyle(h2);
     }
     .tskdtl-Actions { 
         grid-area: actions;
@@ -230,6 +231,11 @@
         }
 
         button { margin-block-end: 0; }
+    }
+
+    .tskdtl-TaskDesc {
+        margin-block-end: 0;
+        white-space: pre-wrap;
     }
 
     // edit
