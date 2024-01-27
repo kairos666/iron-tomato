@@ -125,7 +125,6 @@
         grid-gap: var(--spacing);
 
         h4 { grid-area: title; margin-block-end: 0; }
-        p { margin-block-end: calc(var(--spacing) * 0.2); }
         .th-PieChartTitle { grid-area: title; }
         .th-PieChartLegends { grid-area: legend; }
         @media (max-width:575px) {

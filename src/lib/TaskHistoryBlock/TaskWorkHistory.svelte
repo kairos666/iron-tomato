@@ -87,7 +87,6 @@ import { appUIState } from "../../stores/appUIState";
 
             &.twh-SessionRatio_Work { background-color: var(--work-color); }
             &.twh-SessionRatio_Pause { background-color: var(--pause-color); }
-            &.twh-SessionRatio_Sleep { background-color: var(--sleep-color); }
         }
     }
 

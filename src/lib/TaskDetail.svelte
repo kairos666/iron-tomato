@@ -209,11 +209,12 @@
         }
     }
 
-    .tskdtl-Task, .tskdtl-TaskEdit {
-        @include pdb_BlockStyle(h2);
+    .tskdtl-TaskEdit {
+        @include pdb_BlockStyle(h2, true);
     }
     .tskdtl-Task { 
         grid-area: task;
+        @include pdb_BlockStyle(h2);
     }
     .tskdtl-Actions { 
         grid-area: actions;
