@@ -20,7 +20,8 @@
 .lucide-icon:not(.tsk-Cat) { position: relative; top:-2.5px; }
 .lucide-icon.tskdtl-Cat { position: relative; top:-5px; }
 .lst-AddTaskBtn .lucide-icon,
-.fltr-Btn .lucide-icon { position:static; } // footer add button case
+.fltr-Btn .lucide-icon,
+.sod-Badge .lucide-icon { position:static; } // footer add button case
 
 // drag and drop general styles
 .sortable-chosen {
