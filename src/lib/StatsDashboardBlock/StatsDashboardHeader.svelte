@@ -2,7 +2,7 @@
     import { ArrowLeftCircle, PieChart, Sliders } from 'lucide-svelte';
     import { Popover, PopoverButton, PopoverPanel } from "@rgossiaux/svelte-headlessui";
     import appLogo from '/tomacco-logo.png';
-    import { appUIState } from '../stores/appUIState';
+    import { appUIState } from '../../stores/appUIState';
 
     const { changeMainView } = appUIState;
 </script>
@@ -19,7 +19,7 @@
         <Popover class="pop-Wrapper">
             <PopoverButton class="pop-TriggerBtn">Plus d'options</PopoverButton>
             <PopoverPanel class="pop-Panel">
-                <button class="pop-ItemBtn" on:click={ () => changeMainView('stats-dashboard') }><PieChart /><span>Statistiques</span></button>
+                <button class="pop-ItemBtn" disabled><PieChart /><span>Statistiques</span></button>
                 <button class="pop-ItemBtn" on:click={ () => changeMainView('parameters-settings') }><Sliders /><span>Paramètres</span></button>
             </PopoverPanel>
         </Popover>

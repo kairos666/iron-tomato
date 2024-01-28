@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { Sliders, CircleDashed, FilterX, Grid2X2, List, Trash2 } from 'lucide-svelte';
+    import { Sliders, CircleDashed, FilterX, Grid2X2, List, Trash2, PieChart } from 'lucide-svelte';
     import { Popover, PopoverButton, PopoverPanel, RadioGroup, RadioGroupLabel, RadioGroupOption } from "@rgossiaux/svelte-headlessui";
     import appLogo from '/tomacco-logo.png';
     import { appUIState } from '../stores/appUIState';
@@ -72,7 +72,7 @@
         <PopoverButton class="pop-TriggerBtn">Plus d'options</PopoverButton>
         <PopoverPanel class="pop-Panel">
             <RadioGroup class="vslct-Wrapper" bind:value={ tempTasksShown }>
-                <RadioGroupLabel class="vslct-Label">Affichage liste de tâches</RadioGroupLabel>
+                <RadioGroupLabel class="vslct-Label">Affichage</RadioGroupLabel>
                 <RadioGroupOption class="vslct-Option" value="todo" let:checked>
                   <span class:checked>Tâches à faire</span>
                 </RadioGroupOption>
@@ -98,6 +98,7 @@
             <button class="pop-ItemBtn" on:click={ () => tasksDoneReset() }><CircleDashed /><span>Nettoyage des tâches terminées</span></button>
             <button class="pop-ItemBtn" on:click={ () => setModal('reset') }><Trash2 /><span>Remise à zéro de la liste de tâches</span></button>
             <span class="pop-Separator"></span>
+            <button class="pop-ItemBtn" on:click={ () => changeMainView('stats-dashboard') }><PieChart /><span>Statistiques</span></button>
             <button class="pop-ItemBtn" on:click={ () => changeMainView('parameters-settings') }><Sliders /><span>Paramètres</span></button>
         </PopoverPanel>
     </Popover>
