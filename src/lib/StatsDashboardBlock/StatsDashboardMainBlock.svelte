@@ -1,13 +1,16 @@
 <script lang="ts">
     import StatsDayTasksBlock from "./StatsDayTasksBlock.svelte";
-import StatsOverallDayBlock from "./StatsOverallDayBlock.svelte";
-import StatsRangeSelectorBlock from "./StatsRangeSelectorBlock.svelte";
+    import StatsOverallDayBlock from "./StatsOverallDayBlock.svelte";
+    import StatsRangeSelectorBlock from "./StatsRangeSelectorBlock.svelte";
 
-    console.log('main stats block');
+    let statsTargetDate:Date;
+    $: if(statsTargetDate) {
+        console.log('new target date: ', statsTargetDate);
+    }
 </script>
 
 <div class="sdm-Block">
-    <StatsRangeSelectorBlock />
+    <StatsRangeSelectorBlock bind:targetDate={ statsTargetDate } />
     <StatsOverallDayBlock />
     <StatsDayTasksBlock />
 </div>

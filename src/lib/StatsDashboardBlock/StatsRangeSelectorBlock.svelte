@@ -2,13 +2,46 @@
     import { StepBack, StepForward } from "lucide-svelte";
     import { taskCategories } from '../../constants/task-categories';
     import TaskCategoryIcon from "../TaskCategoryIcon.svelte";
+    import { simplifiedDateFormatter } from "../../utils/time-formater";
+
+    let hiddenInput:HTMLInputElement;
+    export let targetDate:Date = new Date();
+    $: targetDatetime = datetimeFormater(targetDate);
+
+    function datetimeFormater(date:Date):string {
+        const year:number = date.getFullYear();
+        const month:number = date.getMonth() + 1;
+        const day:number = date.getDate();
+
+        return `${year}-${ (month >= 10) ? month : `0${ month }` }-${ (day >= 10) ? day : `0${ day }` }`;
+    }
+
+    function changeTargetDay(changeAmplitude:number) {
+        if(!Number.isInteger(changeAmplitude)) throw new Error('provide only integer changeAmplitude value');
+
+        targetDate = new Date(targetDate.getTime() + changeAmplitude * (1000 * 60 * 60 * 24));
+    }
+
+    function triggerNativeDatePicker() { hiddenInput.showPicker(); }
+    function onHiddenInputChange(evt:any) { 
+        const changedValue:string|false = evt?.currentTarget?.value ?? false;
+        if(!changedValue) return;
+
+        targetDate = new Date(changedValue);
+    }
 </script>
 
 <menu class="srs-Block">
     <section class="srs-DateRange">
-        <button class="srs-DayBtn srs-DayBtn-previous"><span class="sr-only">Jour précédent</span><StepBack /></button>
-        <time  class="srs-CurrentDateDisplay" datetime="2024-01-27">Samedi 27/01/2024</time>
-        <button class="srs-DayBtn srs-DayBtn-next"><span class="sr-only">Jour suivant</span><StepForward /></button>
+        <button class="srs-DayBtn srs-DayBtn-previous" on:click={ () => changeTargetDay(-1) }><span class="sr-only">Jour précédent</span><StepBack /></button>
+        <button class="srs-DateCalendarTrigger" on:click={ triggerNativeDatePicker }>
+            <time class="srs-CurrentDateDisplay" datetime={ targetDatetime }>{ simplifiedDateFormatter.format(targetDate) }</time>
+            <form class="srs-DatePickingMiniForm">
+                <label for="user-date-picking">Date ciblée</label>
+                <input tabindex="-1" type="date" id="user-date-picking" name="user-date-pickings" value={ targetDatetime } bind:this={ hiddenInput } on:change={ onHiddenInputChange } required />
+            </form>
+        </button>
+        <button class="srs-DayBtn srs-DayBtn-next" on:click={ () => changeTargetDay(1) }><span class="sr-only">Jour suivant</span><StepForward /></button>
     </section>
     <section class="srs-CategoryRange">
         {#each taskCategories as cat (cat.id)}
@@ -53,9 +86,26 @@
         padding: var(--inner-small-spacing);
     }
 
+    .srs-DateCalendarTrigger {
+        margin-block-end: 0;
+    }
+
+    .srs-DatePickingMiniForm {
+        margin-block-end: 0;
+        height:0;
+
+        label { font-size:0; margin-block-end: 0; }
+        input { padding:0; margin-block-end: 0; font-size:0; line-height:0; height:0; border:none; }
+    }
+
     .srs-CurrentDateDisplay {
+        display:inline-block;
+        min-width: 11.25rem;
+        text-align: center;
         color: var(--primary-inverse);
         white-space: nowrap;
+
+        &::first-letter { text-transform: uppercase; }
     }
 
     // CATEGORY RANGE SELECT
