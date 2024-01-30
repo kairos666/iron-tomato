@@ -4,11 +4,15 @@
     import TaskCategoryIcon from "../TaskCategoryIcon.svelte";
     import { simplifiedDateFormatter } from "../../utils/time-formater";
 
+    const allTargetCategories = [
+        { id: "none", name: "Sans catégories", icon: "ban" , color: "#1b2832" },
+        ...taskCategories
+    ];
     let hiddenInput:HTMLInputElement;
     export let targetDate:Date = new Date();
-    export let targetCategories:string[] = taskCategories.map(catItem => catItem.id);
+    export let targetCategories:string[] = allTargetCategories.map(catItem => catItem.id);
     $: targetDatetime = datetimeFormater(targetDate);
-    $: targetCatsToggles = taskCategories.map(defaultCatItem => ({ ...defaultCatItem, isToggled: targetCategories.includes(defaultCatItem.id)}));
+    $: targetCatsToggles = allTargetCategories.map(defaultCatItem => ({ ...defaultCatItem, isToggled: targetCategories.includes(defaultCatItem.id)}));
 
     function datetimeFormater(date:Date):string {
         const year:number = date.getFullYear();
@@ -38,7 +42,7 @@
         switch(true) {
             case (hasCat && targetCategories.length === 1):
                 // toggle ALL ON
-                targetCategories = taskCategories.map(catItem => catItem.id);
+                targetCategories = allTargetCategories.map(catItem => catItem.id);
                 break;
             case hasCat:
                 // toggle OFF
