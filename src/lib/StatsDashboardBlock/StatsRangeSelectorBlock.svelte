@@ -6,7 +6,9 @@
 
     let hiddenInput:HTMLInputElement;
     export let targetDate:Date = new Date();
+    export let targetCategories:string[] = taskCategories.map(catItem => catItem.id);
     $: targetDatetime = datetimeFormater(targetDate);
+    $: targetCatsToggles = taskCategories.map(defaultCatItem => ({ ...defaultCatItem, isToggled: targetCategories.includes(defaultCatItem.id)}));
 
     function datetimeFormater(date:Date):string {
         const year:number = date.getFullYear();
@@ -29,6 +31,24 @@
 
         targetDate = new Date(changedValue);
     }
+
+    function onCatToggle(catToggled:string) {
+        const hasCat:boolean = targetCategories.includes(catToggled);
+
+        switch(true) {
+            case (hasCat && targetCategories.length === 1):
+                // toggle ALL ON
+                targetCategories = taskCategories.map(catItem => catItem.id);
+                break;
+            case hasCat:
+                // toggle OFF
+                targetCategories = targetCategories.filter(cat => (cat !== catToggled));
+                break;
+            default:
+                // toggle ON
+                targetCategories = [...targetCategories, catToggled];
+        }
+    }
 </script>
 
 <menu class="srs-Block">
@@ -44,8 +64,8 @@
         <button class="srs-DayBtn srs-DayBtn-next" on:click={ () => changeTargetDay(1) }><span class="sr-only">Jour suivant</span><StepForward /></button>
     </section>
     <section class="srs-CategoryRange">
-        {#each taskCategories as cat (cat.id)}
-            <button class="srs-CatBtn" style={ `--cat-color:${ cat.color };` }>
+        {#each targetCatsToggles as cat (cat.id)}
+            <button class="srs-CatBtn" aria-pressed={ cat.isToggled } on:click={ () => onCatToggle(cat.id) } style={ `--cat-color:${ cat.color };` }>
                 <span class="sr-only">{ cat.name }</span>
                 <TaskCategoryIcon name={ cat.icon } stroke-width="1" size="20" color="var(--cat-ins-color)" />
             </button>
@@ -138,31 +158,26 @@
             border-color: var(--contrast) !important;
         }
 
-        // &.fltr-Btn-no-filters {
-        //     // default no filters
-        //     --cat-ins-color: #fff;
-        //     border-color: var(--cat-color);
-        //     background-color: var(--cat-color);
-        // }
+        &[aria-pressed="false"] {
+            --cat-ins-color: var(--primary-inverse);
+            border-color: var(--primary-inverse);
+            background-color: transparent;
 
-        // &.fltr-Btn-active-filter {
-        //     // active filter and visible category
-        //     --cat-ins-color: #fff;
-        //     border-color: var(--cat-color);
-        //     background-color: var(--cat-color);
-        // }
+            &:hover {
+                --cat-ins-color: var(--cat-color);
+                border-color: var(--cat-color);
+            }
+        }
 
-        // &:hover.fltr-Btn-no-filters {
-        //     // click to activate filters with this one only
-        //     --cat-ins-color: var(--cat-color);
-        //     border-color: var(--cat-color);
-        //     background-color: transparent;
-        // }
-        // &:hover.fltr-Btn-active-filter {
-        //     // click to deactivate filter
-        //     --cat-ins-color: var(--muted-border-color);
-        //     border-color: var(--muted-border-color);
-        //     background-color: transparent;
-        // }
+        &[aria-pressed="true"] {
+            --cat-ins-color: var(--primary-inverse);
+            border-color: var(--cat-color);
+            background-color: var(--cat-color);
+
+            &:hover {
+                --cat-ins-color: var(--cat-color);
+                background-color: transparent;
+            }
+        }
     }
 </style>

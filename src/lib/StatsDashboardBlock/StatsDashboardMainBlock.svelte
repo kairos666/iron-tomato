@@ -4,13 +4,14 @@
     import StatsRangeSelectorBlock from "./StatsRangeSelectorBlock.svelte";
 
     let statsTargetDate:Date;
-    $: if(statsTargetDate) {
-        console.log('new target date: ', statsTargetDate);
+    let statsTargetCategories:string[];
+    $: if(statsTargetDate || statsTargetCategories) {
+        console.log('new target date: ', statsTargetDate, 'new target categories: ', statsTargetCategories);
     }
 </script>
 
 <div class="sdm-Block">
-    <StatsRangeSelectorBlock bind:targetDate={ statsTargetDate } />
+    <StatsRangeSelectorBlock bind:targetDate={ statsTargetDate } bind:targetCategories={ statsTargetCategories }/>
     <StatsOverallDayBlock />
     <StatsDayTasksBlock />
 </div>
