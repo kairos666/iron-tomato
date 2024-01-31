@@ -1,10 +1,11 @@
 import { combineLatest, map, Observable } from "rxjs";
-import { type Task } from "../stores/persistentTasks";
+import { type WorkItem, type Task } from "../stores/persistentTasks";
 
 export type StatTask = Task & {
     hasFinishedThatDay:boolean
     hasBeenCreatedThatDay:boolean
     hasBeenActiveThatDay:boolean
+    inRangeWorkItems:WorkItem[]
 }
 
 export type RangeSelection = {
@@ -29,11 +30,14 @@ export const inRangeTasksObservables = function(unFilteredTasks:Observable<Task[
             const hasBeenCreatedThatDay:boolean = isSameDayMoment(task.dateCreated, targetRange.targetDate);
 
             // relevant because active that day
-            const hasBeenActiveThatDay:boolean = true; // TODO
+            const inRangeWorkItems:WorkItem[] = (task.workHistory !== undefined)
+                ? task.workHistory.filter(sameDayWorkItem(targetRange.targetDate))
+                : [];
+            const hasBeenActiveThatDay:boolean = (inRangeWorkItems.length > 0);
             const matchDateRange:boolean = (hasFinishedThatDay || hasBeenCreatedThatDay || hasBeenActiveThatDay);
 
             return (matchCategoryRange && matchDateRange)
-                ? {...task, hasFinishedThatDay, hasBeenCreatedThatDay, hasBeenActiveThatDay }
+                ? {...task, hasFinishedThatDay, hasBeenCreatedThatDay, hasBeenActiveThatDay, inRangeWorkItems }
                 : (null as unknown as StatTask);
         }).filter(relevantTask => (relevantTask !== null)))
     );
@@ -49,4 +53,10 @@ function isSameDayMoment(aMoment:Date|number, bMoment:Date|number):boolean {
         (aDate.getMonth() === bDate.getMonth()) &&
         (aDate.getFullYear() === bDate.getFullYear())
     );
+}
+
+function sameDayWorkItem(targetDayMoment:Date, propertyCheck:'start'|'end' = 'start'):(workItem:WorkItem) => boolean {
+    const startOfDayTimestamp:number = new Date(targetDayMoment.getTime()).setUTCHours(0, 0, 0, 0);
+    const endOfDayTimestamp:number = new Date(targetDayMoment.getTime()).setUTCHours(23, 59, 59, 999);
+    return (workItem:WorkItem) => (startOfDayTimestamp <= workItem[propertyCheck] && workItem[propertyCheck] <= endOfDayTimestamp);
 }
