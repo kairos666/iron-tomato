@@ -1,32 +1,28 @@
 <script lang="ts">
-    import { onDestroy, onMount } from "svelte";
+    import { onMount } from "svelte";
     import { allTasksList } from "../../stores/persistentTasks";
     import StatsDayTasksBlock from "./StatsDayTasksBlock.svelte";
     import StatsOverallDayBlock from "./StatsOverallDayBlock.svelte";
     import StatsRangeSelectorBlock from "./StatsRangeSelectorBlock.svelte";
-    import { Observable, Subject, Subscription, from } from "rxjs";
+    import { Observable, Subject, from } from "rxjs";
     import { inRangeTasksObservables, type RangeSelection, type StatTask } from "../../utils/statsObservables";
     
     let statsTargetDate:Date;
     let statsTargetCategories:string[];
     let rangeSelector:Subject<RangeSelection> = new Subject();
     let inRangeTasksObservable:Observable<StatTask[]>;
-    let statsSubscription:Subscription;
 
     // reactively update RANGE
     $: if(statsTargetDate || statsTargetCategories) rangeSelector.next({ targetDate: statsTargetDate, targetCategories: statsTargetCategories });
 
     onMount(() => {
         inRangeTasksObservable = inRangeTasksObservables(from(allTasksList), rangeSelector);
-        statsSubscription = inRangeTasksObservable.subscribe({ next: val => console.log('val update', val) });
     })
-
-    onDestroy(() => { if(statsSubscription) statsSubscription.unsubscribe() });
 </script>
 
 <div class="sdm-Block">
     <StatsRangeSelectorBlock bind:targetDate={ statsTargetDate } bind:targetCategories={ statsTargetCategories }/>
-    <StatsOverallDayBlock />
+    <StatsOverallDayBlock srcObservable={ inRangeTasksObservable } />
     <StatsDayTasksBlock />
 </div>
 
