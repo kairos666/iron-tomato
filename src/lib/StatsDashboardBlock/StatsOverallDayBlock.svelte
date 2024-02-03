@@ -33,16 +33,8 @@
         const activeTasks:number = srcData.filter(statTask => (statTask.hasBeenActiveThatDay)).length;
         const createdTasks:number = srcData.filter(statTask => (statTask.hasBeenCreatedThatDay)).length;
         const achievedTasks:number = srcData.filter(statTask => (statTask.hasFinishedThatDay)).length;
-        const cumulatedWDuration:number = srcData.reduce((acc, currTask) => {
-            return acc + currTask.inRangeWorkItems.reduce((acc, currSession) => {
-                return acc + currSession.wDuration;
-            }, 0);
-        }, 0);
-        const cumulatedPDuration:number = srcData.reduce((acc, currTask) => {
-            return acc + currTask.inRangeWorkItems.reduce((acc, currSession) => {
-                return acc + currSession.pDuration;
-            }, 0);
-        }, 0);
+        const cumulatedWDuration:number = srcData.reduce((acc, currTask) => acc + currTask.cumulatedWDuration, 0);
+        const cumulatedPDuration:number = srcData.reduce((acc, currTask) => acc + currTask.cumulatedPDuration, 0);
 
         overallDayData = { activeTasks, createdTasks, achievedTasks, cumulatedWDuration, cumulatedPDuration, dayStats: buildDayStats(cumulatedWDuration, cumulatedPDuration) };
     }

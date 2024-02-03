@@ -6,6 +6,8 @@ export type StatTask = Task & {
     hasBeenCreatedThatDay:boolean
     hasBeenActiveThatDay:boolean
     inRangeWorkItems:WorkItem[]
+    cumulatedWDuration:number
+    cumulatedPDuration:number
 }
 
 export type RangeSelection = {
@@ -36,8 +38,16 @@ export const inRangeTasksObservables = function(unFilteredTasks:Observable<Task[
             const hasBeenActiveThatDay:boolean = (inRangeWorkItems.length > 0);
             const matchDateRange:boolean = (hasFinishedThatDay || hasBeenCreatedThatDay || hasBeenActiveThatDay);
 
+            // cumulated work & pause that day
+            const cumulatedWDuration:number = inRangeWorkItems.reduce((acc, currSession) => {
+                return acc + currSession.wDuration;
+            }, 0);
+            const cumulatedPDuration:number = inRangeWorkItems.reduce((acc, currSession) => {
+                return acc + currSession.pDuration;
+            }, 0);
+
             return (matchCategoryRange && matchDateRange)
-                ? {...task, hasFinishedThatDay, hasBeenCreatedThatDay, hasBeenActiveThatDay, inRangeWorkItems }
+                ? {...task, hasFinishedThatDay, hasBeenCreatedThatDay, hasBeenActiveThatDay, inRangeWorkItems, cumulatedWDuration, cumulatedPDuration }
                 : (null as unknown as StatTask);
         }).filter(relevantTask => (relevantTask !== null)))
     );
