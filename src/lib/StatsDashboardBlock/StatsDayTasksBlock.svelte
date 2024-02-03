@@ -17,6 +17,7 @@
     let dayTasksData:DayTasksData[] = [];
     let tasksList:StatTaskExtended[] = [];
     $: if(srcObservable) { subscribeToSrc(srcObservable) }
+    $: if(tasksList) dayTasksData = buildDayTasksData();
 
     function subscribeToSrc(srcObs:Observable<StatTask[]>) {
         // unsubscribe first (if necessary)
@@ -32,22 +33,29 @@
             const categoryIconName:string|null = (statTask.category) ? convertCatIdToIconName(statTask.category) : null;
             return (categoryIconName) ? { ...statTask, icon: categoryIconName } : statTask;
         });
+    }
 
-        // pie chart for the day
-        const hasOddNumberOfTasks:boolean = (srcData.length % 2 !== 0);
+    function buildDayTasksData(focusedTaskId?:string):DayTasksData[] {
+        const hasOddNumberOfTasks:boolean = (tasksList.length % 2 !== 0);
         const alternateColors:string[] = hasOddNumberOfTasks ? ["#E9ECEF", "#CED4DA", "#6C757D"] : ["#E9ECEF", "#CED4DA"];
-        const totalActivityDuration:number = srcData.reduce((acc, curr) => acc + curr.cumulatedWDuration + curr.cumulatedPDuration, 0);
-        dayTasksData = srcData.map((statTask, index) => {
-            return { 
+        const totalActivityDuration:number = tasksList.reduce((acc, curr) => acc + curr.cumulatedWDuration + curr.cumulatedPDuration, 0);
+        return tasksList.map((statTask, index) => {
+            return {
                 label: statTask.label, 
                 percent: 100 * (statTask.cumulatedPDuration + statTask.cumulatedWDuration) / totalActivityDuration,
-                color: alternateColors[(hasOddNumberOfTasks) ? index % 3 : index % 2]
+                color: (focusedTaskId === statTask.id)
+                    ? "var(--primary)"
+                    : alternateColors[(hasOddNumberOfTasks) ? index % 3 : index % 2]
             }
         });
     }
 
     function convertCatIdToIconName(catID:string):string|null {
         return taskCategories.find(item => (item.id === catID))?.icon ?? null;
+    }
+
+    function onTaskHover(taskID:string, isHover:boolean) {
+        dayTasksData = (isHover) ? buildDayTasksData(taskID) : buildDayTasksData();
     }
 
     function unsubscribeFromSrc() {
@@ -73,7 +81,13 @@
         </div>
         {/if}
         {#each tasksList as task (task.id)}
-        <button class="sdt-TaskBtn">
+        <button 
+            class="sdt-TaskBtn" 
+            on:mouseover={ () => onTaskHover(task.id, true) } 
+            on:focus={ () => onTaskHover(task.id, true) } 
+            on:mouseout={ () => onTaskHover(task.id, false) } 
+            on:blur={ () => onTaskHover(task.id, false) }
+        >
             <h3 class="sdt-TaskBtn_Title">{ task.label }</h3>
             <p class="sdt-TaskBtn_Desc"><time datetime={ durationFormaterToString(task.cumulatedWDuration, 'TECH') }>{ formatMsDuration(task.cumulatedWDuration, 'hour') }</time> travail, <time class="sod-TotalWorkDuration" datetime={ durationFormaterToString(task.cumulatedPDuration, 'TECH') }>{ formatMsDuration(task.cumulatedPDuration, 'hour') }</time> pause</p>
             {#if task.icon}<span class="sdt-TaskBtn_Cat"><TaskCategoryIcon name={ task.icon } stroke-width="1" size="20" color="var(--h6-color)" /></span>{/if}
