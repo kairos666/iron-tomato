@@ -1,51 +1,90 @@
 <script lang="ts">
-    import { CheckCircle, Star } from "lucide-svelte";
+    import { CalendarOff, CheckCircle, Star } from "lucide-svelte";
     import { appUIState } from "../../stores/appUIState";
     import TaskCategoryIcon from "../TaskCategoryIcon.svelte";
     import PieChart from "../PieChart.svelte";
+    import type { Observable, Subscription } from "rxjs";
+    import type { StatTask } from "../../utils/statsObservables";
+    import { onDestroy } from "svelte";
+    import { durationFormaterToString, formatMsDuration } from "../../utils/time-formater";
+    import { taskCategories } from "../../constants/task-categories";
 
-    const dayTaskStats = [
-        { label: `Tâche label A`, percent: 43, color: "red" },
-        { label: `Tâche label B`, percent: 21, color: "green" },
-        { label: `Tâche label C`, percent: 19, color: "blue" },
-        { label: `Tâche label D`, percent: 19, color: "aquamarine" }
-    ];
+    type DayTasksData = { label:string, percent:number, color:string }
+    type StatTaskExtended = StatTask & { icon?:string }
+
+    export let srcObservable:Observable<StatTask[]>;
+    let dayTasksSubscription:Subscription|null = null;
+    let dayTasksData:DayTasksData[] = [];
+    let tasksList:StatTaskExtended[] = [];
+    $: if(srcObservable) { subscribeToSrc(srcObservable) }
+
+    function subscribeToSrc(srcObs:Observable<StatTask[]>) {
+        // unsubscribe first (if necessary)
+        unsubscribeFromSrc();
+
+        // subscribe to src
+        dayTasksSubscription = srcObs.subscribe({ next: handleData });
+    }
+
+    function handleData(srcData:StatTask[]) {
+        // tasks list
+        tasksList = srcData.map(statTask => {
+            const categoryIconName:string|null = (statTask.category) ? convertCatIdToIconName(statTask.category) : null;
+            return (categoryIconName) ? { ...statTask, icon: categoryIconName } : statTask;
+        });
+
+        // pie chart for the day
+        const hasOddNumberOfTasks:boolean = (srcData.length % 2 !== 0);
+        const alternateColors:string[] = hasOddNumberOfTasks ? ["#E9ECEF", "#CED4DA", "#6C757D"] : ["#E9ECEF", "#CED4DA"];
+        const totalActivityDuration:number = srcData.reduce((acc, curr) => acc + curr.cumulatedWDuration + curr.cumulatedPDuration, 0);
+        dayTasksData = srcData.map((statTask, index) => {
+            return { 
+                label: statTask.label, 
+                percent: 100 * (statTask.cumulatedPDuration + statTask.cumulatedWDuration) / totalActivityDuration,
+                color: alternateColors[(hasOddNumberOfTasks) ? index % 3 : index % 2]
+            }
+        });
+    }
+
+    function convertCatIdToIconName(catID:string):string|null {
+        return taskCategories.find(item => (item.id === catID))?.icon ?? null;
+    }
+
+    function unsubscribeFromSrc() {
+        if(!dayTasksSubscription) return;
+        dayTasksSubscription.unsubscribe();
+        dayTasksSubscription = null;
+    }
+
+    onDestroy(() => {
+        unsubscribeFromSrc();
+    });
 </script>
 
 <article class="sdt-Block">
     <header>
         <h2>Activité du jour par tâche</h2>
     </header>
+    {#if tasksList.length > 0}
     <menu class="sdt-DayTasks" class:sdt-DayTasks-lite={ $appUIState.isMobileViewport }>
-        {#if !$appUIState.isMobileViewport}
+        {#if !$appUIState.isMobileViewport && tasksList.length >= 2}
         <div class="sdt-TasksDistrib">
-            <PieChart statistics={ dayTaskStats } baseSize={ 200 } holeSize={ 75 } />
+            <PieChart statistics={ dayTasksData } baseSize={ 200 } holeSize={ 75 } />
         </div>
         {/if}
+        {#each tasksList as task (task.id)}
         <button class="sdt-TaskBtn">
-            <h3 class="sdt-TaskBtn_Title">Tâche label A</h3>
-            <p class="sdt-TaskBtn_Desc">01h02 travail, 00h14 pause</p>
-            <span class="sdt-TaskBtn_Cat"><TaskCategoryIcon name="hammer" stroke-width="1" size="20" color="var(--h6-color)" /></span>
-            <span class="sdt-TaskBtn_Done"><CheckCircle size="20" color="var(--h6-color)" /></span>
+            <h3 class="sdt-TaskBtn_Title">{ task.label }</h3>
+            <p class="sdt-TaskBtn_Desc"><time datetime={ durationFormaterToString(task.cumulatedWDuration, 'TECH') }>{ formatMsDuration(task.cumulatedWDuration, 'hour') }</time> travail, <time class="sod-TotalWorkDuration" datetime={ durationFormaterToString(task.cumulatedPDuration, 'TECH') }>{ formatMsDuration(task.cumulatedPDuration, 'hour') }</time> pause</p>
+            {#if task.icon}<span class="sdt-TaskBtn_Cat"><TaskCategoryIcon name={ task.icon } stroke-width="1" size="20" color="var(--h6-color)" /></span>{/if}
+            {#if task.hasFinishedThatDay}<span class="sdt-TaskBtn_Done"><CheckCircle size="20" color="var(--h6-color)" /></span>{/if}
+            {#if task.hasBeenCreatedThatDay}<span class="sdt-TaskBtn_New"><Star size="20" color="var(--h6-color)" /></span>{/if}
         </button>
-        <button class="sdt-TaskBtn">
-            <h3 class="sdt-TaskBtn_Title">Tâche label B</h3>
-            <p class="sdt-TaskBtn_Desc">01h02 travail, 00h14 pause</p>
-            <span class="sdt-TaskBtn_Cat"><TaskCategoryIcon name="grape" stroke-width="1" size="20" color="var(--h6-color)" /></span>
-        </button>
-        <button class="sdt-TaskBtn">
-            <h3 class="sdt-TaskBtn_Title">Tâche label C</h3>
-            <p class="sdt-TaskBtn_Desc">01h02 travail, 00h14 pause</p>
-            <span class="sdt-TaskBtn_Cat"><TaskCategoryIcon name="hammer" stroke-width="1" size="20" color="var(--h6-color)" /></span>
-            <span class="sdt-TaskBtn_Done"><CheckCircle size="20" color="var(--h6-color)" /></span>
-            <span class="sdt-TaskBtn_New"><Star size="20" color="var(--h6-color)" /></span>
-        </button>
-        <button class="sdt-TaskBtn">
-            <h3 class="sdt-TaskBtn_Title">Tâche label D</h3>
-            <p class="sdt-TaskBtn_Desc">01h02 travail, 00h14 pause</p>
-            <span class="sdt-TaskBtn_New"><Star size="20" color="var(--h6-color)" /></span>
-        </button>
+        {/each}
     </menu>
+    {:else}
+    <p class="sdt-EmptyHistory"><CalendarOff /> <i>Pas d'activité ce jour là.</i></p>
+    {/if}
 </article>
 
 <style lang="scss">
@@ -131,4 +170,6 @@
             border-top:1px solid var(--card-border-color);
         }
     }
+
+    .sdt-EmptyHistory { margin-block-end: 0; }
 </style>

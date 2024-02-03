@@ -23,7 +23,7 @@
 <div class="sdm-Block">
     <StatsRangeSelectorBlock bind:targetDate={ statsTargetDate } bind:targetCategories={ statsTargetCategories }/>
     <StatsOverallDayBlock srcObservable={ inRangeTasksObservable } />
-    <StatsDayTasksBlock />
+    <StatsDayTasksBlock srcObservable={ inRangeTasksObservable } />
 </div>
 
 <style lang="scss">
