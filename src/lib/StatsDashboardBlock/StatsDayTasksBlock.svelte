@@ -11,6 +11,7 @@
 
     type DayTasksData = { label:string, percent:number, color:string }
     type StatTaskExtended = StatTask & { icon?:string }
+    const { changeMainView } = appUIState;
 
     export let srcObservable:Observable<StatTask[]>;
     let dayTasksSubscription:Subscription|null = null;
@@ -87,6 +88,7 @@
             on:focus={ () => onTaskHover(task.id, true) } 
             on:mouseout={ () => onTaskHover(task.id, false) } 
             on:blur={ () => onTaskHover(task.id, false) }
+            on:click={ () => changeMainView('task-detail', parseInt(task.id)) }
         >
             <h3 class="sdt-TaskBtn_Title">{ task.label }</h3>
             <p class="sdt-TaskBtn_Desc"><time datetime={ durationFormaterToString(task.cumulatedWDuration, 'TECH') }>{ formatMsDuration(task.cumulatedWDuration, 'hour') }</time> travail, <time class="sod-TotalWorkDuration" datetime={ durationFormaterToString(task.cumulatedPDuration, 'TECH') }>{ formatMsDuration(task.cumulatedPDuration, 'hour') }</time> pause</p>
