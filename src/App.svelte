@@ -11,6 +11,8 @@
     import TaskDetailHeader from './lib/TaskDetailHeader.svelte';
     import TaskDetail from './lib/TaskDetail.svelte';
     import ParametersForm from './lib/ParametersBlock/ParametersForm.svelte';
+    import StatsDashboardHeader from './lib/StatsDashboardBlock/StatsDashboardHeader.svelte';
+    import StatsDashboardMainBlock from './lib/StatsDashboardBlock/StatsDashboardMainBlock.svelte';
 
     const { setModal } = appUIState;
 </script>
@@ -35,6 +37,11 @@
     <AdaptativeLayout>
         <AppHeader slot="header" />
         <ParametersForm />
+    </AdaptativeLayout>
+{:else if ($appUIState.mainView === 'stats-dashboard')}
+    <AdaptativeLayout>
+        <StatsDashboardHeader slot="header" />
+        <StatsDashboardMainBlock />
     </AdaptativeLayout>
 {:else}
     <p>Oups il y'a eu une erreur!</p>

@@ -25,7 +25,7 @@
             ? Math.abs(balancedRatio * pauseMs - workMs)
             : Math.abs(balancedRatio * pauseMs - workMs)/balancedRatio;
         const offsetDuration:string = formatMsDuration(offsetDurationMs, 'hour');
-        const offsetType:'WORK'|'PAUSE'|'NONE' = (currentRatio === Number.POSITIVE_INFINITY || offsetDurationMs < 1000 * 30) // only show offset when at least 30 sec offset exists
+        const offsetType:'WORK'|'PAUSE'|'NONE' = (offsetDurationMs < 1000 * 30) // only show offset when at least 30 sec offset exists
             ? 'NONE'
             : (balancedRatio > currentRatio)
             ? 'WORK'

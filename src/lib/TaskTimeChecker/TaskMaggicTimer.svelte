@@ -89,7 +89,7 @@
     onDestroy(dismantleTimerSession);
 </script>
 
-<svelte:window on:beforeunload={ evt => { evt.preventDefault(); evt.returnValue = "Enregistrer la session de travail avant de quitter ?"; onTriggerWorkLog(); } } />
+<svelte:window on:beforeunload={ evt => { if(timerState.state !== 'NOT STARTED') { evt.preventDefault(); evt.returnValue = "Enregistrer la session de travail avant de quitter ?"; onTriggerWorkLog(); } } } />
 <section class="tmt-MaggicClockLayout">
     {#if (timerState && maggicClockDisplay)}
     <button 
