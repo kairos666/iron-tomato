@@ -6,9 +6,6 @@
     export let data:Task;
     const { changeMainView } = appUIState;
 
-    // deduce available actions based on data
-    $: hasDescription = !!data.description;
-
     function handleDetail() { changeMainView('task-detail', parseInt(data.id)) }
     function handleReopen() { taskReopen(data.id) }
     function handleDelete() { taskDelete(data.id) }
@@ -21,7 +18,7 @@
         {#if data.isUrgent}<span class="tsk-Card_FactorsUrgentBadge">Urgent</span>{/if}
     </div>
     <menu class="tsk-Card_Menu">
-        {#if hasDescription} <button on:click={ handleDetail } class="tsk-Btn" data-tooltip="Voir description" data-placement="left"><Eye size={ 26 } color="var(--icon-color)"/><span class="sr-only">Voir description</span></button> {/if}
+        <button on:click={ handleDetail } class="tsk-Btn" data-tooltip="Voir description" data-placement="left"><Eye size={ 26 } color="var(--icon-color)"/><span class="sr-only">Voir description</span></button>
         <button on:click={ handleReopen } class="tsk-Btn" data-tooltip="Rouvrir" data-placement="left"><Undo2 size={ 26 } color="var(--icon-color)"/><span class="sr-only">Rouvrir</span></button>
         <button on:click={ handleDelete } class="tsk-Btn" data-tooltip="Supprimer" data-placement="left"><Eraser size={ 26 } color="var(--icon-color)"/><span class="sr-only">Supprimer</span></button>
     </menu>
