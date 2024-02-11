@@ -4,16 +4,18 @@
     import StatsDayTasksBlock from "./StatsDayTasksBlock.svelte";
     import StatsOverallDayBlock from "./StatsOverallDayBlock.svelte";
     import StatsRangeSelectorBlock from "./StatsRangeSelectorBlock.svelte";
-    import { Observable, Subject, from } from "rxjs";
+    import { BehaviorSubject, Observable, from } from "rxjs";
     import { inRangeTasksObservables, type RangeSelection, type StatTask } from "../../utils/statsObservables";
     
     let statsTargetDate:Date;
     let statsTargetCategories:string[];
-    let rangeSelector:Subject<RangeSelection> = new Subject();
+    let rangeSelector:BehaviorSubject<RangeSelection> = new BehaviorSubject(({ targetDate: new Date(), targetCategories: [] } as RangeSelection));
     let inRangeTasksObservable:Observable<StatTask[]>;
 
     // reactively update RANGE
-    $: if(statsTargetDate || statsTargetCategories) rangeSelector.next({ targetDate: statsTargetDate, targetCategories: statsTargetCategories });
+    $: if(statsTargetDate || statsTargetCategories) {
+        rangeSelector.next({ targetDate: statsTargetDate, targetCategories: statsTargetCategories });
+    }
 
     onMount(() => {
         inRangeTasksObservable = inRangeTasksObservables(from(allTasksList), rangeSelector);
