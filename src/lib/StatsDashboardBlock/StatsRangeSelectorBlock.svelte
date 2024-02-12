@@ -2,7 +2,7 @@
     import { CalendarDays, CalendarRange, StepBack, StepForward } from "lucide-svelte";
     import { simplifiedDateFormatter } from "../../utils/time-formater";
     import CategoryFilters from "../CategoryFilters.svelte";
-    import { format, add, parse } from "date-fns";
+    import { format, add, parse, previousMonday } from "date-fns";
 
     let hiddenDateInput:HTMLInputElement;
     let hiddenWeekInput:HTMLInputElement;
@@ -25,12 +25,31 @@
         // monday of targeted week --> Date
         targetDate = parse(changedValue, "RRRR-'W'II", new Date(), { weekStartsOn: 1, useAdditionalWeekYearTokens: true });
     }
+    function onToggleWeekDayRange(target:'week'|'day') {
+        const dayOfTheWeek:number = targetDate.getDay();
+        switch(true) {
+            case (target === 'week' && dayOfTheWeek !== 1):
+                // current target date is other day of the week
+                targetDate = previousMonday(targetDate);
+                isWeekRange = true;
+                break;
+
+            case (target === 'week' && dayOfTheWeek === 1):
+                // current target date is monday
+                isWeekRange = true;
+                break;
+
+            default: 
+                // toggled to day
+                isWeekRange = false; 
+        }
+    }
 </script>
 
 <menu class="srs-Block">
     {#if isWeekRange}
     <section class="srs-DateWeekToggler">
-        <button class="srs-DateWeekToggleBtn" on:click={ () => isWeekRange = false }><CalendarRange /><span class="sr-only">A la semaine</span></button>
+        <button class="srs-DateWeekToggleBtn" on:click={ () => onToggleWeekDayRange('day') }><CalendarRange /><span class="sr-only">A la semaine</span></button>
     </section>
     <section class="srs-WeekRange">
         <button class="srs-WeekBtn srs-WeekBtn-previous" on:click={ () => targetDate = add(targetDate, { weeks: -1 }) }><span class="sr-only">Semaine précédente</span><StepBack /></button>
@@ -45,7 +64,7 @@
     </section>
     {:else}
     <section class="srs-DateWeekToggler">
-        <button class="srs-DateWeekToggleBtn" on:click={ () => isWeekRange = true }><CalendarDays /><span class="sr-only">A la journée</span></button>
+        <button class="srs-DateWeekToggleBtn" on:click={ () => onToggleWeekDayRange('week') }><CalendarDays /><span class="sr-only">A la journée</span></button>
     </section>
     <section class="srs-DateRange">
         <button class="srs-DayBtn srs-DayBtn-previous" on:click={ () => targetDate = add(targetDate, { days: -1 }) }><span class="sr-only">Jour précédent</span><StepBack /></button>
