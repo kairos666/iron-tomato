@@ -35,7 +35,7 @@
     <section class="srs-WeekRange">
         <button class="srs-WeekBtn srs-WeekBtn-previous" on:click={ () => targetDate = add(targetDate, { weeks: -1 }) }><span class="sr-only">Semaine précédente</span><StepBack /></button>
         <button class="srs-WeekCalendarTrigger" on:click={ triggerNativeWeekPicker }>
-            <span class="srs-CurrentWeekDisplay" data-tooltip={ `Du lundi ${ format(targetDate, 'dd/MM') } au dimanche ${ format(add(targetDate, { days: 6 }), 'dd/MM') }` }>{ format(targetDate, "'S'II RRRR", { weekStartsOn: 1, useAdditionalWeekYearTokens: true }) }</span>
+            <span class="srs-CurrentWeekDisplay" data-tooltip={ `Du ${ format(targetDate, 'dd/MM') } au ${ format(add(targetDate, { days: 6 }), 'dd/MM') }` }>{ format(targetDate, "'S'II RRRR", { weekStartsOn: 1, useAdditionalWeekYearTokens: true }) }</span>
             <form class="srs-WeekPickingMiniForm">
                 <label for="user-week-picking">Semaine ciblée</label>
                 <input tabindex="-1" type="week" id="user-week-picking" name="user-week-pickings" value={ format(targetDate, "RRRR-'W'II", { weekStartsOn: 1, useAdditionalWeekYearTokens: true }) } bind:this={ hiddenWeekInput } on:change={ onHiddenWeekInputChange } required />

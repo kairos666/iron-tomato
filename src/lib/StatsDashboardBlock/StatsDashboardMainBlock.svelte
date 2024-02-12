@@ -7,14 +7,15 @@
     import { BehaviorSubject, Observable, from } from "rxjs";
     import { inRangeTasksObservables, type RangeSelection, type StatTask } from "../../utils/statsObservables";
     
+    let isWeekStats:boolean;
     let statsTargetDate:Date;
     let statsTargetCategories:string[];
-    let rangeSelector:BehaviorSubject<RangeSelection> = new BehaviorSubject(({ targetDate: new Date(), targetCategories: [] } as RangeSelection));
+    let rangeSelector:BehaviorSubject<RangeSelection> = new BehaviorSubject(({ targetDate: new Date(), targetCategories: [], isWeekRange: false } as RangeSelection));
     let inRangeTasksObservable:Observable<StatTask[]>;
 
     // reactively update RANGE
-    $: if(statsTargetDate || statsTargetCategories) {
-        rangeSelector.next({ targetDate: statsTargetDate, targetCategories: statsTargetCategories });
+    $: if(statsTargetDate || statsTargetCategories || isWeekStats) {
+        rangeSelector.next({ targetDate: statsTargetDate, targetCategories: statsTargetCategories, isWeekRange: isWeekStats });
     }
 
     onMount(() => {
@@ -23,9 +24,13 @@
 </script>
 
 <div class="sdm-Block">
-    <StatsRangeSelectorBlock bind:targetDate={ statsTargetDate } bind:targetCategories={ statsTargetCategories }/>
+    <StatsRangeSelectorBlock bind:isWeekRange={ isWeekStats } bind:targetDate={ statsTargetDate } bind:targetCategories={ statsTargetCategories }/>
     <StatsOverallDayBlock srcObservable={ inRangeTasksObservable } />
-    <StatsDayTasksBlock srcObservable={ inRangeTasksObservable } />
+    {#if isWeekStats}
+        <p>TODO week distribution</p>
+    {:else}
+        <StatsDayTasksBlock srcObservable={ inRangeTasksObservable } />
+    {/if}
 </div>
 
 <style lang="scss">
