@@ -2,27 +2,13 @@
     import { CalendarDays, CalendarRange, StepBack, StepForward } from "lucide-svelte";
     import { simplifiedDateFormatter } from "../../utils/time-formater";
     import CategoryFilters from "../CategoryFilters.svelte";
+    import { format, add, parse } from "date-fns";
 
     let hiddenDateInput:HTMLInputElement;
     let hiddenWeekInput:HTMLInputElement;
     export let isWeekRange:boolean = false;
     export let targetDate:Date = new Date();
     export let targetCategories:string[];
-    $: targetDatetime = datetimeFormater(targetDate);
-
-    function datetimeFormater(date:Date):string {
-        const year:number = date.getFullYear();
-        const month:number = date.getMonth() + 1;
-        const day:number = date.getDate();
-
-        return `${year}-${ (month >= 10) ? month : `0${ month }` }-${ (day >= 10) ? day : `0${ day }` }`;
-    }
-
-    function changeTargetDay(changeAmplitude:number) {
-        if(!Number.isInteger(changeAmplitude)) throw new Error('provide only integer changeAmplitude value');
-
-        targetDate = new Date(targetDate.getTime() + changeAmplitude * (1000 * 60 * 60 * 24));
-    }
 
     function triggerNativeDatePicker() { hiddenDateInput.showPicker(); }
     function triggerNativeWeekPicker() { hiddenWeekInput.showPicker(); }
@@ -36,7 +22,8 @@
         const changedValue:string|false = evt?.currentTarget?.value ?? false;
         if(!changedValue) return;
 
-        // TODO convert week string to Monday Date format received by input YYYY-W99
+        // monday of targeted week --> Date
+        targetDate = parse(changedValue, "RRRR-'W'II", new Date(), { weekStartsOn: 1, useAdditionalWeekYearTokens: true });
     }
 </script>
 
@@ -46,30 +33,30 @@
         <button class="srs-DateWeekToggleBtn" on:click={ () => isWeekRange = false }><CalendarRange /><span class="sr-only">A la semaine</span></button>
     </section>
     <section class="srs-WeekRange">
-        <button class="srs-WeekBtn srs-WeekBtn-previous" on:click={ () => changeTargetDay(-7) }><span class="sr-only">Semaine précédente</span><StepBack /></button>
+        <button class="srs-WeekBtn srs-WeekBtn-previous" on:click={ () => targetDate = add(targetDate, { weeks: -1 }) }><span class="sr-only">Semaine précédente</span><StepBack /></button>
         <button class="srs-WeekCalendarTrigger" on:click={ triggerNativeWeekPicker }>
-            <span class="srs-CurrentWeekDisplay" data-tooltip="Du lundi 27/11 au dimanche 03/12">S52 2024</span>
+            <span class="srs-CurrentWeekDisplay" data-tooltip={ `Du lundi ${ format(targetDate, 'dd/MM') } au dimanche ${ format(add(targetDate, { days: 6 }), 'dd/MM') }` }>{ format(targetDate, "'S'II RRRR", { weekStartsOn: 1, useAdditionalWeekYearTokens: true }) }</span>
             <form class="srs-WeekPickingMiniForm">
                 <label for="user-week-picking">Semaine ciblée</label>
-                <input tabindex="-1" type="week" id="user-week-picking" name="user-week-pickings" value={ 'TODO' } bind:this={ hiddenWeekInput } on:change={ onHiddenWeekInputChange } required />
+                <input tabindex="-1" type="week" id="user-week-picking" name="user-week-pickings" value={ format(targetDate, "RRRR-'W'II", { weekStartsOn: 1, useAdditionalWeekYearTokens: true }) } bind:this={ hiddenWeekInput } on:change={ onHiddenWeekInputChange } required />
             </form>
         </button>
-        <button class="srs-WeekBtn srs-WeekBtn-next" on:click={ () => changeTargetDay(7) }><span class="sr-only">Semaine suivante</span><StepForward /></button>
+        <button class="srs-WeekBtn srs-WeekBtn-next" on:click={ () => targetDate = add(targetDate, { weeks: 1 }) }><span class="sr-only">Semaine suivante</span><StepForward /></button>
     </section>
     {:else}
     <section class="srs-DateWeekToggler">
         <button class="srs-DateWeekToggleBtn" on:click={ () => isWeekRange = true }><CalendarDays /><span class="sr-only">A la journée</span></button>
     </section>
     <section class="srs-DateRange">
-        <button class="srs-DayBtn srs-DayBtn-previous" on:click={ () => changeTargetDay(-1) }><span class="sr-only">Jour précédent</span><StepBack /></button>
+        <button class="srs-DayBtn srs-DayBtn-previous" on:click={ () => targetDate = add(targetDate, { days: -1 }) }><span class="sr-only">Jour précédent</span><StepBack /></button>
         <button class="srs-DateCalendarTrigger" on:click={ triggerNativeDatePicker }>
-            <time class="srs-CurrentDateDisplay" datetime={ targetDatetime }>{ simplifiedDateFormatter.format(targetDate) }</time>
+            <time class="srs-CurrentDateDisplay" datetime={ format(targetDate, 'yyyy-MM-dd') }>{ simplifiedDateFormatter.format(targetDate) }</time>
             <form class="srs-DatePickingMiniForm">
                 <label for="user-date-picking">Date ciblée</label>
-                <input tabindex="-1" type="date" id="user-date-picking" name="user-date-pickings" value={ targetDatetime } bind:this={ hiddenDateInput } on:change={ onHiddenDateInputChange } required />
+                <input tabindex="-1" type="date" id="user-date-picking" name="user-date-pickings" value={ format(targetDate, 'yyyy-MM-dd') } bind:this={ hiddenDateInput } on:change={ onHiddenDateInputChange } required />
             </form>
         </button>
-        <button class="srs-DayBtn srs-DayBtn-next" on:click={ () => changeTargetDay(1) }><span class="sr-only">Jour suivant</span><StepForward /></button>
+        <button class="srs-DayBtn srs-DayBtn-next" on:click={ () => targetDate = add(targetDate, { days: 1 }) }><span class="sr-only">Jour suivant</span><StepForward /></button>
     </section>
     {/if}
     <section class="srs-CategoryRange">
@@ -80,6 +67,7 @@
 <style lang="scss">
     .srs-Block {
         display: flex;
+        align-items: center;
         background-color: var(--primary);
         border-radius: var(--border-radius);
         gap: var(--outer-large-spacing);
@@ -189,5 +177,7 @@
     .srs-CategoryRange {
         flex:1 0 auto;
         margin-block-end: 0;
+        display:flex;
+        justify-content: center;
     }
 </style>

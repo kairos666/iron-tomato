@@ -64,14 +64,14 @@
 
 <style lang="scss">
     .fltr-Menu_ItemList {
-        margin-inline:0;
-        margin-block-end: calc(var(--spacing) * 0.25);
-        padding-inline: calc(var(--spacing) * 0.5);
+        padding-inline:0;
+        margin-block-end: 0;
         display:flex;
         gap: calc(var(--spacing) * 0.5);
     }
     .fltr-Menu_Item {
         padding:0;
+        margin-block-end: 0;
         list-style: none;
     }
 
@@ -85,6 +85,7 @@
         padding:7.5px;
         font-size:0;
         line-height:20px;
+        margin-block-end: 0;
 
         &:hover {
             // click to activate filter
