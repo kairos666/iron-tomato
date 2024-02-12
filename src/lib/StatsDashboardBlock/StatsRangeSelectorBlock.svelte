@@ -1,20 +1,14 @@
 <script lang="ts">
     import { CalendarDays, CalendarRange, StepBack, StepForward } from "lucide-svelte";
-    import { taskCategories } from '../../constants/task-categories';
-    import TaskCategoryIcon from "../TaskCategoryIcon.svelte";
     import { simplifiedDateFormatter } from "../../utils/time-formater";
+    import CategoryFilters from "../CategoryFilters.svelte";
 
-    const allTargetCategories = [
-        { id: "none", name: "Sans catégories", icon: "ban" , color: "#1b2832" },
-        ...taskCategories
-    ];
     let hiddenDateInput:HTMLInputElement;
     let hiddenWeekInput:HTMLInputElement;
     export let isWeekRange:boolean = false;
     export let targetDate:Date = new Date();
-    export let targetCategories:string[] = allTargetCategories.map(catItem => catItem.id);
+    export let targetCategories:string[];
     $: targetDatetime = datetimeFormater(targetDate);
-    $: targetCatsToggles = allTargetCategories.map(defaultCatItem => ({ ...defaultCatItem, isToggled: targetCategories.includes(defaultCatItem.id)}));
 
     function datetimeFormater(date:Date):string {
         const year:number = date.getFullYear();
@@ -43,24 +37,6 @@
         if(!changedValue) return;
 
         // TODO convert week string to Monday Date format received by input YYYY-W99
-    }
-
-    function onCatToggle(catToggled:string) {
-        const hasCat:boolean = targetCategories.includes(catToggled);
-
-        switch(true) {
-            case (hasCat && targetCategories.length === 1):
-                // toggle ALL ON
-                targetCategories = allTargetCategories.map(catItem => catItem.id);
-                break;
-            case hasCat:
-                // toggle OFF
-                targetCategories = targetCategories.filter(cat => (cat !== catToggled));
-                break;
-            default:
-                // toggle ON
-                targetCategories = [...targetCategories, catToggled];
-        }
     }
 </script>
 
@@ -97,12 +73,7 @@
     </section>
     {/if}
     <section class="srs-CategoryRange">
-        {#each targetCatsToggles as cat (cat.id)}
-            <button class="srs-CatBtn" aria-pressed={ cat.isToggled } on:click={ () => onCatToggle(cat.id) } style={ `--cat-color:${ cat.color };` }>
-                <span class="sr-only">{ cat.name }</span>
-                <TaskCategoryIcon name={ cat.icon } stroke-width="1" size="20" color="var(--cat-ins-color)" />
-            </button>
-        {/each}
+        <CategoryFilters bind:visibleCategories={ targetCategories } />
     </section>
 </menu>
 
@@ -218,53 +189,5 @@
     .srs-CategoryRange {
         flex:1 0 auto;
         margin-block-end: 0;
-        display:flex;
-        gap: var(--inner-small-spacing);
-    }
-
-    .srs-CatBtn {
-        // default non active filter (no filters or not)
-        margin-block-end: 0;
-        --cat-ins-color: var(--muted-border-color);
-        box-shadow: none;
-        border-radius: 50% 50%;
-        border: 2px solid var(--muted-border-color);
-        background-color: transparent;
-        font-size:0;
-        line-height:20px;
-        aspect-ratio: 1;
-
-        &:hover {
-            // click to activate filter
-            --cat-ins-color: var(--cat-color);
-            border-color: var(--cat-color);
-            background-color: transparent;
-        }
-
-        &:focus, &:active {
-            border-color: var(--contrast) !important;
-        }
-
-        &[aria-pressed="false"] {
-            --cat-ins-color: var(--primary-inverse);
-            border-color: var(--primary-inverse);
-            background-color: transparent;
-
-            &:hover {
-                --cat-ins-color: var(--cat-color);
-                border-color: var(--cat-color);
-            }
-        }
-
-        &[aria-pressed="true"] {
-            --cat-ins-color: var(--primary-inverse);
-            border-color: var(--cat-color);
-            background-color: var(--cat-color);
-
-            &:hover {
-                --cat-ins-color: var(--cat-color);
-                background-color: transparent;
-            }
-        }
     }
 </style>
