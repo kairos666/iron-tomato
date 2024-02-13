@@ -6,6 +6,7 @@
     import StatsRangeSelectorBlock from "./StatsRangeSelectorBlock.svelte";
     import { BehaviorSubject, Observable, from } from "rxjs";
     import { inRangeTasksObservables, type RangeSelection, type StatTask } from "../../utils/statsObservables";
+    import StatsWeekTasksBlock from "./StatsWeekTasksBlock.svelte";
     
     let isWeekStats:boolean;
     let statsTargetDate:Date;
@@ -27,7 +28,7 @@
     <StatsRangeSelectorBlock bind:isWeekRange={ isWeekStats } bind:targetDate={ statsTargetDate } bind:targetCategories={ statsTargetCategories }/>
     <StatsOverallDayBlock srcObservable={ inRangeTasksObservable } />
     {#if isWeekStats}
-        <p>TODO week distribution</p>
+        <StatsWeekTasksBlock srcObservable={ inRangeTasksObservable } />
     {:else}
         <StatsDayTasksBlock srcObservable={ inRangeTasksObservable } />
     {/if}
