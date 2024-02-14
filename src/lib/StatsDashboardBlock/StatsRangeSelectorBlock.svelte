@@ -91,7 +91,7 @@
         border-radius: var(--border-radius);
         gap: var(--outer-large-spacing);
         padding: var(--outer-small-spacing);
-        margin: var(--outer-large-spacing) 0;
+        margin: var(--outer-large-spacing) 0 var(--outer-small-spacing);
 
         @media (max-width:575px) {
             flex-direction: column;

@@ -91,7 +91,7 @@
     @import "../../styles/page-detail-badges";
     .sod-Block {
         padding: var(--outer-small-spacing);
-        margin-block: var(--outer-large-spacing);
+        margin-block: var(--outer-small-spacing);
         display: flex;
 
         @media (max-width:575px) {

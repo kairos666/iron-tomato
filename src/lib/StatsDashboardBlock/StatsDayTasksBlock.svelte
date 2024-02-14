@@ -108,7 +108,7 @@
 
     .sdt-Block {
         @include pdb_BlockStyle(h2, false);
-        margin: var(--outer-large-spacing) 0;
+        margin: var(--outer-small-spacing) 0 0;
         overflow: hidden;
     }
 

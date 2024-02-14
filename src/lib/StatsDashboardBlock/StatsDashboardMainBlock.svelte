@@ -28,7 +28,7 @@
     <StatsRangeSelectorBlock bind:isWeekRange={ isWeekStats } bind:targetDate={ statsTargetDate } bind:targetCategories={ statsTargetCategories }/>
     <StatsOverallDayBlock srcObservable={ inRangeTasksObservable } />
     {#if isWeekStats}
-        <StatsWeekTasksBlock srcObservable={ inRangeTasksObservable } />
+        <StatsWeekTasksBlock srcObservable={ inRangeTasksObservable } firstDayOfTheWeek={ statsTargetDate } />
     {:else}
         <StatsDayTasksBlock srcObservable={ inRangeTasksObservable } />
     {/if}
