@@ -10,6 +10,8 @@
 
     const workWeekDays = [{ dayLabel: "Lundi", dayIndex: 1 },{ dayLabel: "Mardi", dayIndex: 2 },{ dayLabel: "Mercredi", dayIndex: 3 },{ dayLabel: "Jeudi", dayIndex: 4 },{ dayLabel: "Vendredi", dayIndex: 5 }];
     const weekendDays = [{ dayLabel: "Samedi", dayIndex: 6 },{ dayLabel: "Dimanche", dayIndex: 0 }];
+    export let blockTitle:string;
+    export let blockEmptyTxt:string;
     export let firstDayOfTheWeek:Date;
     export let srcObservable:Observable<StatTask[]>;
     let hasRelevantTasks:boolean = false;
@@ -103,19 +105,19 @@
 
 <article class="swt-Block">
     <header>
-        <h2>Activité de la semaine par tâche</h2>
+        <h2>{ blockTitle }</h2>
     </header>
     {#if hasRelevantTasks}
         {#each workWeekDays.map(({dayLabel, dayIndex}) => ({ dayLabel, tasks: tasksList[dayIndex]})) as weekDayTasks (weekDayTasks.dayLabel)}
-        <WeekDayTaskDistribution label={ weekDayTasks.dayLabel } weekDayTasks={ weekDayTasks.tasks } />
+        <WeekDayTaskDistribution dayLabel={ weekDayTasks.dayLabel } weekDayTasks={ weekDayTasks.tasks } />
         {/each}
         <footer>
             {#each weekendDays.map(({dayLabel, dayIndex}) => ({ dayLabel, tasks: tasksList[dayIndex]})) as weekendDayTasks (weekendDayTasks.dayLabel)}
-            <WeekDayTaskDistribution label={ weekendDayTasks.dayLabel } weekDayTasks={ weekendDayTasks.tasks } />
+            <WeekDayTaskDistribution dayLabel={ weekendDayTasks.dayLabel } weekDayTasks={ weekendDayTasks.tasks } />
             {/each}
         </footer>
     {:else}
-    <p class="swt-EmptyHistory"><CalendarOff /> <i>Pas d'activité cette semaine là.</i></p>
+    <p class="swt-EmptyHistory"><CalendarOff /> <i>{ blockEmptyTxt }</i></p>
     {/if}
 </article>
 

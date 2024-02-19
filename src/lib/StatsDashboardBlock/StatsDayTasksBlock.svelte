@@ -13,6 +13,8 @@
     type StatTaskExtended = StatTask & { icon?:string }
     const { changeMainView } = appUIState;
 
+    export let blockTitle:string;
+    export let blockEmptyTxt:string;
     export let srcObservable:Observable<StatTask[]>;
     let dayTasksSubscription:Subscription|null = null;
     let dayTasksData:DayTasksData[] = [];
@@ -72,7 +74,7 @@
 
 <article class="sdt-Block">
     <header>
-        <h2>Activité du jour par tâche</h2>
+        <h2>{ blockTitle }</h2>
     </header>
     {#if tasksList.length > 0}
     <menu class="sdt-DayTasks" class:sdt-DayTasks-lite={ $appUIState.isMobileViewport }>
@@ -99,7 +101,7 @@
         {/each}
     </menu>
     {:else}
-    <p class="sdt-EmptyHistory"><CalendarOff /> <i>Pas d'activité ce jour là.</i></p>
+    <p class="sdt-EmptyHistory"><CalendarOff /> <i>{ blockEmptyTxt }</i></p>
     {/if}
 </article>
 

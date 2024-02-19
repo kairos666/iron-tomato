@@ -3,7 +3,7 @@
     import type { StatTask } from "../../utils/statsObservables";
 
     const { changeMainView } = appUIState;
-    export let label:string;
+    export let dayLabel:string;
     export let weekDayTasks:StatTask[];
 
     function hasAtLeastOneHourActivity(task:StatTask):boolean {
@@ -31,7 +31,7 @@
 </script>
 
 <section class="DayDistributionWrapper">
-    <header class="DayLabel">{ label }</header>
+    <header class="DayLabel">{ dayLabel }</header>
     {#if weekDayTasks.some(hasAtLeastOneHourActivity)}
         <div class="TasksList">
             {#each weekDayTasks as task (task.id)}

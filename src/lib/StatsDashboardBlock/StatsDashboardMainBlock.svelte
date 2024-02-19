@@ -7,6 +7,7 @@
     import { BehaviorSubject, Observable, from } from "rxjs";
     import { inRangeTasksObservables, type RangeSelection, type StatTask } from "../../utils/statsObservables";
     import StatsWeekTasksBlock from "./StatsWeekTasksBlock.svelte";
+    import { appUIState } from "../../stores/appUIState";
     
     let isWeekStats:boolean;
     let statsTargetDate:Date;
@@ -27,10 +28,12 @@
 <div class="sdm-Block">
     <StatsRangeSelectorBlock bind:isWeekRange={ isWeekStats } bind:targetDate={ statsTargetDate } bind:targetCategories={ statsTargetCategories }/>
     <StatsOverallDayBlock srcObservable={ inRangeTasksObservable } />
-    {#if isWeekStats}
-        <StatsWeekTasksBlock srcObservable={ inRangeTasksObservable } firstDayOfTheWeek={ statsTargetDate } />
+    {#if isWeekStats && !$appUIState.isMobileViewport}
+        <StatsWeekTasksBlock blockTitle="Activité de la semaine par tâche" blockEmptyTxt="Pas d'activité cette semaine là." srcObservable={ inRangeTasksObservable } firstDayOfTheWeek={ statsTargetDate } />
+    {:else if isWeekStats && $appUIState.isMobileViewport}
+        <StatsDayTasksBlock blockTitle="Activité de la semaine par tâche" blockEmptyTxt="Pas d'activité cette semaine là." srcObservable={ inRangeTasksObservable } />
     {:else}
-        <StatsDayTasksBlock srcObservable={ inRangeTasksObservable } />
+        <StatsDayTasksBlock blockTitle="Activité du jour par tâche" blockEmptyTxt="Pas d'activité ce jour là." srcObservable={ inRangeTasksObservable } />
     {/if}
 </div>
 
