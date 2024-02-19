@@ -1,6 +1,8 @@
 <script lang="ts">
+    import { appUIState } from "../../stores/appUIState";
     import type { StatTask } from "../../utils/statsObservables";
 
+    const { changeMainView } = appUIState;
     export let label:string;
     export let weekDayTasks:StatTask[];
 
@@ -30,24 +32,17 @@
 
 <section class="DayDistributionWrapper">
     <header class="DayLabel">{ label }</header>
-    <div class="TasksList">
-        {#each weekDayTasks as task (task.id)}
-            {#if hasAtLeastOneHourActivity(task)}
-                <figure class="TaskFigure">
-                    <div class="TaskHourBlocksContainer">
-                        {#each hoursArrayBuilder(task) as taskHourBlock}
-                        <span class="TaskHourBlock" style:--session-width={ `${taskHourBlock.hourPerc}%` } style:--session-color={ taskHourBlock.color }></span>
-                        {/each}
-                    </div>
-                    <figcaption class="TaskFigcaption">
-                        <span>{ task.label }</span>
-                        {#if task.hasBeenCreatedThatDay}<span>C</span>{/if}
-                        {#if task.hasFinishedThatDay}<span>A</span>{/if}
-                    </figcaption>
-                </figure>
-            {/if}
-        {/each}
-    </div>
+    {#if weekDayTasks.some(hasAtLeastOneHourActivity)}
+        <div class="TasksList">
+            {#each weekDayTasks as task (task.id)}
+                {#each hoursArrayBuilder(task) as taskHourBlock}
+                    <span class="TaskHourBlock" style:--session-width={ `${taskHourBlock.hourPerc}%` } style:--session-color={ taskHourBlock.color }></span>
+                {/each}
+            {/each}
+        </div>
+    {:else}
+    <p class="NoSignificantTaskSession">Pas, ou peu, d'activité ce jour là.</p>
+    {/if}
 </section>
 
 <style lang="scss">
@@ -67,31 +62,24 @@
         flex:1 1 auto;
         display:flex;
         flex-wrap:wrap;
-        gap: 0.5rem;
-    }
-
-    .TaskFigure {
-        text-align: center;
-        margin-block-end: 0;
-    }
-
-    .TaskFigcaption {
-        padding-block: 0;
-    }
-
-    .TaskHourBlocksContainer {
-        display: flex;
-        flex-wrap: wrap;
-        padding:0 0.5rem;
-        gap:0.5rem;
+        gap: 0.1rem;
     }
 
     .TaskHourBlock {
         display:inline-block;
-        width: calc(10px + 1.2vw);
-        height: calc(10px + 1.2vw);
+        width: calc((100% - 23 * 0.5rem)/24);
+        min-width: 1.2rem;
+        aspect-ratio: 1;
         border: 1px solid var(--muted-border-color);
         border-radius: var(--border-radius);
         background: linear-gradient(135deg, var(--session-color) 0%, var(--session-color) var(--session-width), transparent var(--session-width), transparent 100%);;
+    }
+
+    .NoSignificantTaskSession {
+        margin-block-end: 0;
+        font-size: 0.75em;
+        font-style: italic;
+        color: var(--muted-color);
+        align-self: flex-end;
     }
 </style>
