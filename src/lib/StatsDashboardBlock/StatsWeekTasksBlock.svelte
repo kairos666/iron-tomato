@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { CalendarOff } from "lucide-svelte";
+    import { CalendarOff, CheckCircle, Star } from "lucide-svelte";
     import { type Observable, type Subscription, tap, map } from "rxjs";
     import type { StatTask } from "../../utils/statsObservables";
     import { onDestroy } from "svelte";
@@ -7,17 +7,35 @@
     import type { WorkItem } from "../../stores/persistentTasks";
     import WeekDayTaskDistribution from "./WeekDayTaskDistribution.svelte";
     import { isSameDay, nextFriday, nextSaturday, nextSunday, nextThursday, nextTuesday, nextWednesday } from "date-fns";
+    import { appUIState } from "../../stores/appUIState";
+    import { taskCategories } from "../../constants/task-categories";
+    import TaskCategoryIcon from "../TaskCategoryIcon.svelte";
 
-    const workWeekDays = [{ dayLabel: "Lundi", dayIndex: 1 },{ dayLabel: "Mardi", dayIndex: 2 },{ dayLabel: "Mercredi", dayIndex: 3 },{ dayLabel: "Jeudi", dayIndex: 4 },{ dayLabel: "Vendredi", dayIndex: 5 }];
-    const weekendDays = [{ dayLabel: "Samedi", dayIndex: 6 },{ dayLabel: "Dimanche", dayIndex: 0 }];
+    type StatTaskExtended = StatTask & { icon?:string }
+
+    const { changeMainView } = appUIState;
+    const workWeekDays = [{ dayLabel: "Lundi", dayIndex: 1 },{ dayLabel: "Mardi", dayIndex: 2 },{ dayLabel: "Mercredi", dayIndex: 3 },{ dayLabel: "Jeudi", dayIndex: 4 },{ dayLabel: "Vendredi", dayIndex: 5 }, { dayLabel: "Samedi", dayIndex: 6 },{ dayLabel: "Dimanche", dayIndex: 0 }];
     export let blockTitle:string;
     export let blockEmptyTxt:string;
     export let firstDayOfTheWeek:Date;
     export let srcObservable:Observable<StatTask[]>;
+    let hoveredTaskID:string|null = null;
     let hasRelevantTasks:boolean = false;
     let weekTasksSubscription:Subscription|null = null;
-    let tasksList:StatTask[][] = []; // 0 sunday sessions, 1 monday sessions, ...
+    let tasksList:StatTaskExtended[] = [];
+    let distributedTasksList:StatTask[][] = []; // 0 sunday sessions, 1 monday sessions, ...
     $: if(srcObservable) { subscribeToSrc(srcObservable) }
+
+    function sortTasks(a:StatTask, b:StatTask) {
+        const cumulatedSessionTimeA:number = a.cumulatedWDuration + a.cumulatedPDuration;
+        const cumulatedSessionTimeB:number = b.cumulatedWDuration + b.cumulatedPDuration;
+
+        return (cumulatedSessionTimeA < cumulatedSessionTimeB) ? 1 : (cumulatedSessionTimeA > cumulatedSessionTimeB) ? -1 : 0;
+    }
+
+    function onTaskHover(taskID:string, isHover:boolean) {
+        hoveredTaskID = (isHover) ? taskID : null;
+    }
 
     function subscribeToSrc(srcObs:Observable<StatTask[]>) {
         // unsubscribe first (if necessary)
@@ -26,6 +44,13 @@
         // subscribe to src
         weekTasksSubscription = srcObs.pipe(
             tap(weekTasks => { hasRelevantTasks = (weekTasks.length !== 0) }), // empty if no relevant tasks for the week (side effect)
+            tap(weekTasks => { 
+                // just register tasks sorted by most cumulated session time to least (no distribution yet)
+                tasksList = weekTasks.map(task => {
+                    const icon:string|null = taskCategories.find(item => (item.id === task.category))?.icon ?? null;
+                    return (icon === null) ? task :  { ...task, icon };
+                }).sort(sortTasks);
+            }),
             map(allRelevantTasks => {
                 return allRelevantTasks.reduce((acc, curr) => {
                     // current task split work
@@ -76,12 +101,7 @@
             map(weekDistribution => {
                 // sort each day's tasks from most cumulated session time to least
                 return weekDistribution.map(dayDistribution => {
-                    return dayDistribution.sort((a, b) => {
-                        const cumulatedSessionTimeA:number = a.cumulatedWDuration + a.cumulatedPDuration;
-                        const cumulatedSessionTimeB:number = b.cumulatedWDuration + b.cumulatedPDuration;
-
-                        return (cumulatedSessionTimeA < cumulatedSessionTimeB) ? 1 : (cumulatedSessionTimeA > cumulatedSessionTimeB) ? -1 : 0;
-                    })
+                    return dayDistribution.sort(sortTasks);
                 })
             })
         ).subscribe({ next: handleData });
@@ -89,7 +109,7 @@
 
     function handleData(srcData:StatTask[][]) {
         // tasks list
-        tasksList = [...srcData];
+        distributedTasksList = [...srcData];
     }
 
     function unsubscribeFromSrc() {
@@ -108,14 +128,30 @@
         <h2>{ blockTitle }</h2>
     </header>
     {#if hasRelevantTasks}
-        {#each workWeekDays.map(({dayLabel, dayIndex}) => ({ dayLabel, tasks: tasksList[dayIndex]})) as weekDayTasks (weekDayTasks.dayLabel)}
-        <WeekDayTaskDistribution dayLabel={ weekDayTasks.dayLabel } weekDayTasks={ weekDayTasks.tasks } />
-        {/each}
-        <footer>
-            {#each weekendDays.map(({dayLabel, dayIndex}) => ({ dayLabel, tasks: tasksList[dayIndex]})) as weekendDayTasks (weekendDayTasks.dayLabel)}
-            <WeekDayTaskDistribution dayLabel={ weekendDayTasks.dayLabel } weekDayTasks={ weekendDayTasks.tasks } />
-            {/each}
-        </footer>
+        <menu class="swt-WeekDistribLayout">
+            <div class="swt-WeekDaysDistrib">
+                {#each workWeekDays.map(({dayLabel, dayIndex}) => ({ dayLabel, tasks: distributedTasksList[dayIndex]})) as weekDayTasks (weekDayTasks.dayLabel)}
+                <WeekDayTaskDistribution dayLabel={ weekDayTasks.dayLabel } weekDayTasks={ weekDayTasks.tasks } highligtedTaskID={ hoveredTaskID } />
+                {/each}
+            </div>
+            <div class="swt-TasksLinkList">
+                {#each tasksList as task (task.id)}
+                    <button 
+                        class="swt-TaskLink" 
+                        on:mouseover={ () => onTaskHover(task.id, true) } 
+                        on:focus={ () => onTaskHover(task.id, true) } 
+                        on:mouseout={ () => onTaskHover(task.id, false) } 
+                        on:blur={ () => onTaskHover(task.id, false) }
+                        on:click={ () => changeMainView('task-detail', parseInt(task.id)) }
+                    >
+                        <h3 class="swt-TaskLink_Title">{ task.label }</h3>
+                        {#if task.icon}<span class="swt-TaskLink_Cat"><TaskCategoryIcon name={ task.icon } stroke-width="1" size="20" color="var(--h6-color)" /></span>{/if}
+                        {#if task.hasFinishedThatDay}<span class="swt-TaskLink_Done"><CheckCircle size="20" color="var(--h6-color)" /></span>{/if}
+                        {#if task.hasBeenCreatedThatDay}<span class="swt-TaskLink_New"><Star size="20" color="var(--h6-color)" /></span>{/if}
+                    </button>
+                {/each}
+            </div>
+        </menu>
     {:else}
     <p class="swt-EmptyHistory"><CalendarOff /> <i>{ blockEmptyTxt }</i></p>
     {/if}
@@ -128,10 +164,68 @@
         @include pdb_BlockStyle(h2, false);
         margin: var(--outer-small-spacing) 0 0;
         overflow: hidden;
+    }
 
-        footer {
-            margin-block-start: 1rem;
-            padding-block: 1rem 2rem;
+    .swt-WeekDistribLayout {
+        padding-inline-start: 0;
+        margin:calc(var(--spacing) * -1);
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-auto-rows: auto;
+        justify-items:stretch;
+    }
+
+    .swt-WeekDaysDistrib {
+        grid-column: 1 / 2;
+        padding: var(--spacing);
+        justify-self: stretch;
+        align-self: center;
+    }
+
+    .swt-TasksLinkList {
+        grid-column: 2 / 3;
+        border-left:1px solid var(--card-border-color);
+    }
+
+    .swt-TaskLink {
+        margin-block-end: 0;
+        padding: calc(var(--spacing) * 0.5);
+        border-radius: 0;
+        background-color: transparent;
+        border: none;
+        display: grid;
+        gap: calc(var(--spacing) * 0.5);
+        grid-template-columns: 20px 1fr 20px 20px;
+        grid-template-rows: auto;
+        grid-template-areas: 
+            "cat title done created";
+
+        .swt-TaskLink_Title { 
+            grid-area: title;
+            font-size: 0.85em;
+            color: var(--h1-color);
+            text-align: left;
+            align-self: center;
+            margin-block-end: 0;
+        }
+
+        .swt-TaskLink_Cat {
+            grid-area: cat;
+            align-self: center;
+        }
+        .swt-TaskLink_Done {
+            grid-area: done;
+        }
+        .swt-TaskLink_New {
+            grid-area: created;
+        }
+
+        &:hover, &:focus, &:active {
+            background-color: var(--primary-focus);
+        }
+
+        & + .swt-TaskLink {
+            border-top:1px solid var(--card-border-color);
         }
     }
 

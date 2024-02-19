@@ -1,26 +1,27 @@
 <script lang="ts">
-    import { appUIState } from "../../stores/appUIState";
     import type { StatTask } from "../../utils/statsObservables";
 
-    const { changeMainView } = appUIState;
     export let dayLabel:string;
     export let weekDayTasks:StatTask[];
+    export let highligtedTaskID:string|null;
+    let formatedHourBlocks:{ color: string, hourPerc:number }[] = [];
+    $: formatedHourBlocks = weekDayTasks.map(task => hoursArrayBuilder(task, highligtedTaskID)).reduce((acc, curr) => [...acc, ...curr], []);
 
     function hasAtLeastOneHourActivity(task:StatTask):boolean {
         return Math.round((task.cumulatedWDuration + task.cumulatedPDuration) / (1000 * 60 * 60)) >= 1;
     }
 
-    function hoursArrayBuilder(task:StatTask):{ color: string, hourPerc:number }[] {
+    function hoursArrayBuilder(task:StatTask, highlightTaskID:string|null):{ color: string, hourPerc:number }[] {
         let sessionHoursCount:number = (task.cumulatedWDuration + task.cumulatedPDuration) / (1000 * 60 * 60);
         const result:{ color: string, hourPerc:number }[] = [];
 
         while(sessionHoursCount > 0) {
             if(sessionHoursCount >= 1) {
                 // add full 1H block
-                result.push({ color: "var(--primary)", hourPerc: 100 });
+                result.push({ color: (highlightTaskID === task.id) ? "var(--primary)" : "var(--muted-border-color)", hourPerc: 100 });
             } else {
                 // add partial 1H block
-                result.push({ color: "var(--primary)", hourPerc: 100 * sessionHoursCount });
+                result.push({ color: (highlightTaskID === task.id) ? "var(--primary)" : "var(--muted-border-color)", hourPerc: 100 * sessionHoursCount });
             }
 
             sessionHoursCount--;
@@ -34,10 +35,8 @@
     <header class="DayLabel">{ dayLabel }</header>
     {#if weekDayTasks.some(hasAtLeastOneHourActivity)}
         <div class="TasksList">
-            {#each weekDayTasks as task (task.id)}
-                {#each hoursArrayBuilder(task) as taskHourBlock}
-                    <span class="TaskHourBlock" style:--session-width={ `${taskHourBlock.hourPerc}%` } style:--session-color={ taskHourBlock.color }></span>
-                {/each}
+            {#each formatedHourBlocks as taskHourBlock}
+                <span class="TaskHourBlock" style:--session-width={ `${taskHourBlock.hourPerc}%` } style:--session-color={ taskHourBlock.color }></span>
             {/each}
         </div>
     {:else}
@@ -76,7 +75,7 @@
     }
 
     .NoSignificantTaskSession {
-        margin-block-end: 0;
+        margin-block-end: 1px;
         font-size: 0.75em;
         font-style: italic;
         color: var(--muted-color);
