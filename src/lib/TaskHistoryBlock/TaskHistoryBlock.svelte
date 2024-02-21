@@ -40,8 +40,11 @@
 
 {#if hasHistory}
 <article class="th-Block">
-    <header>
+    <header class="th-Block_Header">
         <h3>Historique d'activité</h3>
+        <menu class="th-Block_Menu">
+            <button type="button" class="th-Block_AddBtn" disabled={ $taskQuery?.isDone }>Ajouter manuellement une session</button>
+        </menu>
     </header>
     <TabGroup>
         <TabList class="tab-TabList">
@@ -100,8 +103,11 @@
 </article>
 {:else}
 <article class="th-Block">
-    <header>
+    <header class="th-Block_Header">
         <h3>Historique d'activité</h3>
+        <menu class="th-Block_Menu">
+            <button type="button" class="th-Block_AddBtn" disabled={ $taskQuery?.isDone }>Ajouter manuellement une session</button>
+        </menu>
     </header>
     <p class="th-EmptyHistory"><CalendarOff /> <i>La tâche ne contient pas d'imputations</i></p>
 </article>
@@ -171,4 +177,35 @@
     }
 
     .th-EmptyHistory { margin-block-end: 0; }
+
+    .th-Block_Header {
+        display:flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        gap: var(--spacing);
+    }
+
+    .th-Block_Menu {
+        padding-inline-start: 0;
+        margin-block: 0;
+        display:flex;
+        gap: calc(var(--spacing) * 0.5);
+
+        .th-Block_AddBtn {
+            margin-block-end: 0;
+            padding-block: calc(var(--spacing) * 0.25);
+            border-color: var(--secondary);
+            color: var(--secondary); 
+            background-color: var(--secondary-inverse);
+            font-size: 0.8rem;
+            &:hover, &:focus, &:active { 
+                color: var(--secondary-inverse); 
+                background-color: var(--secondary-hover); 
+            }
+            &:disabled {
+                opacity: 0.15;
+            }
+        }
+    }
 </style>
