@@ -7,7 +7,9 @@
     import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@rgossiaux/svelte-headlessui";
     import PieChart from "../PieChart.svelte";
     import TaskWorkCalendar from "./TaskWorkCalendar.svelte";
+    import { appUIState } from "../../stores/appUIState";
 
+    const { setModal } = appUIState;
     export let taskID:string;
     let ratioTotal:{ label:string, percent:number, color:string, icon: any, humanDuration: string }[] = [];
     let ratioSessions:{ label:string, percent:number, color:string, icon: any, humanDuration: string }[] = [];
@@ -36,6 +38,11 @@
         ratioTotal = [];
         ratioSessions = [];
     }
+
+    function onCreateHistoryEntry() {
+        const taskID:string = $taskQuery?.id ?? "no id found";
+        setModal(`task-${parseInt(taskID)}-history-create`);
+    }
 </script>
 
 {#if hasHistory}
@@ -43,7 +50,7 @@
     <header class="th-Block_Header">
         <h3>Historique d'activité</h3>
         <menu class="th-Block_Menu">
-            <button type="button" class="th-Block_AddBtn" disabled={ $taskQuery?.isDone }>Ajouter manuellement une session</button>
+            <button type="button" class="th-Block_AddBtn" on:click={ onCreateHistoryEntry } disabled={ $taskQuery?.isDone }>Ajouter manuellement une session</button>
         </menu>
     </header>
     <TabGroup>
@@ -95,7 +102,7 @@
             <TabPanel>
                 <section class="th-SessionDetailsBlock">
                     <h4>Sessions de travail enregistrées</h4>
-                    <TaskWorkHistory taskHistory={ $taskQuery?.workHistory ?? [] } />
+                    <TaskWorkHistory taskID={ taskID } taskHistory={ $taskQuery?.workHistory ?? [] } />
                 </section>
             </TabPanel>
         </TabPanels>
@@ -106,7 +113,7 @@
     <header class="th-Block_Header">
         <h3>Historique d'activité</h3>
         <menu class="th-Block_Menu">
-            <button type="button" class="th-Block_AddBtn" disabled={ $taskQuery?.isDone }>Ajouter manuellement une session</button>
+            <button type="button" class="th-Block_AddBtn" on:click={ onCreateHistoryEntry } disabled={ $taskQuery?.isDone }>Ajouter manuellement une session</button>
         </menu>
     </header>
     <p class="th-EmptyHistory"><CalendarOff /> <i>La tâche ne contient pas d'imputations</i></p>

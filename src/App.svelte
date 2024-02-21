@@ -13,6 +13,8 @@
     import ParametersForm from './lib/ParametersBlock/ParametersForm.svelte';
     import StatsDashboardHeader from './lib/StatsDashboardBlock/StatsDashboardHeader.svelte';
     import StatsDashboardMainBlock from './lib/StatsDashboardBlock/StatsDashboardMainBlock.svelte';
+    import DialogAddTaskHistoryEntry from './lib/DialogAddTaskHistoryEntry.svelte';
+    import DialogModifyTaskHistoryEntry from './lib/DialogModifyTaskHistoryEntry.svelte';
 
     const { setModal } = appUIState;
 </script>
@@ -49,6 +51,8 @@
 <DialogReset />
 <DialogTaskCreateForm />
 <DialogDeleteTask />
+<DialogAddTaskHistoryEntry />
+<DialogModifyTaskHistoryEntry />
 
 <style lang="scss">
     .lst-AddTaskBtn {

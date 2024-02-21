@@ -12,6 +12,8 @@
         pauseHumanDuration: string
     }
 
+    const { setModal } = appUIState;
+    export let taskID:string;
     export let taskHistory:WorkItem[];
     let taskHistoryExtended:WorkItemExtended[] = [];
     $: taskHistoryExtended = taskHistory.map(taskHistoryItem => {
@@ -24,6 +26,10 @@
             pauseHumanDuration: durationFormaterToString(taskHistoryItem.pDuration, 'HUMAN', { style: 'narrow', numeric: 'always' })
         }
     });
+
+    function onModifyHistoryEntry(historyEntryStart:number) {
+        return () => { setModal(`task-${parseInt(taskID)}-start:${historyEntryStart}-history-edit`) }
+    }
 </script>
 
 {#if $appUIState.isMobileViewport}
@@ -59,7 +65,7 @@
                     </ol>
                     <p>Durée de la session { historyItem.sessionHumanDuration } <small>( Travail{ historyItem.workHumanDuration } , Pause{ historyItem.pauseHumanDuration } )</small></p>
                 </td>
-                <td style:text-align="right"><button class="twh-SessionEditBtn"><PencilRuler /><span class="sr-only">Modifier l'entrée d'historique</span></button></td>
+                <td style:text-align="right"><button on:click={ onModifyHistoryEntry(historyItem.start) } class="twh-SessionEditBtn"><PencilRuler /><span class="sr-only">Modifier l'entrée d'historique</span></button></td>
               </tr>
             {/each}
         </tbody>
