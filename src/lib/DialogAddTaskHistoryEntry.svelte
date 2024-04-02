@@ -24,10 +24,12 @@
         formEndDate = add(formStartDate, { hours: 1 });
     }
     $: {
-        const sessionDurationCount:number = formEndDate.getTime() - formStartDate.getTime();
+        const sessionDurationCount:number = 1000 * Math.round((formEndDate.getTime() - formStartDate.getTime()) / 1000);
+        const workDurationCount:number = 1000 * Math.round((formWorkRatio / 100) * sessionDurationCount / 1000);
+        const pauseDurationCount:number = 1000 * Math.round((sessionDurationCount - workDurationCount) / 1000);
         sessionDuration = durationFormaterToString(sessionDurationCount, 'HUMAN', { style: 'narrow', numeric: 'always' });
-        workDuration = durationFormaterToString((formWorkRatio / 100) * sessionDurationCount, 'HUMAN', { style: 'narrow', numeric: 'always' });
-        pauseDuration = durationFormaterToString(((100 - formWorkRatio) / 100) * sessionDurationCount, 'HUMAN', { style: 'narrow', numeric: 'always' });
+        workDuration = durationFormaterToString(workDurationCount, 'HUMAN', { style: 'narrow', numeric: 'always' });
+        pauseDuration = durationFormaterToString(pauseDurationCount, 'HUMAN', { style: 'narrow', numeric: 'always' });
     }
 
     function balancedRatioPerc(ratio:number) { return Math.round((1000 * ratio) / (ratio + 1)) / 10 }
