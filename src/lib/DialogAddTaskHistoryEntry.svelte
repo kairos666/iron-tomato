@@ -6,6 +6,7 @@
     import { add, format, isAfter } from 'date-fns';
     import { durationFormaterToString } from '../utils/time-formater';
     
+    let isModalActive:boolean = false;
     let startDateInput:HTMLInputElement;
     let endDateInput:HTMLInputElement;
     let formWorkRatio:number = balancedRatioPerc($parameterState.mRatioWorkPause);
@@ -36,7 +37,9 @@
 
     function onSubmit(evt:SubmitEvent) {
         evt.preventDefault();
-        console.log(formWorkRatio, formStartDate, formEndDate);
+        const taskTargetRegExp:RegExp = /task-(?<target>\d+)-history-create/g;
+        const targetTaskId:string|null = taskTargetRegExp.exec($appUIState.modal ?? "")?.groups?.target ?? null;
+        console.log('TODO entry link', targetTaskId, formWorkRatio, formStartDate, formEndDate);
     }
 
     function onChangeRatio(evt: { currentTarget:HTMLInputElement }) {
@@ -89,7 +92,7 @@
                 <span data-tooltip={ 'pause sur la session' }><Coffee  color="var(--pause-color)" /> { pauseDuration }</span>
             </div>
             <menu class="dlg-Container_ActionsMenu">
-                <button class="secondary outline" on:click={() => clearModal() }>Annuler</button>
+                <button class="secondary outline" on:click={ () => clearModal() }>Annuler</button>
                 <button type="submit">Ajouter la session</button>
             </menu>
         </form>
