@@ -2,9 +2,10 @@
     import { appUIState } from '../stores/appUIState';
     import { Dialog, DialogOverlay, DialogTitle, DialogDescription } from "@rgossiaux/svelte-headlessui";
     import { CalendarPlus, Clock, CalendarClock, Coffee } from "lucide-svelte";
-    import { parameterState } from '../stores/parametersState';
+    import { parameterState,  } from '../stores/parametersState';
     import { add, format, isAfter } from 'date-fns';
     import { durationFormaterToString } from '../utils/time-formater';
+    import { taskLogWork, type WorkItem } from '../stores/persistentTasks';
     
     let isModalActive:boolean = false;
     let startDateInput:HTMLInputElement;
@@ -39,7 +40,23 @@
         evt.preventDefault();
         const taskTargetRegExp:RegExp = /task-(?<target>\d+)-history-create/g;
         const targetTaskId:string|null = taskTargetRegExp.exec($appUIState.modal ?? "")?.groups?.target ?? null;
-        console.log('TODO entry link', targetTaskId, formWorkRatio, formStartDate, formEndDate);
+        const sessionDurationCount:number = formEndDate.getTime() - formStartDate.getTime();
+        const wDuration:number = (formWorkRatio / 100) * sessionDurationCount;
+        const pDuration:number = sessionDurationCount - wDuration;
+        const workItem:WorkItem = {
+            start: formStartDate.getTime(),
+            end: formEndDate.getTime(),
+            wDuration,
+            pDuration
+        }
+
+        if(targetTaskId === null) {
+            console.warn(`Task unknown, couldn't add history entry`);
+            clearModal();
+        } else {
+            taskLogWork(targetTaskId, workItem);
+            clearModal();
+        }
     }
 
     function onChangeRatio(evt: { currentTarget:HTMLInputElement }) {
@@ -76,7 +93,7 @@
     <article class="dlg-Container">
         <hgroup>
             <DialogTitle><CalendarPlus size="32" /> Ajouter une entrée d'historique</DialogTitle>
-            <DialogDescription>Attention, les sessions peuvent se chevaucher.</DialogDescription>
+            <DialogDescription>Attention, les sessions peuvent se chevaucher ou être incrites dans le futur.</DialogDescription>
         </hgroup>
         <form on:submit={ onSubmit } class="dlg-Form">
             <div class="frm-DateInputs">
