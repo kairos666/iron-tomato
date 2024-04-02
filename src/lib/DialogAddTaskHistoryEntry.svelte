@@ -4,20 +4,30 @@
     import { CalendarPlus, Clock, CalendarClock, Coffee } from "lucide-svelte";
     import { parameterState } from '../stores/parametersState';
     import { add, format, isAfter } from 'date-fns';
+    import { durationFormaterToString } from '../utils/time-formater';
     
     let startDateInput:HTMLInputElement;
     let endDateInput:HTMLInputElement;
     let formWorkRatio:number = balancedRatioPerc($parameterState.mRatioWorkPause);
     let formStartDate:Date = new Date();
     let formEndDate:Date = add(formStartDate, { hours: 1 });
+    let sessionDuration:string;
+    let workDuration:string;
+    let pauseDuration:string;
 
     const { clearModal } = appUIState;
     $: isModalActive = (typeof $appUIState.modal === 'string' && $appUIState.modal.endsWith('history-create'));
-    $: if(isModalActive) {
+    $: if(!isModalActive) {
         // reset form
         formWorkRatio = balancedRatioPerc($parameterState.mRatioWorkPause);
         formStartDate = new Date();
         formEndDate = add(formStartDate, { hours: 1 });
+    }
+    $: {
+        const sessionDurationCount:number = formEndDate.getTime() - formStartDate.getTime();
+        sessionDuration = durationFormaterToString(sessionDurationCount, 'HUMAN', { style: 'narrow', numeric: 'always' });
+        workDuration = durationFormaterToString((formWorkRatio / 100) * sessionDurationCount, 'HUMAN', { style: 'narrow', numeric: 'always' });
+        pauseDuration = durationFormaterToString(((100 - formWorkRatio) / 100) * sessionDurationCount, 'HUMAN', { style: 'narrow', numeric: 'always' });
     }
 
     function balancedRatioPerc(ratio:number) { return Math.round((1000 * ratio) / (ratio + 1)) / 10 }
@@ -61,7 +71,7 @@
     <article class="dlg-Container">
         <hgroup>
             <DialogTitle><CalendarPlus size="32" /> Ajouter une entrée d'historique</DialogTitle>
-            <DialogDescription>Tâche #TODO</DialogDescription>
+            <DialogDescription>Attention, les sessions peuvent se chevaucher.</DialogDescription>
         </hgroup>
         <form on:submit={ onSubmit } class="dlg-Form">
             <div class="frm-DateInputs">
@@ -72,9 +82,9 @@
             </div>
             <label>Ratio travail/pause <input type="range" value={ formWorkRatio } min="0" max="100" step="0.01" on:change={ onChangeRatio } style:--range-ratio={ `${formWorkRatio}%` } /></label>
             <div class="frm-entry-summary">
-                <span><Clock /> XXXX durée de session</span>
-                <span><CalendarClock color="var(--work-color)" /> XXXX Travail effectif</span>
-                <span><Coffee  color="var(--pause-color)" /> XXXX Pause</span>
+                <span data-tooltip={ 'durée de session' }><Clock /> { sessionDuration }</span>
+                <span data-tooltip={ 'travail sur la session' }><CalendarClock color="var(--work-color)" /> { workDuration }</span>
+                <span data-tooltip={ 'pause sur la session' }><Coffee  color="var(--pause-color)" /> { pauseDuration }</span>
             </div>
             <menu class="dlg-Container_ActionsMenu">
                 <button class="secondary outline" on:click={() => clearModal() }>Annuler</button>
@@ -91,6 +101,21 @@
         grid-template-rows: auto auto;
         gap: 0.5rem var(--spacing);
         grid-auto-flow: column;
+    }
+
+    .frm-entry-summary {
+        padding: var(--spacing);
+        margin-block-end: var(--spacing);
+        border-radius: var(--border-radius);
+        background-color: var(--muted-border-color);
+        display:flex;
+        gap: calc(var(--spacing) * 0.5);
+
+        > * {
+            flex: 1 1 auto;
+            border-bottom: none;
+            text-align: center;
+        }
     }
     input[type="range"]::-webkit-slider-runnable-track {
         background: linear-gradient(90deg, var(--work-color) 0%, var(--work-color) var(--range-ratio), var(--pause-color) var(--range-ratio));
