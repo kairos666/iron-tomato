@@ -227,3 +227,33 @@ export async function taskEditWorkItem(taskId:string, modifiedWorkItem:WorkItem)
         throw new Error(`Failed to get work item : ${ error }`);
     }
 }
+
+// task work item action - DELETE by task ID, start and end timestamp
+export async function taskDeleteWorkItem(taskId:string, taskWorkItemStart:string|number, taskWorkItemEnd:string|number) {
+    try {
+        // get task
+        const taskResult = await db.tasks.get(parseInt(taskId));
+        if(taskResult === undefined) throw new Error('task not found in DB');
+        if(taskResult.workHistory === undefined) throw new Error('task has no history');
+
+        // construct new history and modify relevant entry
+        let hasDeletedWorkItem:boolean = false;
+        const deleteStart:number = (typeof taskWorkItemStart === 'string') ? parseInt(taskWorkItemStart) : taskWorkItemStart;
+        const deleteEnd:number = (typeof taskWorkItemEnd === 'string') ? parseInt(taskWorkItemEnd) : taskWorkItemEnd;
+        const newHistory:WorkItem[] = taskResult.workHistory.filter(wi => {
+            if(wi.start === deleteStart && wi.end === deleteEnd) {
+                hasDeletedWorkItem = true;
+                return false;
+            } 
+            
+            return true;
+        })
+        if(!hasDeletedWorkItem) throw new Error('task has no matching work item to delete');
+
+        // update task with new history
+        await db.tasks.update(parseInt(taskId), { ...taskResult, workHistory: newHistory });
+        console.info(`Task ${ taskId } WORK ITEM DELETED`);
+    } catch (error) {
+        throw new Error(`Failed to get work item : ${ error }`);
+    }
+}

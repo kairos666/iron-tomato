@@ -3,7 +3,7 @@
     import { Dialog, DialogOverlay, DialogTitle, DialogDescription } from "@rgossiaux/svelte-headlessui";
     import { CalendarClock, CalendarRange, Clock, Coffee } from "lucide-svelte";
     import { durationFormaterToString } from '../utils/time-formater';
-    import { taskEditWorkItem, taskWorkItem, type WorkItem } from '../stores/persistentTasks';
+    import { taskEditWorkItem, taskWorkItem, taskDeleteWorkItem, type WorkItem } from '../stores/persistentTasks';
 
     let targetTaskId:string|null;
     let targetWorkItem:WorkItem|null = null;
@@ -70,6 +70,11 @@
         if(targetTaskId !== null) taskEditWorkItem(targetTaskId, newWorkItem);
         clearModal();
     }
+
+    function onDelete() {
+        if(targetTaskId !== null && targetWorkItem !== null) taskDeleteWorkItem(targetTaskId, targetWorkItem.start, targetWorkItem.end);
+        clearModal();
+    }
 </script>
 
 <Dialog open={ isModalActive } on:close={() => clearModal() }>
@@ -90,7 +95,7 @@
             <menu class="dlg-Container_ActionsMenu">
                 <button class="secondary outline" on:click={() => clearModal() }>Annuler</button>
                 <button type="submit">Modifier la session</button>
-                <button on:click={() => { console.log('TODO result action') }}>Suppression la session</button>
+                <button on:click={ onDelete }>Suppression la session</button>
             </menu>
         </form>
         {:else}
