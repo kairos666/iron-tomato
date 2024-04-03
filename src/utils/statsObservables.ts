@@ -1,10 +1,11 @@
+import { add, areIntervalsOverlapping, isSameDay, isSameISOWeek } from "date-fns";
 import { combineLatest, map, Observable } from "rxjs";
 import { type WorkItem, type Task } from "../stores/persistentTasks";
 
 export type StatTask = Task & {
-    hasFinishedThatDay:boolean
-    hasBeenCreatedThatDay:boolean
-    hasBeenActiveThatDay:boolean
+    hasFinishedThatDay:boolean // or same week if weekRange
+    hasBeenCreatedThatDay:boolean // or same week if weekRange
+    hasBeenActiveThatDay:boolean // or same week if weekRange
     inRangeWorkItems:WorkItem[]
     cumulatedWDuration:number
     cumulatedPDuration:number
@@ -13,6 +14,7 @@ export type StatTask = Task & {
 export type RangeSelection = {
     targetDate:Date
     targetCategories:string[]
+    isWeekRange:boolean
 }
 
 export const inRangeTasksObservables = function(unFilteredTasks:Observable<Task[]>, rangeSelection:Observable<RangeSelection>):Observable<StatTask[]> {
@@ -24,16 +26,22 @@ export const inRangeTasksObservables = function(unFilteredTasks:Observable<Task[
                 : targetRange.targetCategories.includes('none');
 
             // relevant because achieved that day (even if no activity)
-            const hasFinishedThatDay:boolean = (task.isDone && task.dateDone !== undefined)
-                ? isSameDayMoment(task.dateDone, targetRange.targetDate)
+            const hasFinishedThatDay:boolean = (task.isDone && task.dateDone !== undefined && targetRange.isWeekRange)
+                ? isSameISOWeek(task.dateDone, targetRange.targetDate)
+                : (task.isDone && task.dateDone !== undefined && !targetRange.isWeekRange)
+                ? isSameDay(task.dateDone, targetRange.targetDate)
                 : false;
 
             // relevant because created that day (even if no activity)
-            const hasBeenCreatedThatDay:boolean = isSameDayMoment(task.dateCreated, targetRange.targetDate);
+            const hasBeenCreatedThatDay:boolean = (targetRange.isWeekRange)
+                ? isSameISOWeek(task.dateCreated, targetRange.targetDate)
+                : isSameDay(task.dateCreated, targetRange.targetDate);
 
             // relevant because active that day
-            const inRangeWorkItems:WorkItem[] = (task.workHistory !== undefined)
-                ? task.workHistory.filter(sameDayWorkItem(targetRange.targetDate))
+            const inRangeWorkItems:WorkItem[] = (task.workHistory !== undefined && targetRange.isWeekRange)
+                ? task.workHistory.filter(entry => areIntervalsOverlapping({ start: entry.start, end: entry.end }, { start: targetRange.targetDate, end: add(targetRange.targetDate, { days: 7, seconds: -1 }) }))
+                : (task.workHistory !== undefined && !targetRange.isWeekRange)
+                ? task.workHistory.filter(entry => areIntervalsOverlapping({ start: entry.start, end: entry.end }, { start: targetRange.targetDate, end: add(targetRange.targetDate, { days: 1, seconds: -1 }) }))
                 : [];
             const hasBeenActiveThatDay:boolean = (inRangeWorkItems.length > 0);
             const matchDateRange:boolean = (hasFinishedThatDay || hasBeenCreatedThatDay || hasBeenActiveThatDay);
@@ -51,22 +59,4 @@ export const inRangeTasksObservables = function(unFilteredTasks:Observable<Task[
                 : (null as unknown as StatTask);
         }).filter(relevantTask => (relevantTask !== null)))
     );
-}
-
-// DATE utils
-function isSameDayMoment(aMoment:Date|number, bMoment:Date|number):boolean {
-    const aDate:Date = (typeof aMoment === 'number') ? new Date(aMoment) : aMoment;
-    const bDate:Date = (typeof bMoment === 'number') ? new Date(bMoment) : bMoment;
-
-    return (
-        (aDate.getDate() === bDate.getDate()) &&
-        (aDate.getMonth() === bDate.getMonth()) &&
-        (aDate.getFullYear() === bDate.getFullYear())
-    );
-}
-
-function sameDayWorkItem(targetDayMoment:Date, propertyCheck:'start'|'end' = 'start'):(workItem:WorkItem) => boolean {
-    const startOfDayTimestamp:number = new Date(targetDayMoment.getTime()).setUTCHours(0, 0, 0, 0);
-    const endOfDayTimestamp:number = new Date(targetDayMoment.getTime()).setUTCHours(23, 59, 59, 999);
-    return (workItem:WorkItem) => (startOfDayTimestamp <= workItem[propertyCheck] && workItem[propertyCheck] <= endOfDayTimestamp);
 }

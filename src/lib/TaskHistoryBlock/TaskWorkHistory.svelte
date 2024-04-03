@@ -1,6 +1,6 @@
 <script lang="ts">
-    import { CalendarClock, Coffee } from "lucide-svelte";
-import { appUIState } from "../../stores/appUIState";
+    import { CalendarClock, Coffee, PencilRuler } from "lucide-svelte";
+    import { appUIState } from "../../stores/appUIState";
     import { type WorkItem } from "../../stores/persistentTasks";
     import { durationFormaterToString, exactDurationFormater } from "../../utils/time-formater";
 
@@ -12,6 +12,8 @@ import { appUIState } from "../../stores/appUIState";
         pauseHumanDuration: string
     }
 
+    const { setModal } = appUIState;
+    export let taskID:string;
     export let taskHistory:WorkItem[];
     let taskHistoryExtended:WorkItemExtended[] = [];
     $: taskHistoryExtended = taskHistory.map(taskHistoryItem => {
@@ -24,6 +26,10 @@ import { appUIState } from "../../stores/appUIState";
             pauseHumanDuration: durationFormaterToString(taskHistoryItem.pDuration, 'HUMAN', { style: 'narrow', numeric: 'always' })
         }
     });
+
+    function onModifyHistoryEntry(historyEntryStart:number, historyEntryEnd:number) {
+        return () => { setModal(`task-${parseInt(taskID)}-${historyEntryStart}:${historyEntryEnd}-history-edit`) }
+    }
 </script>
 
 {#if $appUIState.isMobileViewport}
@@ -45,6 +51,7 @@ import { appUIState } from "../../stores/appUIState";
             <th scope="col">#</th>
             <th scope="col">Date</th>
             <th scope="col">Session de travail ( <CalendarClock color="var(--work-color)" /> Travail effectif | <Coffee  color="var(--pause-color)" /> Pause )</th>
+            <th scope="col"><span class="sr-only">Action</span></th>
         </thead>
         <tbody>
             {#each taskHistoryExtended as historyItem, index }
@@ -58,6 +65,7 @@ import { appUIState } from "../../stores/appUIState";
                     </ol>
                     <p>Durée de la session { historyItem.sessionHumanDuration } <small>( Travail{ historyItem.workHumanDuration } , Pause{ historyItem.pauseHumanDuration } )</small></p>
                 </td>
+                <td style:text-align="right"><button on:click={ onModifyHistoryEntry(historyItem.start, historyItem.end) } class="twh-SessionEditBtn"><PencilRuler /><span class="sr-only">Modifier l'entrée d'historique</span></button></td>
               </tr>
             {/each}
         </tbody>
@@ -98,5 +106,13 @@ import { appUIState } from "../../stores/appUIState";
         gap: var(--spacing);
 
         li, p, h5 { margin-block-end: 0; }
+    }
+
+    .twh-SessionEditBtn {
+        display: inline-block;
+        margin-block-end: 0;
+        padding:0;
+        width: 2rem;
+        height: 2rem;
     }
 </style>

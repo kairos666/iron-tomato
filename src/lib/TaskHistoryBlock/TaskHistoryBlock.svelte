@@ -7,7 +7,9 @@
     import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@rgossiaux/svelte-headlessui";
     import PieChart from "../PieChart.svelte";
     import TaskWorkCalendar from "./TaskWorkCalendar.svelte";
+    import { appUIState } from "../../stores/appUIState";
 
+    const { setModal } = appUIState;
     export let taskID:string;
     let ratioTotal:{ label:string, percent:number, color:string, icon: any, humanDuration: string }[] = [];
     let ratioSessions:{ label:string, percent:number, color:string, icon: any, humanDuration: string }[] = [];
@@ -36,12 +38,20 @@
         ratioTotal = [];
         ratioSessions = [];
     }
+
+    function onCreateHistoryEntry() {
+        const taskID:string = $taskQuery?.id ?? "no id found";
+        setModal(`task-${parseInt(taskID)}-history-create`);
+    }
 </script>
 
 {#if hasHistory}
 <article class="th-Block">
-    <header>
+    <header class="th-Block_Header">
         <h3>Historique d'activité</h3>
+        <menu class="th-Block_Menu">
+            <button type="button" class="th-Block_AddBtn" on:click={ onCreateHistoryEntry } disabled={ $taskQuery?.isDone }>Ajouter manuellement une session</button>
+        </menu>
     </header>
     <TabGroup>
         <TabList class="tab-TabList">
@@ -92,7 +102,7 @@
             <TabPanel>
                 <section class="th-SessionDetailsBlock">
                     <h4>Sessions de travail enregistrées</h4>
-                    <TaskWorkHistory taskHistory={ $taskQuery?.workHistory ?? [] } />
+                    <TaskWorkHistory taskID={ taskID } taskHistory={ $taskQuery?.workHistory ?? [] } />
                 </section>
             </TabPanel>
         </TabPanels>
@@ -100,8 +110,11 @@
 </article>
 {:else}
 <article class="th-Block">
-    <header>
+    <header class="th-Block_Header">
         <h3>Historique d'activité</h3>
+        <menu class="th-Block_Menu">
+            <button type="button" class="th-Block_AddBtn" on:click={ onCreateHistoryEntry } disabled={ $taskQuery?.isDone }>Ajouter manuellement une session</button>
+        </menu>
     </header>
     <p class="th-EmptyHistory"><CalendarOff /> <i>La tâche ne contient pas d'imputations</i></p>
 </article>
@@ -171,4 +184,35 @@
     }
 
     .th-EmptyHistory { margin-block-end: 0; }
+
+    .th-Block_Header {
+        display:flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        gap: var(--spacing);
+    }
+
+    .th-Block_Menu {
+        padding-inline-start: 0;
+        margin-block: 0;
+        display:flex;
+        gap: calc(var(--spacing) * 0.5);
+
+        .th-Block_AddBtn {
+            margin-block-end: 0;
+            padding-block: calc(var(--spacing) * 0.25);
+            border-color: var(--secondary);
+            color: var(--secondary); 
+            background-color: var(--secondary-inverse);
+            font-size: 0.8rem;
+            &:hover, &:focus, &:active { 
+                color: var(--secondary-inverse); 
+                background-color: var(--secondary-hover); 
+            }
+            &:disabled {
+                opacity: 0.15;
+            }
+        }
+    }
 </style>

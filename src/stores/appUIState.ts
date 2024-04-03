@@ -3,6 +3,7 @@ import { allPossibleCategories } from '../constants/task-categories';
 
 type ModalCodes = 'reset'|'task-create';
 type ModalTaskCodes = `task-delete-${number}`;
+type ModalTaskHistoryCodes = `task-${number}-history-create`|`task-${number}-${number}:${number}-history-edit`; // start number of history session is used as key
 
 export type AppUIState = {
     mainView:'dashboard'|'stats-dashboard'|'task-detail'|'parameters-settings'
@@ -10,7 +11,7 @@ export type AppUIState = {
     tasksShown:'todo'|'done'
     viewMode:'list'|'matrix'
     categoryFilters:string[]
-    modal:undefined|ModalCodes|ModalTaskCodes // no modal, reset, new task, edit task
+    modal:undefined|ModalCodes|ModalTaskCodes|ModalTaskHistoryCodes // no modal, reset, new task, edit task
     isMobileViewport:boolean // adapt to viewport width (based on pico css breakpoint)
 }
 
@@ -43,7 +44,7 @@ const initAppUIState = () => {
     // Store implementation
     return {
         subscribe,
-        setModal: (modalIdData:ModalCodes|ModalTaskCodes) => {
+        setModal: (modalIdData:ModalCodes|ModalTaskCodes|ModalTaskHistoryCodes) => {
             update(state => ({ ...state, modal:modalIdData }));
         },
         clearModal: () => {
