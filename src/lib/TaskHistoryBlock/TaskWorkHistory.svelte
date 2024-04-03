@@ -27,8 +27,8 @@
         }
     });
 
-    function onModifyHistoryEntry(historyEntryStart:number) {
-        return () => { setModal(`task-${parseInt(taskID)}-start:${historyEntryStart}-history-edit`) }
+    function onModifyHistoryEntry(historyEntryStart:number, historyEntryEnd:number) {
+        return () => { setModal(`task-${parseInt(taskID)}-${historyEntryStart}:${historyEntryEnd}-history-edit`) }
     }
 </script>
 
@@ -65,7 +65,7 @@
                     </ol>
                     <p>Durée de la session { historyItem.sessionHumanDuration } <small>( Travail{ historyItem.workHumanDuration } , Pause{ historyItem.pauseHumanDuration } )</small></p>
                 </td>
-                <td style:text-align="right"><button on:click={ onModifyHistoryEntry(historyItem.start) } class="twh-SessionEditBtn"><PencilRuler /><span class="sr-only">Modifier l'entrée d'historique</span></button></td>
+                <td style:text-align="right"><button on:click={ onModifyHistoryEntry(historyItem.start, historyItem.end) } class="twh-SessionEditBtn"><PencilRuler /><span class="sr-only">Modifier l'entrée d'historique</span></button></td>
               </tr>
             {/each}
         </tbody>

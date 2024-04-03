@@ -3,7 +3,7 @@ import { allPossibleCategories } from '../constants/task-categories';
 
 type ModalCodes = 'reset'|'task-create';
 type ModalTaskCodes = `task-delete-${number}`;
-type ModalTaskHistoryCodes = `task-${number}-history-create`|`task-${number}-start:${number}-history-edit`; // start number of history session is used as key
+type ModalTaskHistoryCodes = `task-${number}-history-create`|`task-${number}-${number}:${number}-history-edit`; // start number of history session is used as key
 
 export type AppUIState = {
     mainView:'dashboard'|'stats-dashboard'|'task-detail'|'parameters-settings'

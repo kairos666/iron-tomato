@@ -152,6 +152,24 @@ export async function taskById(taskId:string) {
     }
 }
 
+// task work item action - GET by task ID, start and end timestamp
+export async function taskWorkItem(taskId:string, taskWorkItemStart:string, taskWorkItemEnd:string) {
+    try {
+        // get task
+        const taskResult = await db.tasks.get(parseInt(taskId));
+        if(taskResult === undefined) throw new Error('task not found in DB');
+
+        // get work item;
+        const workItemResult = taskResult.workHistory?.find(wi => (wi.start === parseInt(taskWorkItemStart) && wi.end === parseInt(taskWorkItemEnd)));
+        if(workItemResult === undefined) throw new Error(`work item not found for task #${ taskId }, range: ${ taskWorkItemStart }:${ taskWorkItemEnd }`);
+        console.info(`fetched task work item with id#${ taskId } and range: ${ taskWorkItemStart }:${ taskWorkItemEnd }`);
+
+        return workItemResult;
+    } catch (error) {
+        throw new Error(`Failed to get work item : ${ error }`);
+    }
+}
+
 // task action - log work duration to history
 export async function taskLogWork(taskId:string, workItems:WorkItem|WorkItem[]) {
     const taskID:number = parseInt(taskId);
@@ -179,5 +197,33 @@ export async function taskLogWork(taskId:string, workItems:WorkItem|WorkItem[]) 
         console.info(`Task ${ taskId } WORK LOGGED (${ (workItems as WorkItem[])?.length ?? 1 }x work items)`);
     } catch (error) {
         throw new Error(`Failed to log work on task ${ taskId } : ${ error }`);
+    }
+}
+
+// task action - edit log entry
+export async function taskEditWorkItem(taskId:string, modifiedWorkItem:WorkItem) {
+    try {
+        // get task
+        const taskResult = await db.tasks.get(parseInt(taskId));
+        if(taskResult === undefined) throw new Error('task not found in DB');
+        if(taskResult.workHistory === undefined) throw new Error('task has no history');
+
+        // construct new history and modify relevant entry
+        let hasSwappedWorkItem:boolean = false;
+        const newHistory:WorkItem[] = taskResult.workHistory.map(wi => {
+            if(wi.start === modifiedWorkItem.start && wi.end === modifiedWorkItem.end) {
+                hasSwappedWorkItem = true;
+                return modifiedWorkItem;
+            } else {
+                return wi;
+            }
+        })
+        if(!hasSwappedWorkItem) throw new Error('task has no matching work item to modify');
+
+        // update task with new history
+        await db.tasks.update(parseInt(taskId), { ...taskResult, workHistory: newHistory });
+        console.info(`Task ${ taskId } WORK ITEM MODIFIED`);
+    } catch (error) {
+        throw new Error(`Failed to get work item : ${ error }`);
     }
 }

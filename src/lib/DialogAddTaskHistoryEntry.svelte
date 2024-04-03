@@ -106,7 +106,7 @@
             <div class="frm-entry-summary">
                 <span data-tooltip={ 'durée de session' }><Clock /> { sessionDuration }</span>
                 <span data-tooltip={ 'travail sur la session' }><CalendarClock color="var(--work-color)" /> { workDuration }</span>
-                <span data-tooltip={ 'pause sur la session' }><Coffee  color="var(--pause-color)" /> { pauseDuration }</span>
+                <span data-tooltip={ 'pause sur la session' }><Coffee color="var(--pause-color)" /> { pauseDuration }</span>
             </div>
             <menu class="dlg-Container_ActionsMenu">
                 <button class="secondary outline" on:click={ () => clearModal() }>Annuler</button>
